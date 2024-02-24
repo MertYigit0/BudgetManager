@@ -9,5 +9,18 @@
         android:id="@+id/incomeFragment"
         android:name="com.mertyigit0.budgetmanager.ui.IncomeFragment"
         android:label="fragment_income"
-        tools:layout="@layout/fragment_income" />
+        tools:layout="@layout/fragment_income" >
+        <action
+            android:id="@+id/action_incomeFragment_to_addIncomeFragment"
+            app:destination="@id/addIncomeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/addIncomeFragment"
+        android:name="com.mertyigit0.budgetmanager.ui.AddIncomeFragment"
+        android:label="fragment_add_income"
+        tools:layout="@layout/fragment_add_income" >
+        <action
+            android:id="@+id/action_addIncomeFragment_to_incomeFragment"
+            app:destination="@id/incomeFragment" />
+    </fragment>
 </navigation>

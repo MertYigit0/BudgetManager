@@ -32,6 +32,7 @@
 
         <Button
              android:id="@+id/Salary"
+            android:text="Salary"
             style="@style/ToggleButtonWithIconOnly"
             app:icon="@drawable/baseline_attach_money_24"
             android:layout_width="wrap_content"
@@ -41,6 +42,7 @@
 
         <Button
             android:id="@+id/Investment"
+            android:text="Invesment"
             style="@style/ToggleButtonWithIconOnly"
             app:icon="@drawable/baseline_account_balance_wallet_24"
             android:layout_width="wrap_content"
@@ -50,6 +52,8 @@
 
         <Button
             android:id="@+id/Rent"
+
+            android:text="Rent"
             style="@style/ToggleButtonWithIconOnly"
             app:icon="@drawable/baseline_house_24"
             android:layout_width="wrap_content"
@@ -59,6 +63,7 @@
 
         <Button
             android:id="@+id/Other"
+            android:text="Other"
             style="@style/ToggleButtonWithIconOnly"
             app:icon="@drawable/baseline_account_balance_24"
             android:layout_width="wrap_content"

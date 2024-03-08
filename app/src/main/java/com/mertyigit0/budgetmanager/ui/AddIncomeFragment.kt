@@ -6,12 +6,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.children
+import androidx.navigation.Navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.snackbar.Snackbar
 import com.mertyigit0.budgetmanager.R
+import com.mertyigit0.budgetmanager.data.Income
 import com.mertyigit0.budgetmanager.databinding.FragmentAddIncomeBinding
-import com.mertyigit0.budgetmanager.databinding.FragmentIncomeBinding
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.Random
 
 
 class AddIncomeFragment : Fragment() {
@@ -42,6 +48,7 @@ class AddIncomeFragment : Fragment() {
         toggleButtonGroup = view.findViewById(R.id.toggleButtonGroup)
 
         setupToggleButtonGroup()
+        addIncome()
         }
 
 
@@ -53,6 +60,7 @@ class AddIncomeFragment : Fragment() {
                 uncheckOtherButtons(group, checkedId)
             }
         }
+
     }
 
     private fun uncheckOtherButtons(group: MaterialButtonToggleGroup, checkedId: Int) {
@@ -64,6 +72,51 @@ class AddIncomeFragment : Fragment() {
     }
     private fun showSnackbar(message: String) {
         Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT).show()
+    }
+
+
+
+    private fun addIncome(){
+        binding.addButton.setOnClickListener{
+
+                val amount = binding.amountEditText.text.toString().toDoubleOrNull() ?: 0.0
+                val category = getSelectedCategory()
+                val date = getCurrentDate()
+                val description = binding.editTextText.text.toString()
+
+                val income = createIncome(amount, category, date, description)
+                showSnackbar("Income added: $income")
+            navigateToIncomeFragment(amount.toFloat(), category)
+            }
+
+
+
+    }
+
+    fun createIncome(amount: Double, category: String, date: String, description: String?): Income {
+        // ID'yi rastgele oluştur
+        val id = Random().nextInt(Int.MAX_VALUE)
+        return Income(id, amount, categoryId = 0, date, description)
+    }
+
+
+    private fun getSelectedCategory(): String {
+        val selectedButtonId = toggleButtonGroup.checkedButtonId
+        return view?.findViewById<MaterialButton>(selectedButtonId)?.text.toString()
+    }
+
+    private fun getCurrentDate(): String {
+        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        return sdf.format(Date())
+    }
+
+    private fun navigateToIncomeFragment(amount: Float, category: String) {
+        val bundle = Bundle().apply {
+            putFloat("amount", amount)
+            putString("category", category)
+        }
+
+        findNavController().navigate(R.id.action_addIncomeFragment_to_incomeFragment, bundle)
     }
 
     override fun onDestroyView() {

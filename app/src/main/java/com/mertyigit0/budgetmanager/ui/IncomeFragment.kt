@@ -39,9 +39,12 @@ class IncomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val incomePieChart: PieChart = binding.incomePieChart
 
+        val amount = arguments?.getFloat("amount", 0.0f) ?: 0.0f
+        val category = arguments?.getString("category") ?: ""
+
         // Örnek gelir verileri oluştur
         val entries = listOf(
-            PieEntry(1000f, "Maaş"),
+            PieEntry(amount, category),
             PieEntry(500f, "Yatırım"),
             PieEntry(200f, "Hediye")
         )
@@ -64,10 +67,6 @@ class IncomeFragment : Fragment() {
             val navController = findNavController()
             navController.navigate(R.id.addIncomeFragment)
         }
-
-
-
-
     }
 
 }

@@ -53,11 +53,17 @@ dependencies {
 
 
     val nav_version = "2.7.7"
-    // Kotlin
+    // Kotlin navigation
     implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
     implementation("androidx.navigation:navigation-ui-ktx:$nav_version")
-
+    //charts
     implementation ("com.github.PhilJay:MPAndroidChart:v3.1.0")
+
+    //
+    val sqlite_version = "2.4.0"
+
+    implementation("androidx.sqlite:sqlite-ktx:$sqlite_version")
+
 
 
 

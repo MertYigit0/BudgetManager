@@ -33,24 +33,23 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 "$COLUMN_AMOUNT REAL NOT NULL," +
                 "$COLUMN_CATEGORY_ID INTEGER," +
                 "$COLUMN_DATE TEXT," +
-                "$COLUMN_NOTE TEXT)")
-
+                "$COLUMN_NOTE TEXT," +
+                "FOREIGN KEY($COLUMN_CATEGORY_ID) REFERENCES $TABLE_CATEGORIES($COLUMN_ID))")
 
         val CREATE_CATEGORIES_TABLE = ("CREATE TABLE $TABLE_CATEGORIES(" +
                 "$COLUMN_ID INTEGER PRIMARY KEY AUTOINCREMENT," +
-                "${COLUMN_CATEGORY_NAME}NAME TEXT NOT NULL)")
+                "$COLUMN_CATEGORY_NAME TEXT NOT NULL)")
 
         db?.execSQL(CREATE_INCOMES_TABLE)
         db?.execSQL(CREATE_CATEGORIES_TABLE)
 
-
         // Başlangıçta 4 kategori ekle
-        insertCategory(db, "Salary")
-        insertCategory(db, "Investment")
-        insertCategory(db, "Rent")
-        insertCategory(db, "Other")
-    }
+       // insertCategory(db, "Salary")
+       // insertCategory(db, "Investment")
+       // insertCategory(db, "Rent")
+      // insertCategory(db, "Other")
 
+    }
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
         db?.execSQL("DROP TABLE IF EXISTS $TABLE_INCOMES")
         onCreate(db)
@@ -99,6 +98,24 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db?.insert(TABLE_CATEGORIES, null, values)
     }
 
+    @SuppressLint("Range")
+    fun getAllCategories(): List<String> {
+        val categoriesList = mutableListOf<String>()
+        val db = this.readableDatabase
+        val selectQuery = "SELECT $COLUMN_CATEGORY_NAME FROM $TABLE_CATEGORIES"
+        val cursor = db.rawQuery(selectQuery, null)
+
+        if (cursor.moveToFirst()) {
+            do {
+                val category = cursor.getString(cursor.getColumnIndex(COLUMN_CATEGORY_NAME))
+                categoriesList.add(category)
+            } while (cursor.moveToNext())
+        }
+
+        cursor.close()
+        db.close()
+        return categoriesList
+    }
 
 
 }

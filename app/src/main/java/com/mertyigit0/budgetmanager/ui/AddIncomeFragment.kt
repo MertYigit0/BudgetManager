@@ -12,6 +12,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.snackbar.Snackbar
 import com.mertyigit0.budgetmanager.R
+import com.mertyigit0.budgetmanager.data.DatabaseHelper
 import com.mertyigit0.budgetmanager.data.Income
 import com.mertyigit0.budgetmanager.databinding.FragmentAddIncomeBinding
 import java.text.SimpleDateFormat
@@ -76,21 +77,26 @@ class AddIncomeFragment : Fragment() {
 
 
 
-    private fun addIncome(){
-        binding.addButton.setOnClickListener{
+    private fun addIncome() {
+        binding.addButton.setOnClickListener {
+            val amount = binding.amountEditText.text.toString().toDoubleOrNull() ?: 0.0
+            val category = getSelectedCategory()
+            val date = getCurrentDate()
+            val description = binding.editTextText.text.toString()
 
-                val amount = binding.amountEditText.text.toString().toDoubleOrNull() ?: 0.0
-                val category = getSelectedCategory()
-                val date = getCurrentDate()
-                val description = binding.editTextText.text.toString()
-
-                val income = createIncome(amount, category, date, description)
+            val income = createIncome(amount, category, date, description)
+            if (addIncomeToDatabase(income)) {
                 showSnackbar("Income added: $income")
-            navigateToIncomeFragment(amount.toFloat(), category)
+                navigateToIncomeFragment(amount.toFloat(), category)
+            } else {
+                showSnackbar("Failed to add income.")
             }
+        }
+    }
 
-
-
+    private fun addIncomeToDatabase(income: Income): Boolean {
+        val databaseHelper = DatabaseHelper(requireContext())
+        return databaseHelper.addIncome(income)
     }
 
     fun createIncome(amount: Double, category: String, date: String, description: String?): Income {
@@ -98,7 +104,6 @@ class AddIncomeFragment : Fragment() {
         val id = Random().nextInt(Int.MAX_VALUE)
         return Income(id, amount, categoryId = 0, date, description)
     }
-
 
     private fun getSelectedCategory(): String {
         val selectedButtonId = toggleButtonGroup.checkedButtonId

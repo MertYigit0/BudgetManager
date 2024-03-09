@@ -12,6 +12,7 @@ import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
+import com.mertyigit0.budgetmanager.data.DatabaseHelper
 import com.mertyigit0.budgetmanager.databinding.FragmentIncomeBinding
 
 
@@ -38,16 +39,15 @@ class IncomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val incomePieChart: PieChart = binding.incomePieChart
+        val databaseHelper = DatabaseHelper(requireContext())
+        // Veritabanından tüm gelirleri al
+        val incomes = databaseHelper.getAllIncomes()
 
-        val amount = arguments?.getFloat("amount", 0.0f) ?: 0.0f
-        val category = arguments?.getString("category") ?: ""
-
-        // Örnek gelir verileri oluştur
-        val entries = listOf(
-            PieEntry(amount, category),
-            PieEntry(500f, "Yatırım"),
-            PieEntry(200f, "Hediye")
-        )
+        // Gelir verileri listesini oluştur
+        val entries = mutableListOf<PieEntry>()
+        incomes.forEach { income ->
+            entries.add(PieEntry(income.amount.toFloat(), income.categoryId))
+        }
 
         // Veri setini oluştur
         val dataSet = PieDataSet(entries, "Gelir")
@@ -62,11 +62,12 @@ class IncomeFragment : Fragment() {
         // Chart'ın güncellenmesini sağla
         incomePieChart.invalidate()
 
-
         binding.addIncomeButton.setOnClickListener{
             val navController = findNavController()
             navController.navigate(R.id.addIncomeFragment)
         }
     }
+
+
 
 }

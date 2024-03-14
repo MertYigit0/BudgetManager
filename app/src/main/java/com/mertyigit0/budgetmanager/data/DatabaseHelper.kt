@@ -126,6 +126,13 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
     }
 
     override fun onCreate(db: SQLiteDatabase?) {
+        val CREATE_USERS_TABLE = ("CREATE TABLE $TABLE_USERS(" +
+                "$COLUMN_USER_ID INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "$COLUMN_EMAIL TEXT NOT NULL UNIQUE," +
+                "$COLUMN_CREATED_AT_USER TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
+        db?.execSQL(CREATE_USERS_TABLE)
+
+
         // Incomes table creation
         val CREATE_INCOMES_TABLE = ("CREATE TABLE $TABLE_INCOMES(" +
                 "$COLUMN_ID_INCOME INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -137,7 +144,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 "$COLUMN_NOTE_INCOME TEXT," +
                 "$COLUMN_CREATED_AT_INCOME TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
                 "FOREIGN KEY($COLUMN_CATEGORY_ID_INCOME) REFERENCES $TABLE_INCOME_CATEGORIES($COLUMN_ID_INCOME)," +
-                "FOREIGN KEY($COLUMN_USER_ID_INCOME) REFERENCES $TABLE_USERS($COLUMN_ID))")
+                "FOREIGN KEY($COLUMN_USER_ID_INCOME) REFERENCES $TABLE_USERS($COLUMN_USER_ID))")
                 db?.execSQL(CREATE_INCOMES_TABLE)
 
         // Income categories table creation
@@ -156,17 +163,22 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
     }
 
     fun addIncome(income: Income): Boolean {
-        val values = ContentValues()
-        values.put(COLUMN_AMOUNT_INCOME, income.amount)
-        values.put(COLUMN_CATEGORY_ID_INCOME, income.categoryId)
-        values.put(COLUMN_DATE_INCOME, income.date)
-        values.put(COLUMN_NOTE_INCOME, income.note)
+        val values = ContentValues().apply {
+            put(COLUMN_AMOUNT_INCOME, income.amount)
+            put(COLUMN_USER_ID_INCOME, income.userId) // Kullanıcı kimliği eklendi
+            put(COLUMN_CURRENCY_INCOME, income.currency) // Para birimi eklendi
+            put(COLUMN_DATE_INCOME, income.date)
+            put(COLUMN_CATEGORY_ID_INCOME, income.categoryId)
+            put(COLUMN_NOTE_INCOME, income.note)
+            put(COLUMN_CREATED_AT_INCOME, income.createdAt) // Oluşturulma tarihi eklendi
+        }
 
         val db = this.writableDatabase
         val success = db.insert(TABLE_INCOMES, null, values)
         db.close()
-        return (Integer.parseInt("$success") != -1)
+        return success != -1L
     }
+
 
     @SuppressLint("Range")
     fun getAllIncomes(): List<Income> {
@@ -179,10 +191,13 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             do {
                 val income = Income(
                     cursor.getInt(cursor.getColumnIndex(COLUMN_ID_INCOME)),
-                    cursor.getInt(cursor.getColumnIndex(COLUMN_AMOUNT_INCOME)),
+                    cursor.getInt(cursor.getColumnIndex(COLUMN_USER_ID)),
+                    cursor.getDouble(cursor.getColumnIndex(COLUMN_AMOUNT_INCOME)),
+                    cursor.getString(cursor.getColumnIndex(COLUMN_CURRENCY_INCOME)),
                     cursor.getInt(cursor.getColumnIndex(COLUMN_CATEGORY_ID_INCOME)),
                     cursor.getString(cursor.getColumnIndex(COLUMN_DATE_INCOME)),
-                    cursor.getString(cursor.getColumnIndex(COLUMN_NOTE_INCOME))
+                    cursor.getString(cursor.getColumnIndex(COLUMN_NOTE_INCOME)),
+                    cursor.getString(cursor.getColumnIndex(COLUMN_CREATED_AT_INCOME)) // Oluşturulma tarihi eklendi
                 )
                 incomesList.add(income)
             } while (cursor.moveToNext())
@@ -191,6 +206,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db.close()
         return incomesList
     }
+
+
 
 
 

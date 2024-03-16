@@ -66,6 +66,11 @@ class IncomeFragment : Fragment() {
             val navController = findNavController()
             navController.navigate(R.id.addIncomeFragment)
         }
+
+
+
+
+
     }
 
 

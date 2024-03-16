@@ -49,7 +49,7 @@ class AddIncomeFragment : Fragment() {
         toggleButtonGroup = view.findViewById(R.id.toggleButtonGroup)
 
         setupToggleButtonGroup()
-        addIncome()
+     //   addIncome()
         }
 
 
@@ -76,7 +76,7 @@ class AddIncomeFragment : Fragment() {
     }
 
 
-
+/*
     private fun addIncome() {
         binding.addButton.setOnClickListener {
             val amount = binding.amountEditText.text.toString().toDoubleOrNull() ?: 0.0
@@ -102,7 +102,7 @@ class AddIncomeFragment : Fragment() {
     fun createIncome(amount: Double, category: String, date: String, description: String?): Income {
         // ID'yi rastgele oluştur
         val id = Random().nextInt(Int.MAX_VALUE)
-        return Income(id, amount, categoryId = 0, date, description)
+        return Income(id, amount, categoryId = 0, date, description )
     }
 
     private fun getSelectedCategory(): String {
@@ -128,5 +128,5 @@ class AddIncomeFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
-
+*/
 }

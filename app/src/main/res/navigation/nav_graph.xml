@@ -41,5 +41,16 @@
         <action
             android:id="@+id/action_loginFragment_to_incomeFragment"
             app:destination="@id/incomeFragment" />
+        <action
+            android:id="@+id/action_loginFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
+        <action
+            android:id="@+id/action_loginFragment_to_addIncomeFragment"
+            app:destination="@id/addIncomeFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.mertyigit0.budgetmanager.ui.SettingsFragment"
+        android:label="fragment_settings"
+        tools:layout="@layout/fragment_settings" />
 </navigation>

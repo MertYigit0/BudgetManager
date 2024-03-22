@@ -17,14 +17,10 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         private const val TABLE_USERS = "users"
         private const val COLUMN_USER_ID = "id"
         private const val COLUMN_EMAIL = "email"
+        private const val COLUMN_CURRENCY = "currency"
+        private const val COLUMN_NOTIFICATION_ENABLED = "reminder_enabled"
         private const val COLUMN_CREATED_AT_USER = "created_at"
 
-        //Account Settings
-        private const val TABLE_ACCOUNT_SETTINGS = "account_settings"
-        private const val COLUMN_USER_ID_ACCOUNT = "user_id"
-        private const val COLUMN_CURRENCY = "currency"
-        private const val COLUMN_REMINDER_ENABLED = "reminder_enabled"
-        private const val COLUMN_NOTIFICATION_ENABLED = "notification_enabled"
 
         //Expenses
         private const val TABLE_EXPENSES = "expenses"
@@ -119,7 +115,16 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         private const val COLUMN_CREATED_AT_BUDGET_ALERT = "created_at"
         private const val COLUMN_CATEGORY_ID_BUDGET_ALERT = "category_id"
 
-
+        //Regular Incomes
+        private const val TABLE_REGULAR_INCOMES = "regular_incomes"
+        private const val COLUMN_ID_REGULAR_INCOME = "id"
+        private const val COLUMN_USER_ID_REGULAR_INCOME = "user_id"
+        private const val COLUMN_TITLE_REGULAR_INCOME = "title"
+        private const val COLUMN_AMOUNT_REGULAR_INCOME = "amount"
+        private const val COLUMN_CURRENCY_REGULAR_INCOME = "currency"
+        private const val COLUMN_RECURRENCE_REGULAR_INCOME = "recurrence"
+        private const val COLUMN_DATE_REGULAR_INCOME = "date"
+        private const val COLUMN_CATEGORY_ID_REGULAR_INCOME = "category_id"
 
 
 
@@ -129,6 +134,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         val CREATE_USERS_TABLE = ("CREATE TABLE $TABLE_USERS(" +
                 "$COLUMN_USER_ID INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "$COLUMN_EMAIL TEXT NOT NULL UNIQUE," +
+                "$COLUMN_CURRENCY TEXT," +
+                "$COLUMN_NOTIFICATION_ENABLED INTEGER," +
                 "$COLUMN_CREATED_AT_USER TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
         db?.execSQL(CREATE_USERS_TABLE)
 
@@ -138,26 +145,16 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 "$COLUMN_NAME_INCOME_CATEGORY TEXT NOT NULL)")
         db?.execSQL(CREATE_INCOME_CATEGORIES_TABLE)
 
-
-        val CREATE_REMINDERS_TABLE = ("CREATE TABLE $TABLE_REMINDERS(" +
-                "$COLUMN_ID_REMINDER INTEGER PRIMARY KEY AUTOINCREMENT," +
-                "$COLUMN_USER_ID_REMINDER  INTEGER NOT NULL," +
-                "$COLUMN_TITLE_REMINDER TEXT," +
-                "$COLUMN_DESCRIPTION_REMINDER TEXT," +
-                "$COLUMN_REMINDER_DATE TEXT," +
-                "$COLUMN_CREATED_AT_REMINDER TIMESTAMP DEFAULT CURRENT_TIMESTAMP)"+
-                "FOREIGN KEY($COLUMN_USER_ID_REMINDER) REFERENCES $TABLE_INCOME_CATEGORIES($COLUMN_ID_INCOME),")
-                db?.execSQL(CREATE_REMINDERS_TABLE)
-
+        // Budget Alerts
         val CREATE_BUDGET_ALERTS_TABLE = ("CREATE TABLE $TABLE_BUDGET_ALERTS(" +
                 "$COLUMN_ID_BUDGET_ALERT INTEGER PRIMARY KEY AUTOINCREMENT," +
-                "$COLUMN_USER_ID_BUDGET_ALERT  INTEGER NOT NULL," +
+                "$COLUMN_USER_ID_BUDGET_ALERT INTEGER NOT NULL," +
                 "$COLUMN_ALERT_TYPE TEXT," +
                 "$COLUMN_MESSAGE TEXT," +
                 "$COLUMN_CREATED_AT_BUDGET_ALERT TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
-                "$COLUMN_CATEGORY_ID_BUDGET_ALERT INTEGER)"+
-                "FOREIGN KEY($COLUMN_USER_ID_BUDGET_ALERT) REFERENCES $TABLE_INCOME_CATEGORIES($COLUMN_ID_INCOME),")
-                 db?.execSQL(CREATE_BUDGET_ALERTS_TABLE)
+                "$COLUMN_CATEGORY_ID_BUDGET_ALERT INTEGER," +
+                "FOREIGN KEY($COLUMN_USER_ID_BUDGET_ALERT) REFERENCES $TABLE_USERS($COLUMN_USER_ID))")
+        db?.execSQL(CREATE_BUDGET_ALERTS_TABLE)
 
         // Incomes table creation
         val CREATE_INCOMES_TABLE = ("CREATE TABLE $TABLE_INCOMES(" +
@@ -169,7 +166,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 "$COLUMN_CATEGORY_ID_INCOME INTEGER NOT NULL," +
                 "$COLUMN_NOTE_INCOME TEXT," +
                 "$COLUMN_CREATED_AT_INCOME TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
-                "FOREIGN KEY($COLUMN_CATEGORY_ID_INCOME) REFERENCES $TABLE_INCOME_CATEGORIES($COLUMN_ID_INCOME)," +
+                "FOREIGN KEY($COLUMN_CATEGORY_ID_INCOME) REFERENCES $TABLE_INCOME_CATEGORIES($COLUMN_ID_INCOME_CATEGORY)," +
                 "FOREIGN KEY($COLUMN_USER_ID_INCOME) REFERENCES $TABLE_USERS($COLUMN_USER_ID))")
         db?.execSQL(CREATE_INCOMES_TABLE)
 
@@ -177,8 +174,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 "$COLUMN_ID_FINANCIAL_SUGGESTION INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "$COLUMN_USER_ID_FINANCIAL_SUGGESTION INTEGER NOT NULL," +
                 "$COLUMN_SUGGESTION_TEXT TEXT," +
-                "$COLUMN_CREATED_AT_FINANCIAL_SUGGESTION TIMESTAMP DEFAULT CURRENT_TIMESTAMP)"+
-                "FOREIGN KEY($COLUMN_USER_ID_FINANCIAL_SUGGESTION) REFERENCES $TABLE_INCOME_CATEGORIES($COLUMN_ID_INCOME),")
+                "$COLUMN_CREATED_AT_FINANCIAL_SUGGESTION TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+                "FOREIGN KEY($COLUMN_USER_ID_FINANCIAL_SUGGESTION) REFERENCES $TABLE_USERS($COLUMN_USER_ID))")
         db?.execSQL(CREATE_FINANCIAL_SUGGESTIONS_TABLE)
 
         val CREATE_FINANCIAL_GOALS_TABLE = ("CREATE TABLE $TABLE_FINANCIAL_GOALS (" +
@@ -189,50 +186,65 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 "$COLUMN_TARGET_AMOUNT_FINANCIAL_GOAL REAL," +
                 "$COLUMN_CURRENT_AMOUNT_FINANCIAL_GOAL REAL," +
                 "$COLUMN_DEADLINE_FINANCIAL_GOAL TEXT," +
-                "$COLUMN_CREATED_AT_FINANCIAL_GOAL TIMESTAMP DEFAULT CURRENT_TIMESTAMP)"+
-                "FOREIGN KEY($COLUMN_USER_ID_FINANCIAL_GOAL) REFERENCES $TABLE_INCOME_CATEGORIES($COLUMN_ID_INCOME),")
+                "$COLUMN_CREATED_AT_FINANCIAL_GOAL TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+                "FOREIGN KEY($COLUMN_USER_ID_FINANCIAL_GOAL) REFERENCES $TABLE_USERS($COLUMN_USER_ID))")
         db?.execSQL(CREATE_FINANCIAL_GOALS_TABLE)
 
         val CREATE_RECURRING_PAYMENTS_TABLE = ("CREATE TABLE $TABLE_RECURRING_PAYMENTS (" +
                 "$COLUMN_ID_RECURRING_PAYMENT INTEGER PRIMARY KEY AUTOINCREMENT," +
-                "$COLUMN_USER_ID_RECURRING_PAYMENT  INTEGER NOT NULL," +
+                "$COLUMN_USER_ID_RECURRING_PAYMENT INTEGER NOT NULL," +
                 "$COLUMN_TITLE_RECURRING_PAYMENT TEXT," +
                 "$COLUMN_AMOUNT_RECURRING_PAYMENT REAL," +
                 "$COLUMN_CURRENCY_RECURRING_PAYMENT TEXT," +
                 "$COLUMN_RECURRENCE_RECURRING_PAYMENT TEXT," +
                 "$COLUMN_NEXT_PAYMENT_DATE_RECURRING_PAYMENT TEXT," +
-                "$COLUMN_CATEGORY_ID_RECURRING_PAYMENT INTEGER)"+
-                "FOREIGN KEY($COLUMN_USER_ID_RECURRING_PAYMENT) REFERENCES $TABLE_INCOME_CATEGORIES($COLUMN_ID_INCOME),")
+                "$COLUMN_CATEGORY_ID_RECURRING_PAYMENT INTEGER," +
+                "FOREIGN KEY($COLUMN_USER_ID_RECURRING_PAYMENT) REFERENCES $TABLE_USERS($COLUMN_USER_ID))")
         db?.execSQL(CREATE_RECURRING_PAYMENTS_TABLE)
 
         val CREATE_DEBTS_TABLE = ("CREATE TABLE $TABLE_DEBTS (" +
                 "$COLUMN_ID_DEBT INTEGER PRIMARY KEY AUTOINCREMENT," +
-                "$COLUMN_USER_ID_DEBT  INTEGER NOT NULL," +
+                "$COLUMN_USER_ID_DEBT INTEGER NOT NULL," +
                 "$COLUMN_AMOUNT_DEBT REAL," +
                 "$COLUMN_CURRENCY_DEBT TEXT," +
                 "$COLUMN_DUE_DATE_DEBT TEXT," +
                 "$COLUMN_IS_LENT_DEBT INTEGER," +
                 "$COLUMN_PERSON_NAME_DEBT TEXT," +
                 "$COLUMN_NOTE_DEBT TEXT," +
-                "$COLUMN_CREATED_AT_DEBT TIMESTAMP DEFAULT CURRENT_TIMESTAMP)"+
-                "FOREIGN KEY($COLUMN_USER_ID_DEBT) REFERENCES $TABLE_INCOME_CATEGORIES($COLUMN_ID_INCOME),")
+                "$COLUMN_CREATED_AT_DEBT TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+                "FOREIGN KEY($COLUMN_USER_ID_DEBT) REFERENCES $TABLE_USERS($COLUMN_USER_ID))")
         db?.execSQL(CREATE_DEBTS_TABLE)
 
+        // Regular Incomes
+        val CREATE_REGULAR_INCOMES_TABLE = ("CREATE TABLE $TABLE_REGULAR_INCOMES(" +
+                "$COLUMN_ID_REGULAR_INCOME INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "$COLUMN_USER_ID_REGULAR_INCOME INTEGER," +
+                "$COLUMN_TITLE_REGULAR_INCOME TEXT," +
+                "$COLUMN_AMOUNT_REGULAR_INCOME REAL," +
+                "$COLUMN_CURRENCY_REGULAR_INCOME TEXT," +
+                "$COLUMN_RECURRENCE_REGULAR_INCOME TEXT," +
+                "$COLUMN_DATE_REGULAR_INCOME TEXT," +
+                "$COLUMN_CATEGORY_ID_REGULAR_INCOME INTEGER," +
+                "FOREIGN KEY($COLUMN_USER_ID_REGULAR_INCOME) REFERENCES $TABLE_USERS($COLUMN_USER_ID)," +
+                "FOREIGN KEY($COLUMN_CATEGORY_ID_REGULAR_INCOME) REFERENCES $TABLE_INCOME_CATEGORIES($COLUMN_ID_INCOME_CATEGORY)" +
+                ")")
+        db?.execSQL(CREATE_REGULAR_INCOMES_TABLE)
 
-// Account Settings Table Creation
-        val CREATE_ACCOUNT_SETTINGS_TABLE = ("CREATE TABLE $TABLE_ACCOUNT_SETTINGS(" +
-                "$COLUMN_USER_ID_ACCOUNT INTEGER PRIMARY KEY," +
-                "$COLUMN_CURRENCY TEXT," +
-                "$COLUMN_REMINDER_ENABLED INTEGER," +
-                "$COLUMN_NOTIFICATION_ENABLED INTEGER)"+
-                "FOREIGN KEY($COLUMN_USER_ID_ACCOUNT) REFERENCES $TABLE_INCOME_CATEGORIES($COLUMN_ID_INCOME),")
+        // Reminders
+        val CREATE_REMINDERS_TABLE = ("CREATE TABLE $TABLE_REMINDERS(" +
+                "$COLUMN_ID_REMINDER INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "$COLUMN_USER_ID_REMINDER INTEGER NOT NULL," +
+                "$COLUMN_TITLE_REMINDER TEXT," +
+                "$COLUMN_DESCRIPTION_REMINDER TEXT," +
+                "$COLUMN_REMINDER_DATE TEXT," +
+                "$COLUMN_CREATED_AT_REMINDER TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+                "FOREIGN KEY($COLUMN_USER_ID_REMINDER) REFERENCES $TABLE_USERS($COLUMN_USER_ID))")
+        db?.execSQL(CREATE_REMINDERS_TABLE)
 
-        db?.execSQL(CREATE_ACCOUNT_SETTINGS_TABLE)
-
-// Expenses Table Creation
+        // Expenses Table Creation
         val CREATE_EXPENSES_TABLE = ("CREATE TABLE $TABLE_EXPENSES(" +
-                "$COLUMN_ID_EXPENSES INTEGER PRIMARY KEY," +
-                "$COLUMN_USER_ID_EXPENSE  INTEGER NOT NULL," +
+                "$COLUMN_ID_EXPENSES INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "$COLUMN_USER_ID_EXPENSE INTEGER NOT NULL," +
                 "$COLUMN_AMOUNT_EXPENSE REAL," +
                 "$COLUMN_CURRENCY_EXPENSE TEXT," +
                 "$COLUMN_DATE_EXPENSE TEXT," +
@@ -244,16 +256,16 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
         db?.execSQL(CREATE_EXPENSES_TABLE)
 
-// Expense Categories Table Creation
+        // Expense Categories Table Creation
         val CREATE_EXPENSE_CATEGORIES_TABLE = ("CREATE TABLE $TABLE_EXPENSE_CATEGORIES(" +
                 "$COLUMN_ID_EXPENSE_CATEGORY INTEGER PRIMARY KEY," +
                 "$COLUMN_NAME_EXPENSE_CATEGORY TEXT)")
 
         db?.execSQL(CREATE_EXPENSE_CATEGORIES_TABLE)
-
     }
 
-    override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
+
+                override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
         db?.execSQL("DROP TABLE IF EXISTS $TABLE_INCOMES")
         onCreate(db)
     }
@@ -316,6 +328,33 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         return success != -1L
     }
 
+
+    @SuppressLint("Range")
+    fun getUserData(email: String): User? {
+        var user: User? = null
+        val db = this.readableDatabase
+        val selectQuery = "SELECT * FROM $TABLE_USERS WHERE $COLUMN_EMAIL = ?"
+        val cursor = db.rawQuery(selectQuery, arrayOf(email))
+
+        cursor?.use { cursor ->
+            if (cursor.moveToFirst()) {
+                val id = cursor.getInt(cursor.getColumnIndex(COLUMN_USER_ID))
+                val userEmail = cursor.getString(cursor.getColumnIndex(COLUMN_EMAIL))
+                val createdAt = cursor.getString(cursor.getColumnIndex(COLUMN_CREATED_AT_USER))
+                val currency = cursor.getString(cursor.getColumnIndex(COLUMN_CURRENCY))
+                val notificationEnabledInt = cursor.getInt(cursor.getColumnIndex(COLUMN_NOTIFICATION_ENABLED))
+                val notificationEnabled = notificationEnabledInt != 0
+
+
+                user = User(id, userEmail, createdAt,currency,notificationEnabled)
+            }
+        }
+
+        cursor.close()
+        db.close()
+
+        return user
+    }
 
 
 

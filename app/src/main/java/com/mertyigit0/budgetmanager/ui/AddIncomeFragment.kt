@@ -11,6 +11,7 @@ import androidx.navigation.fragment.findNavController
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.FirebaseAuth
 import com.mertyigit0.budgetmanager.R
 import com.mertyigit0.budgetmanager.data.DatabaseHelper
 import com.mertyigit0.budgetmanager.data.Income
@@ -28,10 +29,15 @@ class AddIncomeFragment : Fragment() {
 
     private lateinit var toggleButtonGroup: MaterialButtonToggleGroup
 
+    val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
 
+
+            val dbHelper = DatabaseHelper(requireContext())
+            val userId = currentUserEmail?.let { it1 -> dbHelper.getUserData(it1) }
         }
     }
 
@@ -49,7 +55,7 @@ class AddIncomeFragment : Fragment() {
         toggleButtonGroup = view.findViewById(R.id.toggleButtonGroup)
 
         setupToggleButtonGroup()
-     //   addIncome()
+        addIncome()
         }
 
 
@@ -76,9 +82,11 @@ class AddIncomeFragment : Fragment() {
     }
 
 
-/*
+
     private fun addIncome() {
         binding.addButton.setOnClickListener {
+
+
             val amount = binding.amountEditText.text.toString().toDoubleOrNull() ?: 0.0
             val category = getSelectedCategory()
             val date = getCurrentDate()
@@ -100,9 +108,9 @@ class AddIncomeFragment : Fragment() {
     }
 
     fun createIncome(amount: Double, category: String, date: String, description: String?): Income {
-        // ID'yi rastgele oluştur
-        val id = Random().nextInt(Int.MAX_VALUE)
-        return Income(id, amount, categoryId = 0, date, description )
+        val dbHelper = DatabaseHelper(requireContext())
+        val userId = currentUserEmail?.let { dbHelper.getUserData(it) }?.id ?: -1
+        return Income(id = 0, userId = userId, amount = amount, currency = "", categoryId = 0, date = date, note = description ?: "", createdAt = "")
     }
 
     private fun getSelectedCategory(): String {
@@ -128,5 +136,5 @@ class AddIncomeFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
-*/
+
 }

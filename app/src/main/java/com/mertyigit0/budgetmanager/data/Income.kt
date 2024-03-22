@@ -14,14 +14,11 @@ data class Income(
 data class User(
     val id: Int,
     val email: String,
-    val createdAt: String // Burada bir tarih ve saat değeri beklenmektedir, SQLite'da saklanacak veri türüne uygun olmalıdır
-)
-data class AccountSetting(
-    val userId: Int,
+    val createdAt: String, // Burada bir tarih ve saat değeri beklenmektedir, SQLite'da saklanacak veri türüne uygun olmalıdır
     val currency: String,
-    val reminderEnabled: Boolean,
     val notificationEnabled: Boolean
-)
+    )
+
 
 data class Expense(
     val id: Int,
@@ -66,6 +63,18 @@ data class RecurringPayment(
     val nextPaymentDate: String,
     val categoryId: Int
 )
+
+data class RegularIncome(
+    val id: Int,
+    val userId: Int,
+    val title: String,
+    val amount: Double,
+    val currency: String,
+    val recurrence: String,
+    val date: String,
+    val categoryId: Int
+)
+
 
 data class Debt(
     val id: Int,

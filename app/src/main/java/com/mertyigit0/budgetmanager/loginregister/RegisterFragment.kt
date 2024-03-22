@@ -94,13 +94,20 @@ class RegisterFragment : Fragment() {
     private fun saveUserToSQLite(user: FirebaseUser) {
         val email = user.email
         val createdAt = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+        val currency = "$"
+        val notificationEnabled = false
 
         // User nesnesini oluştur
         val newUser = User(
             id = -1, // SQLite otomatik olarak artan bir sütun olduğu için -1 olarak atanabilir
             email = email ?: "", // Kullanıcı e-postası
-            createdAt = createdAt // Kayıt tarihi ve saati
+            createdAt = createdAt, // Kayıt tarihi ve saati
+            currency = currency,
+            notificationEnabled =notificationEnabled
         )
+
+
+
 
         // SQLite veritabanına kullanıcıyı ekle
         val dbHelper = DatabaseHelper(requireContext())
@@ -108,10 +115,10 @@ class RegisterFragment : Fragment() {
 
         if (success) {
             // Kullanıcı başarıyla eklendi
-            Toast.makeText(context, "Kullanıcı başarıyla kaydedildi", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Kullanıcı başarıyla kaydedildi", Toast.LENGTH_SHORT).show()
         } else {
             // Kullanıcı eklenirken bir hata oluştu
-            Toast.makeText(context, "Kullanıcı kaydedilirken bir hata oluştu", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Kullanıcı kaydedilirken bir hata oluştu", Toast.LENGTH_SHORT).show()
         }
     }
 

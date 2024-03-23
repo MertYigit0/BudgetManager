@@ -79,7 +79,12 @@ class LoginFragment : Fragment() {
         }
 
         binding.registerNowText.setOnClickListener{
-           // navController.navigate(R.id.action_loginFragment_to_registerFragment)
+            navController.navigate(R.id.action_loginFragment_to_registerFragment)
+
+        }
+        binding.registerText.setOnClickListener{
+            navController.navigate(R.id.action_loginFragment_to_registerFragment)
+
         }
 
 

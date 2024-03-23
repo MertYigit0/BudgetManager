@@ -88,6 +88,13 @@ class RegisterFragment : Fragment() {
             }
         }
 
+
+
+
+
+
+
+
     }
 
     // Register işleminden sonra kullanıcının bilgilerini SQLite veritabanına kaydetmek için bu fonksiyonu kullanabilirsiniz

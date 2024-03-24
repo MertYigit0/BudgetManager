@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.Navigation
 import com.google.firebase.auth.FirebaseAuth
 import com.mertyigit0.budgetmanager.R
 import com.mertyigit0.budgetmanager.data.DatabaseHelper
@@ -14,43 +15,52 @@ import com.mertyigit0.budgetmanager.databinding.FragmentSettingsBinding
 
 class SettingsFragment : Fragment() {
 
+    private var _binding: FragmentSettingsBinding? = null
+    private val binding get() = _binding!!
 
-    private var _binding: FragmentSettingsBinding? = null;
-    private val binding get() = _binding!!;
-
-    val auth = FirebaseAuth.getInstance()
-    val currentUser = auth.currentUser
+    private lateinit var auth: FirebaseAuth
+    private val navController by lazy { Navigation.findNavController(requireView()) }
+    private val currentUser by lazy { auth.currentUser }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
 
         }
+        // FirebaseAuth örneğini al
+        auth = FirebaseAuth.getInstance()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        _binding =   FragmentSettingsBinding.inflate(inflater,container,false)
-        val view = binding.root;
-        return view
-
+        _binding = FragmentSettingsBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val curentUserEmail = currentUser?.email
+        val currentUserEmail = currentUser?.email
         // SQLite veritabanından kullanıcı verilerini çekmek için uygun metodu çağırın
         val dbHelper = DatabaseHelper(requireContext())
-        val userData = curentUserEmail?.let { dbHelper.getUserData(it) }
+        val userData = currentUserEmail?.let { dbHelper.getUserData(it) }
 
         if (userData != null) {
             binding.textView2.text = userData.email
         }
+
+        binding.LogOutButton.setOnClickListener{
+            auth.signOut()
+            redirectToLoginScreen()
         }
-
-
-
     }
 
+    private fun redirectToLoginScreen() {
+        navController.navigate(R.id.action_settingsFragment_to_loginFragment)
+    }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+}

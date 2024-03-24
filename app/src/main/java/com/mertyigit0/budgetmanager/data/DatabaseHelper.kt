@@ -322,11 +322,14 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         val values = ContentValues().apply {
             put(COLUMN_EMAIL, user.email)
             put(COLUMN_CREATED_AT_USER, user.createdAt)
+            put(COLUMN_CURRENCY, user.currency)
+            put(COLUMN_NOTIFICATION_ENABLED, if (user.notificationEnabled) 1 else 0)
         }
         val success = db.insert(TABLE_USERS, null, values)
         db.close()
         return success != -1L
     }
+
 
 
     @SuppressLint("Range")
@@ -344,8 +347,6 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 val currency = cursor.getString(cursor.getColumnIndex(COLUMN_CURRENCY))
                 val notificationEnabledInt = cursor.getInt(cursor.getColumnIndex(COLUMN_NOTIFICATION_ENABLED))
                 val notificationEnabled = notificationEnabledInt != 0
-
-
                 user = User(id, userEmail, createdAt,currency,notificationEnabled)
             }
         }

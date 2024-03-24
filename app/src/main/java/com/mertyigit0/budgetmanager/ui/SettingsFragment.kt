@@ -39,15 +39,12 @@ class SettingsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        displayUserData()
 
-        val currentUserEmail = currentUser?.email
-        // SQLite veritabanından kullanıcı verilerini çekmek için uygun metodu çağırın
-        val dbHelper = DatabaseHelper(requireContext())
-        val userData = currentUserEmail?.let { dbHelper.getUserData(it) }
 
-        if (userData != null) {
-            binding.textView2.text = userData.email
-        }
+
+
+
 
         binding.LogOutButton.setOnClickListener{
             auth.signOut()
@@ -62,5 +59,17 @@ class SettingsFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+
+    fun displayUserData() {
+        val dbHelper = DatabaseHelper(requireContext())
+        val currentUserEmail = auth.currentUser?.email
+        val userData = currentUserEmail?.let { dbHelper.getUserData(it) }
+
+        if (userData != null) {
+            binding.textView2.text = "Email: ${userData.email}"+"User ID: ${userData.id}"
+
+        }
     }
 }

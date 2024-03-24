@@ -6,6 +6,7 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import com.mertyigit0.budgetmanager.data.Income
+import java.sql.SQLException
 
 class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
     companion object {
@@ -269,6 +270,26 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db?.execSQL("DROP TABLE IF EXISTS $TABLE_INCOMES")
         onCreate(db)
     }
+    fun addUser(user: User): Boolean {
+        val db = this.writableDatabase
+        val values = ContentValues().apply {
+            put(COLUMN_EMAIL, user.email)
+            put(COLUMN_CREATED_AT_USER, user.createdAt)
+            put(COLUMN_CURRENCY, user.currency)
+            put(COLUMN_NOTIFICATION_ENABLED, if (user.notificationEnabled) 1 else 0)
+        }
+        val success = try {
+            db.insertOrThrow(TABLE_USERS, null, values)
+        } catch (e: SQLException) {
+            // Hata durumunda burada işlem yapılabilir
+            // Örneğin: Loglama veya hata mesajı gösterme
+            e.printStackTrace()
+            -1
+        } finally {
+            db.close()
+        }
+        return success != -1L
+    }
 
     fun addIncome(income: Income): Boolean {
         val values = ContentValues().apply {
@@ -289,17 +310,17 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
 
     @SuppressLint("Range")
-    fun getAllIncomes(): List<Income> {
+    fun getAllIncomesByUserId(userId: Int): List<Income> {
         val incomesList = ArrayList<Income>()
         val db = this.readableDatabase
-        val selectQuery = "SELECT * FROM $TABLE_INCOMES"
-        val cursor = db.rawQuery(selectQuery, null)
+        val selectQuery = "SELECT * FROM $TABLE_INCOMES WHERE $COLUMN_USER_ID_INCOME = ?"
+        val cursor = db.rawQuery(selectQuery, arrayOf(userId.toString()))
 
         if (cursor.moveToFirst()) {
             do {
                 val income = Income(
                     cursor.getInt(cursor.getColumnIndex(COLUMN_ID_INCOME)),
-                    cursor.getInt(cursor.getColumnIndex(COLUMN_USER_ID)),
+                    cursor.getInt(cursor.getColumnIndex(COLUMN_USER_ID_INCOME)),
                     cursor.getDouble(cursor.getColumnIndex(COLUMN_AMOUNT_INCOME)),
                     cursor.getString(cursor.getColumnIndex(COLUMN_CURRENCY_INCOME)),
                     cursor.getInt(cursor.getColumnIndex(COLUMN_CATEGORY_ID_INCOME)),
@@ -317,18 +338,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
 
 
-    fun addUser(user: User): Boolean {
-        val db = this.writableDatabase
-        val values = ContentValues().apply {
-            put(COLUMN_EMAIL, user.email)
-            put(COLUMN_CREATED_AT_USER, user.createdAt)
-            put(COLUMN_CURRENCY, user.currency)
-            put(COLUMN_NOTIFICATION_ENABLED, if (user.notificationEnabled) 1 else 0)
-        }
-        val success = db.insert(TABLE_USERS, null, values)
-        db.close()
-        return success != -1L
-    }
+
+
 
 
 

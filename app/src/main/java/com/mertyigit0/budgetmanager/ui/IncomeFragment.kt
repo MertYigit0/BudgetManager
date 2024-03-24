@@ -12,6 +12,7 @@ import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
+import com.google.firebase.auth.FirebaseAuth
 import com.mertyigit0.budgetmanager.data.DatabaseHelper
 import com.mertyigit0.budgetmanager.databinding.FragmentIncomeBinding
 
@@ -20,12 +21,13 @@ class IncomeFragment : Fragment() {
 
     private var _binding: FragmentIncomeBinding? = null;
     private val binding get() = _binding!!;
-
+    private lateinit var auth: FirebaseAuth
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
 
         }
+        auth = FirebaseAuth.getInstance()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -39,14 +41,19 @@ class IncomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val incomePieChart: PieChart = binding.incomePieChart
-        val databaseHelper = DatabaseHelper(requireContext())
+        val dbHelper = DatabaseHelper(requireContext())
+
+        val currentUserEmail = auth.currentUser?.email
+        val userData = currentUserEmail?.let { dbHelper.getUserData(it) }
         // Veritabanından tüm gelirleri al
-        val incomes = databaseHelper.getAllIncomes()
+        val incomes = userData?.let { dbHelper.getAllIncomesByUserId(it.id) }
 
         // Gelir verileri listesini oluştur
         val entries = mutableListOf<PieEntry>()
-        incomes.forEach { income ->
-            entries.add(PieEntry(income.amount.toFloat(), income.categoryId))
+        if (incomes != null) {
+            incomes.forEach { income ->
+                entries.add(PieEntry(income.amount.toFloat(), income.categoryId))
+            }
         }
 
         // Veri setini oluştur

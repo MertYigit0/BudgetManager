@@ -72,19 +72,19 @@ class RegisterFragment : Fragment() {
                 auth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener(requireActivity()) { task ->
                         if (task.isSuccessful) {
-
+                            val firebaseUser = task.result?.user
                             if (firebaseUser != null) {
+                                Toast.makeText(requireContext(), "Registration successful.", Toast.LENGTH_SHORT).show()
                                 saveUserToSQLite(firebaseUser)
                             }
                             // Kayıt başarılı
-                            Toast.makeText(requireContext(), "Registration successful.", Toast.LENGTH_SHORT).show()
-                            // İsterseniz burada giriş ekranına yönlendirebilirsiniz.
                             navController.navigate(R.id.action_registerFragment_to_loginFragment)
                         } else {
                             // Kayıt başarısız
                             Toast.makeText(requireContext(), "Registration failed. Error: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                         }
                     }
+
             }
         }
 
@@ -110,11 +110,8 @@ class RegisterFragment : Fragment() {
             email = email ?: "", // Kullanıcı e-postası
             createdAt = createdAt, // Kayıt tarihi ve saati
             currency = currency,
-            notificationEnabled =notificationEnabled
+            notificationEnabled = notificationEnabled
         )
-
-
-
 
         // SQLite veritabanına kullanıcıyı ekle
         val dbHelper = DatabaseHelper(requireContext())
@@ -128,6 +125,7 @@ class RegisterFragment : Fragment() {
             Toast.makeText(requireContext(), "Kullanıcı kaydedilirken bir hata oluştu", Toast.LENGTH_SHORT).show()
         }
     }
+
 
 
 }

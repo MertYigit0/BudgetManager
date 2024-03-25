@@ -11,7 +11,7 @@ import java.sql.SQLException
 class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
     companion object {
         private const val DATABASE_NAME = "budget_manager.db"
-        private const val DATABASE_VERSION = 1
+        private const val DATABASE_VERSION = 2
 
 
         //users
@@ -132,6 +132,10 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
     }
 
     override fun onCreate(db: SQLiteDatabase?) {
+        if (db != null) {
+            insertDefaultIncomeCategories(db)
+        }
+
         val CREATE_USERS_TABLE = ("CREATE TABLE $TABLE_USERS(" +
                 "$COLUMN_USER_ID INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "$COLUMN_EMAIL TEXT NOT NULL UNIQUE," +
@@ -367,7 +371,16 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
         return user
     }
+     fun insertDefaultIncomeCategories(db: SQLiteDatabase) {
+        val defaultCategories = listOf("Salary", "Freelance", "Investments", "Rental Income", "Interest")
 
+        for (category in defaultCategories) {
+            val values = ContentValues().apply {
+                put(COLUMN_NAME_INCOME_CATEGORY, category)
+            }
+            db.insert(TABLE_INCOME_CATEGORIES, null, values)
+        }
+    }
 
 
 

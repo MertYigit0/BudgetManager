@@ -70,30 +70,18 @@ class IncomeFragment : Fragment() {
             }
         }
 
+
+
+
         // Veri setini oluştur
         val dataSet = PieDataSet(entries, "Gelir")
         dataSet.colors = listOf(Color.BLUE, Color.GREEN, Color.RED) // Veri noktalarının renklerini ayarla
-
         // Veri setini PieData'ya ekle
         val pieData = PieData(dataSet)
-
         // PieChart'a PieData'yı ayarla
         incomePieChart.data = pieData
-
         // Chart'ın güncellenmesini sağla
         incomePieChart.invalidate()
-
-        binding.addIncomeButton.setOnClickListener{
-            val navController = findNavController()
-            navController.navigate(R.id.addIncomeFragment)
-        }
-
-
-
-
-
     }
-
-
 
 }

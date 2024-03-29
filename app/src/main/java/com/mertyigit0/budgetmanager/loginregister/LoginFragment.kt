@@ -39,6 +39,15 @@ class LoginFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val navController = Navigation.findNavController(requireView())
 
+
+        // Check if a user is already signed in
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            // User is signed in, navigate to the next screen
+            navController.navigate(R.id.action_loginFragment_to_addIncomeFragment)
+            return
+        }
+
         binding.loginButton.setOnClickListener{
             val email = binding.loginEmailEditText.text.toString()
             val password = binding.editTextPassword.text.toString()

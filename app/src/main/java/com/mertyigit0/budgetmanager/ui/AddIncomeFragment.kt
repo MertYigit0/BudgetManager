@@ -83,35 +83,32 @@ class AddIncomeFragment : Fragment() {
 
 
 
+    private fun addIncomeToDatabase(amount: Double, category: String, date: String, description: String?): Boolean {
+        val dbHelper = DatabaseHelper(requireContext())
+        val userId = currentUserEmail?.let { dbHelper.getUserData(it) }?.id ?: -1
+        val income = Income(id = 0, userId = userId, amount = amount, currency = "$", categoryId = 0, categoryName = category, date = date, note = description ?: "", createdAt = "")
+
+        val databaseHelper = DatabaseHelper(requireContext())
+        return databaseHelper.addIncome(income)
+    }
+
     private fun addIncome() {
         binding.addButton.setOnClickListener {
-
-
             val amount = binding.amountEditText.text.toString().toDoubleOrNull() ?: 0.0
             val category = getSelectedCategory()
             val date = getCurrentDate()
             val description = binding.editTextText.text.toString()
 
-            val income = createIncome(amount, category, date, description)
-            if (addIncomeToDatabase(income)) {
-                showSnackbar("Income added: $income")
-                navigateToIncomeFragment(amount.toFloat(), category)
+            if (addIncomeToDatabase(amount, category, date, description)) {
+                showSnackbar("Income added: $amount")
+                findNavController().navigate(R.id.action_addIncomeFragment_to_incomeFragment)
             } else {
                 showSnackbar("Failed to add income.")
             }
         }
     }
 
-    private fun addIncomeToDatabase(income: Income): Boolean {
-        val databaseHelper = DatabaseHelper(requireContext())
-        return databaseHelper.addIncome(income)
-    }
 
-    fun createIncome(amount: Double, category: String, date: String, description: String?): Income {
-        val dbHelper = DatabaseHelper(requireContext())
-        val userId = currentUserEmail?.let { dbHelper.getUserData(it) }?.id ?: -1
-        return Income(id = 0, userId = userId, amount = amount, currency = "", categoryId = 0, date = date, note = description ?: "", createdAt = "")
-    }
 
     private fun getSelectedCategory(): String {
         val selectedButtonId = toggleButtonGroup.checkedButtonId
@@ -123,14 +120,8 @@ class AddIncomeFragment : Fragment() {
         return sdf.format(Date())
     }
 
-    private fun navigateToIncomeFragment(amount: Float, category: String) {
-        val bundle = Bundle().apply {
-            putFloat("amount", amount)
-            putString("category", category)
-        }
 
-        findNavController().navigate(R.id.action_addIncomeFragment_to_incomeFragment, bundle)
-    }
+
 
     override fun onDestroyView() {
         super.onDestroyView()

@@ -11,7 +11,7 @@ import java.sql.SQLException
 class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
     companion object {
         private const val DATABASE_NAME = "budget_manager.db"
-        private const val DATABASE_VERSION = 2
+        private const val DATABASE_VERSION = 1
 
 
         //users
@@ -47,6 +47,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         private const val COLUMN_CURRENCY_INCOME = "currency"
         private const val COLUMN_DATE_INCOME = "date"
         private const val COLUMN_CATEGORY_ID_INCOME = "category_id"
+        private const val COLUMN_CATEGORY_NAME_INCOME = "category_name"
         private const val COLUMN_NOTE_INCOME = "note"
         private const val COLUMN_CREATED_AT_INCOME = "created_at"
 
@@ -132,9 +133,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
     }
 
     override fun onCreate(db: SQLiteDatabase?) {
-        if (db != null) {
-            insertDefaultIncomeCategories(db)
-        }
+
 
         val CREATE_USERS_TABLE = ("CREATE TABLE $TABLE_USERS(" +
                 "$COLUMN_USER_ID INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -169,8 +168,10 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 "$COLUMN_CURRENCY_INCOME TEXT NOT NULL," +
                 "$COLUMN_DATE_INCOME TEXT NOT NULL," +
                 "$COLUMN_CATEGORY_ID_INCOME INTEGER NOT NULL," +
+                "$COLUMN_CATEGORY_NAME_INCOME TEXT NOT NULL," +
                 "$COLUMN_NOTE_INCOME TEXT," +
                 "$COLUMN_CREATED_AT_INCOME TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+                "FOREIGN KEY($COLUMN_CATEGORY_NAME_INCOME) REFERENCES $TABLE_INCOME_CATEGORIES($COLUMN_NAME_INCOME_CATEGORY)," +
                 "FOREIGN KEY($COLUMN_CATEGORY_ID_INCOME) REFERENCES $TABLE_INCOME_CATEGORIES($COLUMN_ID_INCOME_CATEGORY)," +
                 "FOREIGN KEY($COLUMN_USER_ID_INCOME) REFERENCES $TABLE_USERS($COLUMN_USER_ID))")
         db?.execSQL(CREATE_INCOMES_TABLE)
@@ -267,6 +268,11 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 "$COLUMN_NAME_EXPENSE_CATEGORY TEXT)")
 
         db?.execSQL(CREATE_EXPENSE_CATEGORIES_TABLE)
+
+
+        if (db != null) {
+            insertDefaultIncomeCategories(db)
+        }
     }
 
 
@@ -302,6 +308,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             put(COLUMN_CURRENCY_INCOME, income.currency) // Para birimi eklendi
             put(COLUMN_DATE_INCOME, income.date)
             put(COLUMN_CATEGORY_ID_INCOME, income.categoryId)
+            put(COLUMN_CATEGORY_NAME_INCOME, income.categoryName)
             put(COLUMN_NOTE_INCOME, income.note)
             put(COLUMN_CREATED_AT_INCOME, income.createdAt) // Oluşturulma tarihi eklendi
         }
@@ -328,6 +335,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                     cursor.getDouble(cursor.getColumnIndex(COLUMN_AMOUNT_INCOME)),
                     cursor.getString(cursor.getColumnIndex(COLUMN_CURRENCY_INCOME)),
                     cursor.getInt(cursor.getColumnIndex(COLUMN_CATEGORY_ID_INCOME)),
+                    cursor.getString(cursor.getColumnIndex(COLUMN_CATEGORY_NAME_INCOME)),
                     cursor.getString(cursor.getColumnIndex(COLUMN_DATE_INCOME)),
                     cursor.getString(cursor.getColumnIndex(COLUMN_NOTE_INCOME)),
                     cursor.getString(cursor.getColumnIndex(COLUMN_CREATED_AT_INCOME)) // Oluşturulma tarihi eklendi

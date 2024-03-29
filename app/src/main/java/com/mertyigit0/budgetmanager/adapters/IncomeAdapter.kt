@@ -29,6 +29,8 @@ class IncomeAdapter(private val incomeList: ArrayList<Income>) :
         holder.itemView.findViewById<TextView>(R.id.textViewAmount).text = income.amount.toString()
         holder.itemView.findViewById<TextView>(R.id.textViewCurrency).text = income.currency
         holder.itemView.findViewById<TextView>(R.id.textViewDate).text = income.date
+        holder.itemView.findViewById<TextView>(R.id.textViewCategory).text = income.categoryName
+        holder.itemView.findViewById<TextView>(R.id.textViewDescription).text = income.note
     }
 
     fun updateIncomeList(newIncomeList: List<Income>) {

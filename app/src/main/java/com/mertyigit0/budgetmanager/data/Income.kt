@@ -6,6 +6,7 @@ data class Income(
     val amount: Double,
     val currency: String,
     val categoryId: Int,
+    val categoryName: String,
     val date: String,
     val note: String?,
     val createdAt: String

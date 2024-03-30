@@ -10,7 +10,7 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/financialGoalRecyclerView"
         android:layout_width="371dp"
-        android:layout_height="556dp"
+        android:layout_height="576dp"
         android:clipToPadding="false"
         android:padding="8dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"

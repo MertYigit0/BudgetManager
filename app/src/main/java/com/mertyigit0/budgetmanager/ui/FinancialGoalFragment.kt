@@ -50,6 +50,18 @@ class FinancialGoalFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         dbHelper = DatabaseHelper(requireContext())
 
+        // RecyclerView'i bul
+        val recyclerView: RecyclerView = binding.financialGoalRecyclerView
+
+        // Layout yöneticisini ayarla (Dikey olarak sıralama)
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+
+        // Adapter oluşturulmadan önce öncelikle başlatılmalı
+        adapter = FinancialGoalAdapter(financialGoals)
+
+        // RecyclerView'e adapter'ı bağla
+        recyclerView.adapter = adapter
+
         // Kullanıcının finansal hedeflerini al
         currentUserEmail?.let { email ->
             val userData = dbHelper.getUserData(email)
@@ -59,15 +71,14 @@ class FinancialGoalFragment : Fragment() {
                 adapter.notifyDataSetChanged()
             }
         }
-        // Adapter oluşturun
-        adapter = FinancialGoalAdapter(financialGoals)
 
-      binding.addFinancialGoalButton.setOnClickListener{
-          showAddFinancialGoalDialog()
-      }
-
-
+        // Adapter oluşturulduktan sonra kullanılabilir
+        binding.addFinancialGoalButton.setOnClickListener{
+            showAddFinancialGoalDialog()
+        }
     }
+
+
 
     // Yeni FinancialGoal eklemek için AlertDialog gösteren fonksiyon
     private fun showAddFinancialGoalDialog() {

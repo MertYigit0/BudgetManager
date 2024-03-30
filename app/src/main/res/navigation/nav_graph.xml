@@ -78,4 +78,9 @@
             android:id="@+id/action_expenseFragment_to_addExpenseFragment"
             app:destination="@id/addExpenseFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/financialGoalFragment"
+        android:name="com.mertyigit0.budgetmanager.ui.FinancialGoalFragment"
+        android:label="fragment_financial_goal"
+        tools:layout="@layout/fragment_financial_goal" />
 </navigation>

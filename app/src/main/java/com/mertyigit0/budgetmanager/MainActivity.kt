@@ -48,6 +48,11 @@ class MainActivity : AppCompatActivity() {
                     navController.navigate(R.id.settingsFragment)
                     true
                 }
+
+                R.id.financialGoalFragment-> {
+                    navController.navigate(R.id.financialGoalFragment)
+                    true
+                }
                 // Add cases for other bottom navigation items if needed
                 else -> false
             }

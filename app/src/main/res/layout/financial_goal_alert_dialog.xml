@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/titleEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Title"
+        android:inputType="text"/>
+
+    <EditText
+        android:id="@+id/descriptionEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Description"
+        android:inputType="text"/>
+
+    <EditText
+        android:id="@+id/targetAmountEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Target Amount"
+        android:inputType="numberDecimal"/>
+
+    <EditText
+        android:id="@+id/deadlineEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Deadline (YYYY-MM-DD)"
+        android:inputType="text"/>
+
+</LinearLayout>

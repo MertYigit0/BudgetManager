@@ -7,6 +7,9 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import com.mertyigit0.budgetmanager.data.Income
 import java.sql.SQLException
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
     companion object {
@@ -421,7 +424,56 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
         return user
     }
-     fun insertDefaultIncomeCategories(db: SQLiteDatabase) {
+
+
+
+    fun addFinancialGoal(goal: FinancialGoal): Boolean {
+        val values = ContentValues().apply {
+            put(COLUMN_USER_ID_FINANCIAL_GOAL, goal.userId)
+            put(COLUMN_TITLE_FINANCIAL_GOAL, goal.title)
+            put(COLUMN_DESCRIPTION_FINANCIAL_GOAL, goal.description)
+            put(COLUMN_TARGET_AMOUNT_FINANCIAL_GOAL, goal.targetAmount)
+            put(COLUMN_CURRENT_AMOUNT_FINANCIAL_GOAL, goal.currentAmount)
+            put(COLUMN_DEADLINE_FINANCIAL_GOAL, goal.deadline)
+            // Diğer sütunlar default değerleri alacakları için eklemeye gerek yok
+        }
+
+        val db = this.writableDatabase
+        val success = db.insert(TABLE_FINANCIAL_GOALS, null, values)
+        db.close()
+        return success != -1L
+    }
+
+    @SuppressLint("Range")
+    fun getAllFinancialGoalsByUserId(userId: Int): List<FinancialGoal> {
+        val financialGoalsList = mutableListOf<FinancialGoal>()
+        val db = this.readableDatabase
+        val selectQuery = "SELECT * FROM $TABLE_FINANCIAL_GOALS WHERE $COLUMN_USER_ID_FINANCIAL_GOAL = ?"
+        val cursor = db.rawQuery(selectQuery, arrayOf(userId.toString()))
+
+        if (cursor.moveToFirst()) {
+            do {
+                val financialGoal = FinancialGoal(
+                    cursor.getInt(cursor.getColumnIndex(COLUMN_ID_FINANCIAL_GOAL)),
+                    cursor.getInt(cursor.getColumnIndex(COLUMN_USER_ID_FINANCIAL_GOAL)),
+                    cursor.getString(cursor.getColumnIndex(COLUMN_TITLE_FINANCIAL_GOAL)),
+                    cursor.getString(cursor.getColumnIndex(COLUMN_DESCRIPTION_FINANCIAL_GOAL)),
+                    cursor.getDouble(cursor.getColumnIndex(COLUMN_TARGET_AMOUNT_FINANCIAL_GOAL)),
+                    cursor.getDouble(cursor.getColumnIndex(COLUMN_CURRENT_AMOUNT_FINANCIAL_GOAL)),
+                    cursor.getString(cursor.getColumnIndex(COLUMN_DEADLINE_FINANCIAL_GOAL)),
+                    cursor.getString(cursor.getColumnIndex(COLUMN_CREATED_AT_FINANCIAL_GOAL))
+                )
+                financialGoalsList.add(financialGoal)
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        db.close()
+        return financialGoalsList
+    }
+
+
+
+    fun insertDefaultIncomeCategories(db: SQLiteDatabase) {
         val defaultCategories = listOf("Salary", "Freelance", "Investments", "Rental Income", "Interest")
 
         for (category in defaultCategories) {

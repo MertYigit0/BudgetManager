@@ -13,6 +13,14 @@
         android:id="@+id/addIncomeFragment"
         android:title="Add Income"
         android:icon="@drawable/baseline_add_24" />
+    <item
+        android:id="@+id/addExpenseFragment"
+        android:title="Add Expense"
+        android:icon="@drawable/baseline_add_24" />
+    <item
+        android:id="@+id/expenseFragment"
+        android:title="Expenses"
+        android:icon="@drawable/baseline_add_24" />
 
     <item
         android:id="@+id/settingsFragment"

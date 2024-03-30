@@ -26,8 +26,9 @@ data class Expense(
     val userId: Int,
     val amount: Double,
     val currency: String,
-    val date: String,
     val categoryId: Int,
+    val categoryName: String,
+    val date: String,
     val note: String?,
     val createdAt: String
 )

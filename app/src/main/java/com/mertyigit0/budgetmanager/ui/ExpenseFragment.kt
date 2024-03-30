@@ -6,72 +6,71 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.mertyigit0.budgetmanager.R
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.google.firebase.auth.FirebaseAuth
-import com.mertyigit0.budgetmanager.adapters.IncomeAdapter
+import com.mertyigit0.budgetmanager.R
+import com.mertyigit0.budgetmanager.adapters.ExpenseAdapter
+
 import com.mertyigit0.budgetmanager.data.DatabaseHelper
-import com.mertyigit0.budgetmanager.data.Income
-import com.mertyigit0.budgetmanager.databinding.FragmentIncomeBinding
-import java.util.Random
+import com.mertyigit0.budgetmanager.databinding.FragmentExpenseBinding
 
 
-class IncomeFragment : Fragment() {
 
-    private var _binding: FragmentIncomeBinding? = null;
+class ExpenseFragment : Fragment() {
+
+    private var _binding: FragmentExpenseBinding? = null;
     private val binding get() = _binding!!;
     private lateinit var auth: FirebaseAuth
-    private lateinit var incomeAdapter: IncomeAdapter
+    private lateinit var expenseAdapter: ExpenseAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-
         }
         auth = FirebaseAuth.getInstance()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        _binding = FragmentIncomeBinding.inflate(inflater,container,false)
+        _binding = FragmentExpenseBinding.inflate(inflater,container,false)
         val view = binding.root;
         return view
 
     }
 
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        incomeAdapter = IncomeAdapter(ArrayList()) // Boş bir ArrayList ile IncomeAdapter oluştur
+       expenseAdapter = ExpenseAdapter(ArrayList()) // Boş bir ArrayList ile ExpenseAdapter oluştur
 
-        val recyclerView = binding.incomeRecyclerView
+        val recyclerView = binding.expenseRecyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        recyclerView.adapter = incomeAdapter
+        recyclerView.adapter = expenseAdapter
 
-        val incomePieChart: PieChart = binding.incomePieChart
+        val expensePieChart: PieChart = binding.expensePieChart
         val dbHelper = DatabaseHelper(requireContext())
 
         val currentUserEmail = auth.currentUser?.email
         val userData = currentUserEmail?.let { dbHelper.getUserData(it) }
         // Veritabanından tüm gelirleri al
-        val incomes = userData?.let { dbHelper.getAllIncomesByUserId(it.id) }
+        val expenses = userData?.let { dbHelper.getAllExpensesByUserId(it.id) }
         // Gelir verilerini RecyclerView'a aktar
-        incomes?.let { incomeAdapter.updateIncomeList(it) }
+        expenses?.let { expenseAdapter.updateExpenseList(it) }
         // Gelir verileri listesini oluştur
         val entries = mutableListOf<PieEntry>()
 
-        if (incomes != null) {
-            incomes.forEach { income ->
-                entries.add(PieEntry(income.amount.toFloat(), income.categoryName))
+        if (expenses != null) {
+            expenses.forEach { expense ->
+                entries.add(PieEntry(expense.amount.toFloat(), expense.categoryName))
             }
         }
 
         // Veri setini oluştur
-        val dataSet = PieDataSet(entries, "Gelir")
+        val dataSet = PieDataSet(entries, "Expense")
         // Kategori renklerini dataSet'e ekle
         dataSet.colors = entries.map { entry ->
             getColorForCategory(entry.label)
@@ -79,22 +78,21 @@ class IncomeFragment : Fragment() {
         // Veri setini PieData'ya ekle
         val pieData = PieData(dataSet)
         // PieChart'a PieData'yı ayarla
-        incomePieChart.data = pieData
+        expensePieChart.data = pieData
         // Chart'ın güncellenmesini sağla
-        incomePieChart.invalidate()
+        expensePieChart.invalidate()
     }
 
     // Kategoriye göre renk atayan yardımcı fonksiyon
     private fun getColorForCategory(categoryName: String): Int {
         return when (categoryName) {
-            "Salary" -> Color.GREEN
-            "Investment" -> Color.BLUE
+            "Utils" -> Color.GREEN
+            "Transport" -> Color.BLUE
             "Rent" -> Color.RED
-            "Other" -> Color.CYAN
+            "Food&Grocery" -> Color.CYAN
             else -> Color.parseColor("#FFA500") // Diğer kategoriler için turuncu renk
         }
     }
-
 
 
 }

@@ -11,7 +11,7 @@ import java.sql.SQLException
 class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
     companion object {
         private const val DATABASE_NAME = "budget_manager.db"
-        private const val DATABASE_VERSION = 1
+        private const val DATABASE_VERSION = 2
 
 
         //users
@@ -25,12 +25,13 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
         //Expenses
         private const val TABLE_EXPENSES = "expenses"
-        private const val COLUMN_ID_EXPENSES = "id"
+        private const val COLUMN_ID_EXPENSE = "id"
         private const val COLUMN_USER_ID_EXPENSE = "user_id"
         private const val COLUMN_AMOUNT_EXPENSE = "amount"
         private const val COLUMN_CURRENCY_EXPENSE = "currency"
         private const val COLUMN_DATE_EXPENSE = "date"
         private const val COLUMN_CATEGORY_ID_EXPENSE = "category_id"
+        private const val COLUMN_CATEGORY_NAME_EXPENSE = "category_name"
         private const val COLUMN_NOTE_EXPENSE = "note"
         private const val COLUMN_CREATED_AT_EXPENSE = "created_at"
 
@@ -249,14 +250,16 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
         // Expenses Table Creation
         val CREATE_EXPENSES_TABLE = ("CREATE TABLE $TABLE_EXPENSES(" +
-                "$COLUMN_ID_EXPENSES INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "$COLUMN_ID_EXPENSE INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "$COLUMN_USER_ID_EXPENSE INTEGER NOT NULL," +
-                "$COLUMN_AMOUNT_EXPENSE REAL," +
-                "$COLUMN_CURRENCY_EXPENSE TEXT," +
-                "$COLUMN_DATE_EXPENSE TEXT," +
-                "$COLUMN_CATEGORY_ID_EXPENSE INTEGER," +
+                "$COLUMN_AMOUNT_EXPENSE REAL NOT NULL," +
+                "$COLUMN_CURRENCY_EXPENSE TEXT NOT NULL," +
+                "$COLUMN_DATE_EXPENSE TEXT NOT NULL," +
+                "$COLUMN_CATEGORY_ID_EXPENSE INTEGER NOT NULL," +
+                "$COLUMN_CATEGORY_NAME_EXPENSE TEXT NOT NULL," +
                 "$COLUMN_NOTE_EXPENSE TEXT," +
                 "$COLUMN_CREATED_AT_EXPENSE TEXT," +
+                "FOREIGN KEY($COLUMN_CATEGORY_NAME_EXPENSE) REFERENCES $TABLE_EXPENSE_CATEGORIES($COLUMN_NAME_EXPENSE_CATEGORY)," +
                 "FOREIGN KEY($COLUMN_CATEGORY_ID_EXPENSE) REFERENCES $TABLE_EXPENSE_CATEGORIES($COLUMN_ID_EXPENSE_CATEGORY)," +
                 "FOREIGN KEY($COLUMN_USER_ID_EXPENSE) REFERENCES $TABLE_USERS($COLUMN_USER_ID))")
 
@@ -319,7 +322,6 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         return success != -1L
     }
 
-
     @SuppressLint("Range")
     fun getAllIncomesByUserId(userId: Int): List<Income> {
         val incomesList = ArrayList<Income>()
@@ -347,10 +349,50 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db.close()
         return incomesList
     }
+    @SuppressLint("Range")
+    fun getAllExpensesByUserId(userId: Int): List<Expense> {
+        val expensesList = ArrayList<Expense>()
+        val db = this.readableDatabase
+        val selectQuery = "SELECT * FROM $TABLE_EXPENSES WHERE $COLUMN_USER_ID_EXPENSE = ?"
+        val cursor = db.rawQuery(selectQuery, arrayOf(userId.toString()))
 
+        if (cursor.moveToFirst()) {
+            do {
+                val expense = Expense(
+                    cursor.getInt(cursor.getColumnIndex(COLUMN_ID_EXPENSE)),
+                    cursor.getInt(cursor.getColumnIndex(COLUMN_USER_ID_EXPENSE)),
+                    cursor.getDouble(cursor.getColumnIndex(COLUMN_AMOUNT_EXPENSE)),
+                    cursor.getString(cursor.getColumnIndex(COLUMN_CURRENCY_EXPENSE)),
+                    cursor.getInt(cursor.getColumnIndex(COLUMN_CATEGORY_ID_EXPENSE)),
+                    cursor.getString(cursor.getColumnIndex(COLUMN_CATEGORY_NAME_EXPENSE)),
+                    cursor.getString(cursor.getColumnIndex(COLUMN_DATE_EXPENSE)),
+                    cursor.getString(cursor.getColumnIndex(COLUMN_NOTE_EXPENSE)),
+                    cursor.getString(cursor.getColumnIndex(COLUMN_CREATED_AT_EXPENSE))
+                )
+                expensesList.add(expense)
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        db.close()
+        return expensesList
+    }
+    fun addExpense(expense: Expense): Boolean {
+        val values = ContentValues().apply {
+            put(COLUMN_AMOUNT_EXPENSE, expense.amount)
+            put(COLUMN_USER_ID_EXPENSE, expense.userId) // Kullanıcı kimliği eklendi
+            put(COLUMN_CURRENCY_EXPENSE, expense.currency) // Para birimi eklendi
+            put(COLUMN_CATEGORY_ID_EXPENSE, expense.categoryId)
+            put(COLUMN_CATEGORY_NAME_EXPENSE, expense.categoryName)
+            put(COLUMN_DATE_EXPENSE, expense.date)
+            put(COLUMN_NOTE_EXPENSE, expense.note)
+            put(COLUMN_CREATED_AT_EXPENSE, expense.createdAt) // Oluşturulma tarihi eklendi
+        }
 
-
-
+        val db = this.writableDatabase
+        val success = db.insert(TABLE_EXPENSES, null, values)
+        db.close()
+        return success != -1L
+    }
 
 
 

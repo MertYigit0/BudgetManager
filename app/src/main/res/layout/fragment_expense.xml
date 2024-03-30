@@ -4,11 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.IncomeFragment">
+    tools:context=".ui.ExpenseFragment">
 
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/incomeCardView"
+        android:id="@+id/expenseCardView"
         android:layout_width="383dp"
         android:layout_height="336dp"
         android:layout_marginTop="16dp"
@@ -17,7 +17,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <com.github.mikephil.charting.charts.PieChart
-            android:id="@+id/incomePieChart"
+            android:id="@+id/expensePieChart"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -31,7 +31,7 @@
 
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/incomeRecyclerView"
+        android:id="@+id/expenseRecyclerView"
         android:layout_width="374dp"
         android:layout_height="323dp"
         android:layout_marginBottom="40dp"
@@ -43,8 +43,6 @@
         app:layout_constraintHorizontal_bias="0.489"
         app:layout_constraintStart_toStartOf="parent"
         tools:listitem="@layout/item_income" />
-
-
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

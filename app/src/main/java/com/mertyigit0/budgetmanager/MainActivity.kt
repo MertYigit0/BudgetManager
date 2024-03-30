@@ -23,6 +23,35 @@ class MainActivity : AppCompatActivity() {
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
         bottomNavigationView.setupWithNavController(navController)
 
+        bottomNavigationView.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.incomeFragment -> {
+                    // Navigate to the default position
+                    navController.navigate(R.id.incomeFragment)
+                    true
+                }
+
+                R.id.addIncomeFragment -> {
+                    navController.navigate(R.id.addIncomeFragment)
+                    true
+                }
+                R.id.addExpenseFragment -> {
+                    navController.navigate(R.id.addExpenseFragment)
+                    true
+                }
+                R.id.expenseFragment -> {
+                    navController.navigate(R.id.expenseFragment)
+                    true
+                }
+
+                R.id.settingsFragment -> {
+                    navController.navigate(R.id.settingsFragment)
+                    true
+                }
+                // Add cases for other bottom navigation items if needed
+                else -> false
+            }
+        }
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
             if (destination.id == R.id.loginFragment || destination.id == R.id.registerFragment) {
@@ -30,7 +59,6 @@ class MainActivity : AppCompatActivity() {
             } else {
                 bottomNavigationView.visibility = View.VISIBLE
             }
-
         }
     }
 }

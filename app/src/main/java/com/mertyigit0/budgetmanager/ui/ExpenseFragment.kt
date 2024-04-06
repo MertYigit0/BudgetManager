@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.data.PieData
@@ -81,6 +82,18 @@ class ExpenseFragment : Fragment() {
         expensePieChart.data = pieData
         // Chart'ın güncellenmesini sağla
         expensePieChart.invalidate()
+
+
+        val navController = Navigation.findNavController(requireView())
+        binding.toggleButtonGroup.check(R.id.expensesButton)
+        binding.incomesButton.setOnClickListener{
+            navController.navigate(R.id.action_expenseFragment_to_incomeFragment)
+        }
+
+        binding.addExpensebutton.setOnClickListener{
+            navController.navigate(R.id.action_expenseFragment_to_addExpenseFragment)
+        }
+
     }
 
     // Kategoriye göre renk atayan yardımcı fonksiyon

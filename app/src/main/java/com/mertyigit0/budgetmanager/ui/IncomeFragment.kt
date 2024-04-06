@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.mertyigit0.budgetmanager.R
@@ -27,12 +28,14 @@ class IncomeFragment : Fragment() {
     private val binding get() = _binding!!;
     private lateinit var auth: FirebaseAuth
     private lateinit var incomeAdapter: IncomeAdapter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
 
         }
         auth = FirebaseAuth.getInstance()
+
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -51,6 +54,7 @@ class IncomeFragment : Fragment() {
         val recyclerView = binding.incomeRecyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = incomeAdapter
+
 
         val incomePieChart: PieChart = binding.incomePieChart
         val dbHelper = DatabaseHelper(requireContext())
@@ -82,6 +86,17 @@ class IncomeFragment : Fragment() {
         incomePieChart.data = pieData
         // Chart'ın güncellenmesini sağla
         incomePieChart.invalidate()
+
+        val navController = Navigation.findNavController(requireView())
+        binding.toggleButtonGroup.check(R.id.incomesButton)
+        binding.expensesButton.setOnClickListener{
+            navController.navigate(R.id.action_incomeFragment_to_expenseFragment)
+        }
+        binding.addIncomebutton.setOnClickListener{
+            navController.navigate(R.id.action_incomeFragment_to_addIncomeFragment)
+        }
+
+
     }
 
     // Kategoriye göre renk atayan yardımcı fonksiyon

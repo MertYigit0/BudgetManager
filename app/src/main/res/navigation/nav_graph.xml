@@ -13,6 +13,9 @@
         <action
             android:id="@+id/action_incomeFragment_to_addIncomeFragment"
             app:destination="@id/addIncomeFragment" />
+        <action
+            android:id="@+id/action_incomeFragment_to_expenseFragment"
+            app:destination="@id/expenseFragment" />
     </fragment>
     <fragment
         android:id="@+id/addIncomeFragment"
@@ -77,6 +80,9 @@
         <action
             android:id="@+id/action_expenseFragment_to_addExpenseFragment"
             app:destination="@id/addExpenseFragment" />
+        <action
+            android:id="@+id/action_expenseFragment_to_incomeFragment"
+            app:destination="@id/incomeFragment" />
     </fragment>
     <fragment
         android:id="@+id/financialGoalFragment"

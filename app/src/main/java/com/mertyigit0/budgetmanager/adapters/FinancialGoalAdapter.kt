@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.mertyigit0.budgetmanager.R
@@ -29,12 +30,20 @@ class FinancialGoalAdapter(private val financialGoals: List<FinancialGoal>) :
         private val titleTextView: TextView = itemView.findViewById(R.id.titleTextView)
         private val targetAmountTextView: TextView = itemView.findViewById(R.id.targetAmountTextView)
         private val deadlineTextView: TextView = itemView.findViewById(R.id.deadlineTextView)
+        private val currentAmountTextView: TextView = itemView.findViewById(R.id.currentAmountTextView)
+        private val progressBar: ProgressBar = itemView.findViewById(R.id.progressBar)
 
         @SuppressLint("SetTextI18n")
         fun bind(financialGoal: FinancialGoal) {
             titleTextView.text = financialGoal.title
             targetAmountTextView.text = "Target Amount: ${financialGoal.targetAmount}"
             deadlineTextView.text = "Deadline: ${financialGoal.deadline}"
+            currentAmountTextView.text ="Current Amouint : ${financialGoal.currentAmount}"
+            // ProgressBar'ı güncelle
+            val progress = (financialGoal.currentAmount / financialGoal.targetAmount * 100).toInt()
+            progressBar.progress = progress
+
+
         }
     }
 }

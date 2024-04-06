@@ -8,63 +8,57 @@ import android.view.ViewGroup
 import androidx.navigation.Navigation
 import com.google.firebase.auth.FirebaseAuth
 import com.mertyigit0.budgetmanager.R
-import com.mertyigit0.budgetmanager.data.DatabaseHelper
-import com.mertyigit0.budgetmanager.databinding.FragmentRegisterBinding
+import com.mertyigit0.budgetmanager.databinding.FragmentProfileBinding
 import com.mertyigit0.budgetmanager.databinding.FragmentSettingsBinding
 
 
-class SettingsFragment : Fragment() {
+class ProfileFragment : Fragment() {
 
-    private var _binding: FragmentSettingsBinding? = null
+    private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
 
     private lateinit var auth: FirebaseAuth
     private val navController by lazy { Navigation.findNavController(requireView()) }
-    private val currentUser by lazy { auth.currentUser }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-
         }
+
         // FirebaseAuth örneğini al
         auth = FirebaseAuth.getInstance()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        _binding = FragmentSettingsBinding.inflate(inflater, container, false)
+        _binding = FragmentProfileBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        displayUserData()
 
 
 
 
-
+        binding.itemSettings.setOnClickListener{
+            navController.navigate(R.id.action_profileFragment_to_settingsFragment)
+        }
+        binding.itemLogout.setOnClickListener{
+            auth.signOut()
+            redirectToLoginScreen()
+        }
 
 
     }
 
+    private fun redirectToLoginScreen() {
+        navController.navigate(R.id.action_profileFragment_to_loginFragment)
+    }
 
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-
-    fun displayUserData() {
-        val dbHelper = DatabaseHelper(requireContext())
-        val currentUserEmail = auth.currentUser?.email
-        val userData = currentUserEmail?.let { dbHelper.getUserData(it) }
-
-        if (userData != null) {
-            binding.textView2.text = "Email: ${userData.email}"+"User ID: ${userData.id}"
-
-        }
     }
 }

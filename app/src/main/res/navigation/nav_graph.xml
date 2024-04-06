@@ -89,4 +89,16 @@
         android:name="com.mertyigit0.budgetmanager.ui.FinancialGoalFragment"
         android:label="fragment_financial_goal"
         tools:layout="@layout/fragment_financial_goal" />
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.mertyigit0.budgetmanager.ui.ProfileFragment"
+        android:label="fragment_profile"
+        tools:layout="@layout/fragment_profile" >
+        <action
+            android:id="@+id/action_profileFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
+        <action
+            android:id="@+id/action_profileFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
+    </fragment>
 </navigation>

@@ -4,45 +4,35 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.SettingsFragment">
-
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="TextView"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.12" />
+    tools:context=".ui.ProfileFragment">
 
     <LinearLayout
-        android:layout_width="407dp"
-        android:layout_height="597dp"
+        android:id="@+id/linearLayout"
+        android:layout_width="413dp"
+        android:layout_height="579dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0">
+        app:layout_constraintVertical_bias="0.993">
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/card_currency"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="12dp"
-            android:clickable="true"
             android:elevation="4dp"
-            android:focusable="true"
-            android:foreground="?android:attr/selectableItemBackground">
+            app:cardCornerRadius="8dp">
 
             <TextView
+                android:id="@+id/item_account"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
                 android:padding="16dp"
-                android:text="Currency"
+                android:text="Account"
                 android:textSize="18sp" />
             <ImageView
                 android:layout_width="50dp"
@@ -53,54 +43,24 @@
                 android:adjustViewBounds="true"
                 android:background="@android:color/transparent"
                 android:padding="16dp" />
-
-        </androidx.cardview.widget.CardView>
-
-
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/card_security"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="12dp"
-            android:clickable="true"
-            android:elevation="4dp"
-            android:focusable="true"
-            android:foreground="?android:attr/selectableItemBackground">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="16dp"
-                android:text="Security"
-                android:textSize="18sp" />
-            <ImageView
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_gravity="right|center"
-                android:src="@drawable/baseline_arrow_forward_ios_24"
-                android:scaleType="fitEnd"
-                android:adjustViewBounds="true"
-                android:background="@android:color/transparent"
-                android:padding="16dp" />
-
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/card_notification"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="12dp"
-            android:clickable="true"
             android:elevation="4dp"
-            android:focusable="true"
-            android:foreground="?android:attr/selectableItemBackground">
+            app:cardCornerRadius="8dp">
 
             <TextView
+                android:id="@+id/item_settings"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
                 android:padding="16dp"
-                android:text="Notification"
+                android:text="Settings"
                 android:textSize="18sp" />
             <ImageView
                 android:layout_width="50dp"
@@ -111,24 +71,24 @@
                 android:adjustViewBounds="true"
                 android:background="@android:color/transparent"
                 android:padding="16dp" />
-
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/card_about"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="12dp"
-            android:clickable="true"
             android:elevation="4dp"
-            android:focusable="true"
-            android:foreground="?android:attr/selectableItemBackground">
+            app:cardCornerRadius="8dp">
 
             <TextView
+                android:id="@+id/item_export_data"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
                 android:padding="16dp"
-                android:text="About"
+                android:text="Export Data"
                 android:textSize="18sp" />
             <ImageView
                 android:layout_width="50dp"
@@ -139,25 +99,26 @@
                 android:adjustViewBounds="true"
                 android:background="@android:color/transparent"
                 android:padding="16dp" />
-
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/card_help"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="12dp"
-            android:clickable="true"
             android:elevation="4dp"
-            android:focusable="true"
-            android:foreground="?android:attr/selectableItemBackground">
+            app:cardCornerRadius="8dp">
 
             <TextView
+                android:id="@+id/item_logout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
                 android:padding="16dp"
-                android:text="Help"
+                android:text="Logout"
                 android:textSize="18sp" />
+
             <ImageView
                 android:layout_width="50dp"
                 android:layout_height="50dp"
@@ -167,22 +128,10 @@
                 android:adjustViewBounds="true"
                 android:background="@android:color/transparent"
                 android:padding="16dp" />
-
         </androidx.cardview.widget.CardView>
 
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/textView4"
-        android:layout_width="151dp"
-        android:layout_height="41dp"
-        android:layout_marginTop="16dp"
-        android:gravity="center"
-        android:text="Settings"
-        android:textSize="25dp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

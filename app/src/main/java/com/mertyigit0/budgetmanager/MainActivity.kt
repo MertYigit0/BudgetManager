@@ -31,21 +31,13 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
 
-                R.id.addIncomeFragment -> {
-                    navController.navigate(R.id.addIncomeFragment)
-                    true
-                }
-                R.id.addExpenseFragment -> {
-                    navController.navigate(R.id.addExpenseFragment)
-                    true
-                }
                 R.id.expenseFragment -> {
                     navController.navigate(R.id.expenseFragment)
                     true
                 }
 
-                R.id.settingsFragment -> {
-                    navController.navigate(R.id.settingsFragment)
+                R.id.profileFragment -> {
+                    navController.navigate(R.id.profileFragment)
                     true
                 }
 

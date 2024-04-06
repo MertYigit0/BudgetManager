@@ -3,6 +3,7 @@
     <style name="Base.Theme.BudgetManager" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="android:statusBarColor">@color/lblue</item>
     </style>
 
     <style name="Theme.BudgetManager" parent="Base.Theme.BudgetManager" />
@@ -17,6 +18,7 @@
         <item name="android:minWidth">48dp</item>
         <item name="android:minHeight">48dp</item>
     </style>
+
 
 
 </resources>

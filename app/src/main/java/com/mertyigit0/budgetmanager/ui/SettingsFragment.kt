@@ -43,7 +43,9 @@ class SettingsFragment : Fragment() {
 
 
 
-
+        binding.cardCurrency.setOnClickListener{
+            navController.navigate(R.id.action_settingsFragment_to_currencyFragment)
+        }
 
 
 

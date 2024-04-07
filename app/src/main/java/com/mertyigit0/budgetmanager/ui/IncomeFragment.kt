@@ -89,6 +89,10 @@ class IncomeFragment : Fragment() {
 
         val navController = Navigation.findNavController(requireView())
         binding.toggleButtonGroup.check(R.id.incomesButton)
+
+
+
+
         binding.expensesButton.setOnClickListener{
             navController.navigate(R.id.action_incomeFragment_to_expenseFragment)
         }

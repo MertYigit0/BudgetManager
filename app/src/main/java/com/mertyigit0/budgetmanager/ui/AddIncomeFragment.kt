@@ -83,10 +83,10 @@ class AddIncomeFragment : Fragment() {
 
 
 
-    private fun addIncomeToDatabase(amount: Double, category: String, date: String, description: String?): Boolean {
+    private fun addIncomeToDatabase(amount: Double, category: String, date: String, description: String?, currency: String): Boolean {
         val dbHelper = DatabaseHelper(requireContext())
         val userId = currentUserEmail?.let { dbHelper.getUserData(it) }?.id ?: -1
-        val income = Income(id = 0, userId = userId, amount = amount, currency = "$", categoryId = 0, categoryName = category, date = date, note = description ?: "", createdAt = "")
+        val income = Income(id = 0, userId = userId, amount = amount, currency = currency, categoryId = 0, categoryName = category, date = date, note = description ?: "", createdAt = "")
 
         val databaseHelper = DatabaseHelper(requireContext())
         return databaseHelper.addIncome(income)
@@ -98,9 +98,10 @@ class AddIncomeFragment : Fragment() {
             val category = getSelectedCategory()
             val date = getCurrentDate()
             val description = binding.editTextText.text.toString()
+            val currency = binding.currencySpinner.selectedItem.toString()
 
-            if (addIncomeToDatabase(amount, category, date, description)) {
-                showSnackbar("Income added: $amount")
+            if (addIncomeToDatabase(amount, category, date, description,currency)) {
+                showSnackbar("Income added: $amount $currency")
                 findNavController().navigate(R.id.action_addIncomeFragment_to_incomeFragment)
             } else {
                 showSnackbar("Failed to add income.")

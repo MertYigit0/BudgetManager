@@ -82,19 +82,18 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/incomeRecyclerView"
-        android:layout_width="373dp"
-        android:layout_height="217dp"
-        android:layout_marginBottom="40dp"
+        android:layout_width="370dp"
+        android:layout_height="213dp"
+        android:layout_marginBottom="84dp"
         android:clipToPadding="false"
         android:padding="8dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.489"
+        app:layout_constraintHorizontal_bias="0.56"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toggleButtonGroup"
         tools:listitem="@layout/item_income" />
-
-
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

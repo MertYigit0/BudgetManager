@@ -75,10 +75,10 @@ class AddExpenseFragment : Fragment() {
 
 
 
-    private fun addExpenseToDatabase(amount: Double, category: String, date: String, description: String?): Boolean {
+    private fun addExpenseToDatabase(amount: Double, category: String, date: String, description: String?,currency: String): Boolean {
         val dbHelper = DatabaseHelper(requireContext())
         val userId = currentUserEmail?.let { dbHelper.getUserData(it) }?.id ?: -1
-        val expense = Expense(id = 0, userId = userId, amount = amount, currency = "$", categoryId = 0, categoryName = category, date = date, note = description ?: "", createdAt = "")
+        val expense = Expense(id = 0, userId = userId, amount = amount, currency = currency, categoryId = 0, categoryName = category, date = date, note = description ?: "", createdAt = "")
 
         val databaseHelper = DatabaseHelper(requireContext())
         return databaseHelper.addExpense(expense)
@@ -90,9 +90,10 @@ class AddExpenseFragment : Fragment() {
             val category = getSelectedCategory()
             val date = getCurrentDate()
             val description = binding.editTextText.text.toString()
+            val currency = binding.currencySpinner.selectedItem.toString()
 
-            if (addExpenseToDatabase(amount, category, date, description)) {
-                showSnackbar("Expense added: $amount")
+            if (addExpenseToDatabase(amount, category, date, description, currency )) {
+                showSnackbar("Expense added: $amount  $currency")
                 findNavController().navigate(R.id.action_addExpenseFragment_to_expenseFragment)
             } else {
                 showSnackbar("Failed to add expense.")

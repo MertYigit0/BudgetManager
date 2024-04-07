@@ -7,7 +7,10 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
+import com.google.gson.Gson
 import com.mertyigit0.budgetmanager.R
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -16,6 +19,7 @@ class CurrencyFragment : Fragment() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: CurrencyListAdapter
+    private val cacheManager = CurrencyCacheManager()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -36,13 +40,27 @@ class CurrencyFragment : Fragment() {
     }
 
     private fun fetchData() {
+        val cachedData = cacheManager.getCachedData()
+        if (cachedData != null && cacheManager.isDataValid()) {
+            // Önbellekte geçerli veri var, bu veriyi kullan
+            val currencyResponse = Gson().fromJson(cachedData.toString(), CurrencyResponse::class.java)
+            updateUI(currencyResponse.rates)
+            showSnackbar("Veriler önbellekten geldi.")
+        } else {
+            // Önbellekte geçerli veri yok veya veri geçerli değil, API'den veri çek
+            fetchCurrencyFromAPI()
+        }
+    }
+
+    private fun fetchCurrencyFromAPI() {
         CurrencyApiClient.service.getCurrencyRates().enqueue(object : Callback<CurrencyResponse> {
             override fun onResponse(call: Call<CurrencyResponse>, response: Response<CurrencyResponse>) {
                 if (response.isSuccessful) {
                     val currencyResponse = response.body()
                     currencyResponse?.let {
-                        adapter = CurrencyListAdapter(it.rates)
-                        recyclerView.adapter = adapter
+                        updateUI(it.rates)
+                        cacheManager.setCachedData(JSONObject(Gson().toJson(it)))
+                        showSnackbar("Veriler API'den geldi.")
                     }
                 } else {
                     // İstek başarısız oldu
@@ -53,5 +71,16 @@ class CurrencyFragment : Fragment() {
                 // Hata oluştu
             }
         })
+    }
+
+    private fun updateUI(currencyRates: Map<String, Double>) {
+        adapter = CurrencyListAdapter(currencyRates)
+        recyclerView.adapter = adapter
+    }
+
+    private fun showSnackbar(message: String) {
+        view?.let {
+            Snackbar.make(it, message, Snackbar.LENGTH_SHORT).show()
+        }
     }
 }

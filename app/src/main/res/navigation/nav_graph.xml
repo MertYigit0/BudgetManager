@@ -16,6 +16,9 @@
         <action
             android:id="@+id/action_incomeFragment_to_expenseFragment"
             app:destination="@id/expenseFragment" />
+        <action
+            android:id="@+id/action_incomeFragment_to_incomeListFragment"
+            app:destination="@id/incomeListFragment" />
     </fragment>
     <fragment
         android:id="@+id/addIncomeFragment"
@@ -109,4 +112,9 @@
         android:name="com.mertyigit0.budgetmanager.currency.CurrencyFragment"
         android:label="fragment_currency"
         tools:layout="@layout/fragment_currency" />
+    <fragment
+        android:id="@+id/incomeListFragment"
+        android:name="com.mertyigit0.budgetmanager.ui.IncomeListFragment"
+        android:label="fragment_income_list"
+        tools:layout="@layout/fragment_income_list" />
 </navigation>

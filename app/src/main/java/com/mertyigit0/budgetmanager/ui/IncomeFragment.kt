@@ -99,6 +99,9 @@ class IncomeFragment : Fragment() {
         binding.addIncomebutton.setOnClickListener{
             navController.navigate(R.id.action_incomeFragment_to_addIncomeFragment)
         }
+        binding.viewAllButton.setOnClickListener{
+            navController.navigate(R.id.action_incomeFragment_to_incomeListFragment)
+        }
 
 
     }

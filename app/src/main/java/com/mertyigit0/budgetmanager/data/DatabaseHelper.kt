@@ -325,6 +325,14 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         return success != -1L
     }
 
+    fun deleteIncome(incomeId: Long): Boolean {
+        val db = this.writableDatabase
+        val success = db.delete(TABLE_INCOMES, "$COLUMN_ID_INCOME=?", arrayOf(incomeId.toString()))
+        db.close()
+        return success > 0
+    }
+
+
     @SuppressLint("Range")
     fun getAllIncomesByUserId(userId: Int): List<Income> {
         val incomesList = ArrayList<Income>()

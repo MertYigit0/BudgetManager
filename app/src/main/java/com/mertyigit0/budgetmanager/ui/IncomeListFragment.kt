@@ -41,7 +41,7 @@ class IncomeListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        incomeAdapter = IncomeAdapter(ArrayList()) // Boş bir ArrayList ile IncomeAdapter oluştur
+        incomeAdapter = IncomeAdapter(requireContext(),ArrayList()) // Boş bir ArrayList ile IncomeAdapter oluştur
 
         val recyclerView = binding.incomeListRecyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext())

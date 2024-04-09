@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.mertyigit0.budgetmanager.R
 import com.github.mikephil.charting.charts.PieChart
@@ -16,6 +17,7 @@ import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.google.firebase.auth.FirebaseAuth
 import com.mertyigit0.budgetmanager.adapters.IncomeAdapter
+import com.mertyigit0.budgetmanager.adapters.IncomeSwipeToDeleteCallback
 import com.mertyigit0.budgetmanager.data.DatabaseHelper
 import com.mertyigit0.budgetmanager.data.Income
 import com.mertyigit0.budgetmanager.databinding.FragmentIncomeBinding
@@ -49,11 +51,15 @@ class IncomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        incomeAdapter = IncomeAdapter(ArrayList()) // Boş bir ArrayList ile IncomeAdapter oluştur
+        incomeAdapter = IncomeAdapter(requireContext(),ArrayList()) // Boş bir ArrayList ile IncomeAdapter oluştur
 
         val recyclerView = binding.incomeRecyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = incomeAdapter
+
+        // ItemTouchHelper'ı kullanarak swipe to delete özelliğini ekleyin
+        val itemTouchHelper = ItemTouchHelper(IncomeSwipeToDeleteCallback(incomeAdapter))
+        itemTouchHelper.attachToRecyclerView(recyclerView)
 
 
         val incomePieChart: PieChart = binding.incomePieChart
@@ -105,6 +111,8 @@ class IncomeFragment : Fragment() {
 
 
     }
+
+
 
     // Kategoriye göre renk atayan yardımcı fonksiyon
     private fun getColorForCategory(categoryName: String): Int {

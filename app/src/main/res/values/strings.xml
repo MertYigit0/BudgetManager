@@ -169,4 +169,12 @@
         <item>ZWL</item>
     </string-array>
 
+
+    <string-array name="expense_bar_type">
+        <item>WEEKLY</item>
+        <item>GENERAL</item>
+
+    </string-array>
+
+
 </resources>

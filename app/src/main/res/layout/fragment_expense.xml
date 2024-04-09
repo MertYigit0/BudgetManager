@@ -30,6 +30,19 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.168" />
+            <com.github.mikephil.charting.charts.BarChart
+                android:id="@+id/expenseBarChart"
+                android:layout_width="384dp"
+                android:layout_height="260dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.894"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.586" />
+
+
+
 
             <Button
                 android:id="@+id/addExpensebutton"
@@ -97,6 +110,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toggleButtonGroup"
         tools:listitem="@layout/item_income" />
+
+
+    <Spinner
+        android:id="@+id/bar_type_spinner"
+        android:layout_width="266dp"
+        android:layout_height="54dp"
+        android:layout_marginBottom="288dp"
+        android:entries="@array/expense_bar_type"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toStartOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:layout_editor_absoluteX="17dp"
     tools:layout_editor_absoluteY="-190dp"
-    android:background="@color/bej">
+    android:background="@color/white">
 
 
     <EditText
@@ -14,7 +14,7 @@
         android:layout_width="312dp"
         android:layout_height="50dp"
         android:layout_marginTop="244dp"
-        android:background="@drawable/shape"
+        android:background="@color/white"
         android:ems="10"
         android:hint="  Email"
         android:inputType="textEmailAddress"
@@ -70,7 +70,7 @@
         android:layout_width="312dp"
         android:layout_height="50dp"
         android:layout_marginTop="56dp"
-        android:background="@drawable/shape"
+        android:background="@color/white"
         android:ems="10"
         android:hint="Password"
         android:inputType="textPassword"
@@ -91,7 +91,7 @@
         android:layout_height="47dp"
         android:layout_marginTop="48dp"
         android:layout_marginBottom="48dp"
-        android:backgroundTint="#FF9000"
+        android:backgroundTint="@color/blue"
         android:onClick="loginClicked"
         android:text="Login"
         android:textSize="20dp"
@@ -108,7 +108,7 @@
         android:focusable="true"
         android:onClick="registerNowClicked"
         android:text="Don't have an account ? "
-        android:textColor="@color/brown"
+        android:textColor="@color/gray"
         android:textStyle="bold"
         android:shadowColor="#80000000"
         android:shadowDx="2"
@@ -128,7 +128,7 @@
         android:focusable="true"
         android:onClick="registerNowClicked"
         android:text=" Register Now !"
-        android:textColor="@color/yellow"
+        android:textColor="@color/gray"
         android:textStyle="bold"
         android:shadowColor="#80000000"
         android:shadowDx="2"
@@ -148,7 +148,7 @@
         android:focusable="true"
         android:onClick="registerNowClicked"
         android:text=" Continue without register!"
-        android:textColor="@color/orange"
+        android:textColor="@color/blue"
         android:textStyle="bold"
         android:shadowColor="#80000000"
         android:shadowDx="2"
@@ -181,5 +181,17 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="250dp"
+        android:layout_height="150dp"
+        app:layout_constraintBottom_toTopOf="@+id/textView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.29"
+        app:srcCompat="@drawable/piggyicon" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

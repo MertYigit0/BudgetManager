@@ -112,8 +112,6 @@ class IncomeFragment : Fragment() {
 
     }
 
-
-
     // Kategoriye göre renk atayan yardımcı fonksiyon
     private fun getColorForCategory(categoryName: String): Int {
         return when (categoryName) {
@@ -124,7 +122,6 @@ class IncomeFragment : Fragment() {
             else -> Color.parseColor("#FFA500") // Diğer kategoriler için turuncu renk
         }
     }
-
 
 
 }

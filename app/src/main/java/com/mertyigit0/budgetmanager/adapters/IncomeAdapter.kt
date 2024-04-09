@@ -59,7 +59,7 @@ class IncomeAdapter(val context: Context, private val incomeList: ArrayList<Inco
 class IncomeSwipeToDeleteCallback(private val adapter: IncomeAdapter) :
     ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
 
-    private val deleteIcon: Drawable? = ContextCompat.getDrawable(adapter.context, R.drawable.ic_delete)
+    private val deleteIcon: Drawable? = ContextCompat.getDrawable(adapter.context, R.drawable.baseline_delete_forever_24)
     private val background: ColorDrawable = ColorDrawable(Color.RED)
 
     override fun onMove(
@@ -81,6 +81,8 @@ class IncomeSwipeToDeleteCallback(private val adapter: IncomeAdapter) :
             // Silme işlemi başarılı oldu, PieChart'ı güncelle
 
         }
+
+
     }
     override fun onChildDraw(
         c: Canvas,

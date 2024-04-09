@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.Navigation
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.data.PieData
@@ -15,6 +16,8 @@ import com.github.mikephil.charting.data.PieEntry
 import com.google.firebase.auth.FirebaseAuth
 import com.mertyigit0.budgetmanager.R
 import com.mertyigit0.budgetmanager.adapters.ExpenseAdapter
+import com.mertyigit0.budgetmanager.adapters.ExpenseSwipeToDeleteCallback
+import com.mertyigit0.budgetmanager.adapters.IncomeSwipeToDeleteCallback
 
 import com.mertyigit0.budgetmanager.data.DatabaseHelper
 import com.mertyigit0.budgetmanager.databinding.FragmentExpenseBinding
@@ -46,11 +49,15 @@ class ExpenseFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-       expenseAdapter = ExpenseAdapter(ArrayList()) // Boş bir ArrayList ile ExpenseAdapter oluştur
+       expenseAdapter = ExpenseAdapter(requireContext(),ArrayList()) // Boş bir ArrayList ile ExpenseAdapter oluştur
 
         val recyclerView = binding.expenseRecyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = expenseAdapter
+
+        // ItemTouchHelper'ı kullanarak swipe to delete özelliğini ekleyin
+        val itemTouchHelper = ItemTouchHelper(ExpenseSwipeToDeleteCallback(expenseAdapter))
+        itemTouchHelper.attachToRecyclerView(recyclerView)
 
         val expensePieChart: PieChart = binding.expensePieChart
         val dbHelper = DatabaseHelper(requireContext())

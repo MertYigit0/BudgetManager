@@ -405,7 +405,12 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         return success != -1L
     }
 
-
+    fun deleteExpense(expenseId: Long): Boolean {
+        val db = this.writableDatabase
+        val success = db.delete(TABLE_EXPENSES, "$COLUMN_ID_EXPENSE=?", arrayOf(expenseId.toString()))
+        db.close()
+        return success > 0
+    }
 
 
     @SuppressLint("Range")

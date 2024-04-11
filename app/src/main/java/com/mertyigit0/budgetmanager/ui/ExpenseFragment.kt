@@ -58,9 +58,6 @@ class ExpenseFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val expenseBarChart: BarChart = binding.expenseBarChart
-        // Haftanın günlerine göre harcamaları hesapla ve bar chart'ı güncelle
-      //  calculateAndDisplayWeeklyExpenses(expenseBarChart)
 
         chart_select()
 
@@ -77,7 +74,41 @@ class ExpenseFragment : Fragment() {
         val itemTouchHelper = ItemTouchHelper(ExpenseSwipeToDeleteCallback(expenseAdapter))
         itemTouchHelper.attachToRecyclerView(recyclerView)
 
-        val expensePieChart: PieChart = binding.expensePieChart
+        val dbHelper = DatabaseHelper(requireContext())
+        val currentUserEmail = auth.currentUser?.email
+        val userData = currentUserEmail?.let { dbHelper.getUserData(it) }
+        // Veritabanından tüm gelirleri al
+        val expenses = userData?.let { dbHelper.getAllExpensesByUserId(it.id) }
+        // Gelir verilerini RecyclerView'a aktar
+        expenses?.let { expenseAdapter.updateExpenseList(it) }
+        // Gelir verileri listesini oluştur
+
+        val navController = Navigation.findNavController(requireView())
+        binding.toggleButtonGroup.check(R.id.expensesButton)
+        binding.incomesButton.setOnClickListener {
+            navController.navigate(R.id.action_expenseFragment_to_incomeFragment)
+        }
+
+        binding.addExpensebutton.setOnClickListener {
+            navController.navigate(R.id.action_expenseFragment_to_addExpenseFragment)
+        }
+
+    }
+
+
+    // Kategoriye göre renk atayan yardımcı fonksiyon
+    private fun getColorForCategory(categoryName: String): Int {
+        return when (categoryName) {
+            "Utils" -> Color.GREEN
+            "Transport" -> Color.BLUE
+            "Rent" -> Color.RED
+            "Food&Grocery" -> Color.CYAN
+            else -> Color.parseColor("#FFA500") // Diğer kategoriler için turuncu renk
+        }
+    }
+
+    private fun calculateAndDisplayGeneralExpenses(pieChart: PieChart){
+
         val dbHelper = DatabaseHelper(requireContext())
 
         val currentUserEmail = auth.currentUser?.email
@@ -104,32 +135,10 @@ class ExpenseFragment : Fragment() {
         // Veri setini PieData'ya ekle
         val pieData = PieData(dataSet)
         // PieChart'a PieData'yı ayarla
-        expensePieChart.data = pieData
+       pieChart.data = pieData
         // Chart'ın güncellenmesini sağla
-        expensePieChart.invalidate()
+        pieChart.invalidate()
 
-
-        val navController = Navigation.findNavController(requireView())
-        binding.toggleButtonGroup.check(R.id.expensesButton)
-        binding.incomesButton.setOnClickListener {
-            navController.navigate(R.id.action_expenseFragment_to_incomeFragment)
-        }
-
-        binding.addExpensebutton.setOnClickListener {
-            navController.navigate(R.id.action_expenseFragment_to_addExpenseFragment)
-        }
-
-    }
-
-    // Kategoriye göre renk atayan yardımcı fonksiyon
-    private fun getColorForCategory(categoryName: String): Int {
-        return when (categoryName) {
-            "Utils" -> Color.GREEN
-            "Transport" -> Color.BLUE
-            "Rent" -> Color.RED
-            "Food&Grocery" -> Color.CYAN
-            else -> Color.parseColor("#FFA500") // Diğer kategoriler için turuncu renk
-        }
     }
 
     private fun calculateAndDisplayWeeklyExpenses(barChart: BarChart) {
@@ -198,17 +207,19 @@ class ExpenseFragment : Fragment() {
                 ) {
                     when (position) {
                         0 -> {
-                            binding.expensePieChart.visibility = View.VISIBLE
-                            binding.expenseBarChart.visibility = View.GONE
-                            // Haftalık harcamaları göster
+                            binding.expensePieChart.visibility = View.GONE
+                            binding.expenseBarChart.visibility = View.VISIBLE
+
+                            calculateAndDisplayWeeklyExpenses(binding.expenseBarChart)
 
                         }
 
                         1 -> {
-                            binding.expensePieChart.visibility = View.GONE
-                            binding.expenseBarChart.visibility = View.VISIBLE
-                            // Genel harcamaları göster
-                            calculateAndDisplayWeeklyExpenses(binding.expenseBarChart)
+
+                            binding.expensePieChart.visibility = View.VISIBLE
+                            binding.expenseBarChart.visibility = View.GONE
+                            calculateAndDisplayGeneralExpenses(binding.expensePieChart)
+
                         }
                     }
                 }

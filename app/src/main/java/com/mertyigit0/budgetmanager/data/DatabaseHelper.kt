@@ -119,6 +119,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         private const val COLUMN_ALERT_TYPE = "alert_type"
         private const val COLUMN_MESSAGE = "message"
         private const val COLUMN_CREATED_AT_BUDGET_ALERT = "created_at"
+        private const val COLUMN_TARGET_AMOUNT_BUDGET_ALERT = "target_amount"
+        private const val COLUMN_CURRENT_AMOUNT_BUDGET_ALERT = "current_amount"
         private const val COLUMN_CATEGORY_ID_BUDGET_ALERT = "category_id"
 
         //Regular Incomes
@@ -161,8 +163,11 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 "$COLUMN_MESSAGE TEXT," +
                 "$COLUMN_CREATED_AT_BUDGET_ALERT TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
                 "$COLUMN_CATEGORY_ID_BUDGET_ALERT INTEGER," +
-                "FOREIGN KEY($COLUMN_USER_ID_BUDGET_ALERT) REFERENCES $TABLE_USERS($COLUMN_USER_ID))")
-        db?.execSQL(CREATE_BUDGET_ALERTS_TABLE)
+                "$COLUMN_TARGET_AMOUNT_BUDGET_ALERT REAL NOT NULL," +
+                "$COLUMN_CURRENT_AMOUNT_BUDGET_ALERT REAL NOT NULL," +
+                "FOREIGN KEY($COLUMN_USER_ID_BUDGET_ALERT) REFERENCES $TABLE_USERS($COLUMN_USER_ID)," +
+                "FOREIGN KEY($COLUMN_CATEGORY_ID_BUDGET_ALERT) REFERENCES $TABLE_EXPENSE_CATEGORIES($COLUMN_CATEGORY_ID_EXPENSE))")
+
 
         // Incomes table creation
         val CREATE_INCOMES_TABLE = ("CREATE TABLE $TABLE_INCOMES(" +
@@ -483,6 +488,50 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db.close()
         return financialGoalsList
     }
+
+    fun addBudgetAlert(budgetAlert: BudgetAlert): Boolean {
+        val db = this.writableDatabase
+        val values = ContentValues().apply {
+            put(COLUMN_USER_ID_BUDGET_ALERT, budgetAlert.userId)
+            put(COLUMN_ALERT_TYPE, budgetAlert.alertType)
+            put(COLUMN_MESSAGE, budgetAlert.message)
+            put(COLUMN_CATEGORY_ID_BUDGET_ALERT, budgetAlert.categoryName)
+            put(COLUMN_TARGET_AMOUNT_BUDGET_ALERT, budgetAlert.targetAmount)
+            put(COLUMN_CURRENT_AMOUNT_BUDGET_ALERT, budgetAlert.currentAmount)
+        }
+        val success = db.insert(TABLE_BUDGET_ALERTS, null, values)
+        db.close()
+        return success != -1L
+    }
+
+    @SuppressLint("Range")
+    fun getAllBudgetAlertsByUserId(userId: Int): List<BudgetAlert> {
+        val budgetAlerts = ArrayList<BudgetAlert>()
+        val selectQuery = "SELECT * FROM $TABLE_BUDGET_ALERTS WHERE $COLUMN_USER_ID_BUDGET_ALERT = $userId"
+        val db = this.readableDatabase
+        val cursor = db.rawQuery(selectQuery, null)
+        cursor.use { cursor ->
+            if (cursor.moveToFirst()) {
+                do {
+                    val id = cursor.getInt(cursor.getColumnIndex(COLUMN_ID_BUDGET_ALERT))
+                    val userId = cursor.getInt(cursor.getColumnIndex(COLUMN_USER_ID_BUDGET_ALERT))
+                    val alertType = cursor.getString(cursor.getColumnIndex(COLUMN_ALERT_TYPE))
+                    val message = cursor.getString(cursor.getColumnIndex(COLUMN_MESSAGE))
+                    val categoryName = cursor.getString(cursor.getColumnIndex(COLUMN_CATEGORY_ID_BUDGET_ALERT))
+                    val targetAmount = cursor.getDouble(cursor.getColumnIndex(COLUMN_TARGET_AMOUNT_BUDGET_ALERT))
+                    val currentAmount = cursor.getDouble(cursor.getColumnIndex(COLUMN_CURRENT_AMOUNT_BUDGET_ALERT))
+                    val createdAt = cursor.getString(cursor.getColumnIndex(COLUMN_CREATED_AT_BUDGET_ALERT))
+                    val budgetAlert = BudgetAlert(id, userId, alertType, message,targetAmount, currentAmount ,createdAt, categoryName, )
+                    budgetAlerts.add(budgetAlert)
+                } while (cursor.moveToNext())
+            }
+        }
+        cursor.close()
+        return budgetAlerts
+    }
+
+
+
 
 
 

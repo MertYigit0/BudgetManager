@@ -117,4 +117,22 @@
         android:name="com.mertyigit0.budgetmanager.ui.IncomeListFragment"
         android:label="fragment_income_list"
         tools:layout="@layout/fragment_income_list" />
+    <fragment
+        android:id="@+id/addBudgetAlertFragment"
+        android:name="com.mertyigit0.budgetmanager.ui.AddBudgetAlertFragment"
+        android:label="fragment_add_budget_alert"
+        tools:layout="@layout/fragment_add_budget_alert" >
+        <action
+            android:id="@+id/action_addBudgetAlertFragment_to_budgetAlertFragment"
+            app:destination="@id/budgetAlertFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/budgetAlertFragment"
+        android:name="com.mertyigit0.budgetmanager.ui.BudgetAlertFragment"
+        android:label="fragment_budget_alert"
+        tools:layout="@layout/fragment_budget_alert" >
+        <action
+            android:id="@+id/action_budgetAlertFragment_to_addBudgetAlertFragment"
+            app:destination="@id/addBudgetAlertFragment" />
+    </fragment>
 </navigation>

@@ -35,6 +35,10 @@ class MainActivity : AppCompatActivity() {
                     navController.navigate(R.id.expenseFragment)
                     true
                 }
+                R.id.budgetAlertFragment -> {
+                    navController.navigate(R.id.budgetAlertFragment)
+                    true
+                }
 
                 R.id.profileFragment -> {
                     navController.navigate(R.id.profileFragment)

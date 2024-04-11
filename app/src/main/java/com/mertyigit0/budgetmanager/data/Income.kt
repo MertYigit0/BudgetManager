@@ -111,6 +111,10 @@ data class BudgetAlert(
     val userId: Int,
     val alertType: String,
     val message: String,
+    val targetAmount: Double,
+    val currentAmount: Double,
     val createdAt: String,
-    val categoryId: Int?
+    val categoryName: String?
+
 )
+

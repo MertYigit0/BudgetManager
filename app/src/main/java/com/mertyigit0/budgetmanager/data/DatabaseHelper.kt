@@ -41,6 +41,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         //Expense Categories
         private const val TABLE_EXPENSE_CATEGORIES = "expense_categories"
         private const val COLUMN_ID_EXPENSE_CATEGORY = "id"
+        private const val COLUMN_USER_ID_EXPENSE_CATEGORY = "user_id"
         private const val COLUMN_NAME_EXPENSE_CATEGORY = "name"
 
         //incomes
@@ -58,6 +59,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         //Income Categories
         private const val TABLE_INCOME_CATEGORIES = "income_categories"
         private const val COLUMN_ID_INCOME_CATEGORY = "id"
+        private const val COLUMN_USER_ID_INCOME_CATEGORY = "user_id"
         private const val COLUMN_NAME_INCOME_CATEGORY = "name"
 
 
@@ -152,7 +154,9 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         // Income categories table creation
         val CREATE_INCOME_CATEGORIES_TABLE = ("CREATE TABLE $TABLE_INCOME_CATEGORIES(" +
                 "$COLUMN_ID_INCOME_CATEGORY INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "$COLUMN_USER_ID_INCOME_CATEGORY INTEGER NOT NULL," +
                 "$COLUMN_NAME_INCOME_CATEGORY TEXT NOT NULL)")
+                "FOREIGN KEY($COLUMN_USER_ID_INCOME_CATEGORY) REFERENCES $TABLE_USERS($COLUMN_USER_ID)," +
         db?.execSQL(CREATE_INCOME_CATEGORIES_TABLE)
 
         // Budget Alerts
@@ -276,7 +280,9 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         // Expense Categories Table Creation
         val CREATE_EXPENSE_CATEGORIES_TABLE = ("CREATE TABLE $TABLE_EXPENSE_CATEGORIES(" +
                 "$COLUMN_ID_EXPENSE_CATEGORY INTEGER PRIMARY KEY," +
-                "$COLUMN_NAME_EXPENSE_CATEGORY TEXT)")
+                "$COLUMN_USER_ID_EXPENSE_CATEGORY INTEGER NOT NULL," +
+                "$COLUMN_NAME_EXPENSE_CATEGORY TEXT NOT NULL)")
+        "FOREIGN KEY($COLUMN_USER_ID_EXPENSE_CATEGORY) REFERENCES $TABLE_USERS($COLUMN_USER_ID)," +
 
         db?.execSQL(CREATE_EXPENSE_CATEGORIES_TABLE)
 
@@ -537,14 +543,50 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
     fun insertDefaultIncomeCategories(db: SQLiteDatabase) {
         val defaultCategories = listOf("Salary", "Freelance", "Investments", "Rental Income", "Interest")
+        val userId = 0
 
         for (category in defaultCategories) {
             val values = ContentValues().apply {
+                put(COLUMN_USER_ID_INCOME_CATEGORY, userId) // Kullanıcı kimliği eklendi
                 put(COLUMN_NAME_INCOME_CATEGORY, category)
             }
             db.insert(TABLE_INCOME_CATEGORIES, null, values)
         }
     }
+
+
+    @SuppressLint("Range")
+    fun getAllIncomeCategoriesByUserId(userId: Int): List<String> {
+        val categories = mutableListOf<String>()
+        val selectQuery = "SELECT * FROM $TABLE_INCOME_CATEGORIES WHERE $COLUMN_USER_ID_INCOME_CATEGORY = $userId OR $COLUMN_USER_ID_INCOME_CATEGORY = 0"
+        val db = this.readableDatabase
+        val cursor = db.rawQuery(selectQuery, null)
+        cursor.use { cursor ->
+            if (cursor.moveToFirst()) {
+                do {
+                    val category = cursor.getString(cursor.getColumnIndex(COLUMN_NAME_INCOME_CATEGORY))
+                    categories.add(category)
+                } while (cursor.moveToNext())
+            }
+        }
+        cursor.close()
+        return categories
+    }
+    @SuppressLint("Range")
+    fun getCategoryIdByCategoryName(categoryName: String): Int {
+        val db = this.readableDatabase
+        var categoryId = -1
+        val selectQuery = "SELECT $COLUMN_ID_INCOME_CATEGORY FROM $TABLE_INCOME_CATEGORIES WHERE $COLUMN_NAME_INCOME_CATEGORY = ?"
+        val cursor = db.rawQuery(selectQuery, arrayOf(categoryName))
+        cursor.use {
+            if (it.moveToFirst()) {
+                categoryId = it.getInt(it.getColumnIndex(COLUMN_ID_INCOME_CATEGORY))
+            }
+        }
+        cursor.close()
+        return categoryId
+    }
+
 
 
 

@@ -35,12 +35,14 @@ data class Expense(
 
 data class ExpenseCategory(
     val id: Int,
+    val userId: Int,
     val name: String
 )
 
 
 data class IncomeCategory(
     val id: Int,
+    val userId: Int,
     val name: String
 )
 

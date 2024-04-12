@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.core.view.children
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.button.MaterialButton
@@ -50,6 +51,9 @@ class AddExpenseFragment : Fragment() {
 
         setupToggleButtonGroup()
         addExpense()
+
+
+
     }
     private fun setupToggleButtonGroup() {
         toggleButtonGroup.addOnButtonCheckedListener { group, checkedId, isChecked ->
@@ -121,6 +125,10 @@ class AddExpenseFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
+
+
+
 
 
 }

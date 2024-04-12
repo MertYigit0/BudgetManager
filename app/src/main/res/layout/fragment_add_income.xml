@@ -23,54 +23,14 @@
 
     <com.google.android.material.button.MaterialButtonToggleGroup
         android:id="@+id/toggleButtonGroup"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:singleSelection="true"
+        android:layout_width="351dp"
+        android:layout_height="166dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:singleSelection="true">
 
-        <Button
-             android:id="@+id/Salary"
-            android:text="Salary"
-            style="@style/ToggleButtonWithIconOnly"
-            app:icon="@drawable/baseline_attach_money_24"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:layout_editor_absoluteX="168dp"
-            tools:layout_editor_absoluteY="153dp" />
-
-        <Button
-            android:id="@+id/Investment"
-            android:text="Investment"
-            style="@style/ToggleButtonWithIconOnly"
-            app:icon="@drawable/baseline_account_balance_wallet_24"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:layout_editor_absoluteX="173dp"
-            tools:layout_editor_absoluteY="251dp" />
-
-        <Button
-            android:id="@+id/Rent"
-
-            android:text="Rent"
-            style="@style/ToggleButtonWithIconOnly"
-            app:icon="@drawable/baseline_house_24"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:layout_editor_absoluteX="166dp"
-            tools:layout_editor_absoluteY="340dp" />
-
-        <Button
-            android:id="@+id/Other"
-            android:text="Other"
-            style="@style/ToggleButtonWithIconOnly"
-            app:icon="@drawable/baseline_account_balance_24"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:layout_editor_absoluteX="166dp"
-            tools:layout_editor_absoluteY="447dp" />
 
     </com.google.android.material.button.MaterialButtonToggleGroup>
 
@@ -79,13 +39,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:inputType="text"
         android:hint="Description"
+        android:inputType="text"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toggleButtonGroup" />
+        app:layout_constraintTop_toBottomOf="@+id/toggleButtonGroup"
+        app:layout_constraintVertical_bias="0.4" />
 
     <Button
         android:id="@+id/addButton"
@@ -94,8 +55,10 @@
         android:text="ADD"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.501"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextText" />
+        app:layout_constraintTop_toBottomOf="@+id/editTextText"
+        app:layout_constraintVertical_bias="0.372" />
 
     <Spinner
         android:id="@+id/currencySpinner"

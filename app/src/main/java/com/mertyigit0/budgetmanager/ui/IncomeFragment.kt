@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.Navigation
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.mertyigit0.budgetmanager.R
@@ -19,9 +18,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.mertyigit0.budgetmanager.adapters.IncomeAdapter
 import com.mertyigit0.budgetmanager.adapters.IncomeSwipeToDeleteCallback
 import com.mertyigit0.budgetmanager.data.DatabaseHelper
-import com.mertyigit0.budgetmanager.data.Income
 import com.mertyigit0.budgetmanager.databinding.FragmentIncomeBinding
-import java.util.Random
 
 
 class IncomeFragment : Fragment() {
@@ -75,8 +72,8 @@ class IncomeFragment : Fragment() {
         val entries = mutableListOf<PieEntry>()
 
         if (incomes != null) {
-            incomes.forEach { income ->
-                entries.add(PieEntry(income.amount.toFloat(), income.categoryName))
+            incomes?.forEach { income ->
+                entries.add(PieEntry(income.amount.toFloat(), income.categoryId.toString()))
             }
         }
 
@@ -84,7 +81,7 @@ class IncomeFragment : Fragment() {
         val dataSet = PieDataSet(entries, "Gelir")
         // Kategori renklerini dataSet'e ekle
         dataSet.colors = entries.map { entry ->
-            getColorForCategory(entry.label)
+            getColorForCategory(entry.label.toInt())
         }
         // Veri setini PieData'ya ekle
         val pieData = PieData(dataSet)
@@ -113,15 +110,21 @@ class IncomeFragment : Fragment() {
     }
 
     // Kategoriye göre renk atayan yardımcı fonksiyon
-    private fun getColorForCategory(categoryName: String): Int {
-        return when (categoryName) {
-            "Salary" -> Color.GREEN
-            "Investment" -> Color.BLUE
-            "Rent" -> Color.RED
-            "Other" -> Color.CYAN
-            else -> Color.parseColor("#FFA500") // Diğer kategoriler için turuncu renk
+    private fun getColorForCategory(categoryId: Int): Int {
+        return when (categoryId) {
+            1 -> Color.GREEN
+            2 -> Color.BLUE
+            3 -> Color.RED
+            4 -> Color.YELLOW
+            5 -> Color.MAGENTA
+            6 -> Color.CYAN
+            7 -> Color.GRAY
+            8 -> Color.LTGRAY
+            9 -> Color.BLACK
+            else -> Color.parseColor("#FFA500") // Tanımlanmamış kategori id'leri için turuncu renk
         }
     }
+
 
 
 }

@@ -116,8 +116,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         private const val TABLE_BUDGET_ALERTS = "budget_alerts"
         private const val COLUMN_ID_BUDGET_ALERT = "id"
         private const val COLUMN_USER_ID_BUDGET_ALERT = "user_id"
-        private const val COLUMN_ALERT_TYPE = "alert_type"
-        private const val COLUMN_MESSAGE = "message"
+        private const val COLUMN_ALERT_TYPE_BUDGET_ALERT = "alert_type"
+        private const val COLUMN_MESSAGE_BUDGET_ALERT = "message"
         private const val COLUMN_CREATED_AT_BUDGET_ALERT = "created_at"
         private const val COLUMN_TARGET_AMOUNT_BUDGET_ALERT = "target_amount"
         private const val COLUMN_CURRENT_AMOUNT_BUDGET_ALERT = "current_amount"
@@ -159,15 +159,15 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         val CREATE_BUDGET_ALERTS_TABLE = ("CREATE TABLE $TABLE_BUDGET_ALERTS(" +
                 "$COLUMN_ID_BUDGET_ALERT INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "$COLUMN_USER_ID_BUDGET_ALERT INTEGER NOT NULL," +
-                "$COLUMN_ALERT_TYPE TEXT," +
-                "$COLUMN_MESSAGE TEXT," +
+                "$COLUMN_ALERT_TYPE_BUDGET_ALERT TEXT," +
+                "$COLUMN_MESSAGE_BUDGET_ALERT TEXT," +
                 "$COLUMN_CREATED_AT_BUDGET_ALERT TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
                 "$COLUMN_CATEGORY_ID_BUDGET_ALERT INTEGER," +
-                "$COLUMN_TARGET_AMOUNT_BUDGET_ALERT REAL NOT NULL," +
-                "$COLUMN_CURRENT_AMOUNT_BUDGET_ALERT REAL NOT NULL," +
+                "$COLUMN_TARGET_AMOUNT_BUDGET_ALERT REAL," +
+                "$COLUMN_CURRENT_AMOUNT_BUDGET_ALERT REAL," +
                 "FOREIGN KEY($COLUMN_USER_ID_BUDGET_ALERT) REFERENCES $TABLE_USERS($COLUMN_USER_ID)," +
                 "FOREIGN KEY($COLUMN_CATEGORY_ID_BUDGET_ALERT) REFERENCES $TABLE_EXPENSE_CATEGORIES($COLUMN_CATEGORY_ID_EXPENSE))")
-
+        db?.execSQL(CREATE_BUDGET_ALERTS_TABLE)
 
         // Incomes table creation
         val CREATE_INCOMES_TABLE = ("CREATE TABLE $TABLE_INCOMES(" +
@@ -493,9 +493,9 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         val db = this.writableDatabase
         val values = ContentValues().apply {
             put(COLUMN_USER_ID_BUDGET_ALERT, budgetAlert.userId)
-            put(COLUMN_ALERT_TYPE, budgetAlert.alertType)
-            put(COLUMN_MESSAGE, budgetAlert.message)
-            put(COLUMN_CATEGORY_ID_BUDGET_ALERT, budgetAlert.categoryName)
+            put(COLUMN_ALERT_TYPE_BUDGET_ALERT, budgetAlert.alertType)
+            put(COLUMN_MESSAGE_BUDGET_ALERT, budgetAlert.message)
+            put(COLUMN_CATEGORY_ID_BUDGET_ALERT, budgetAlert.categoryId) // categoryId kullanıldı
             put(COLUMN_TARGET_AMOUNT_BUDGET_ALERT, budgetAlert.targetAmount)
             put(COLUMN_CURRENT_AMOUNT_BUDGET_ALERT, budgetAlert.currentAmount)
         }
@@ -515,13 +515,13 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 do {
                     val id = cursor.getInt(cursor.getColumnIndex(COLUMN_ID_BUDGET_ALERT))
                     val userId = cursor.getInt(cursor.getColumnIndex(COLUMN_USER_ID_BUDGET_ALERT))
-                    val alertType = cursor.getString(cursor.getColumnIndex(COLUMN_ALERT_TYPE))
-                    val message = cursor.getString(cursor.getColumnIndex(COLUMN_MESSAGE))
-                    val categoryName = cursor.getString(cursor.getColumnIndex(COLUMN_CATEGORY_ID_BUDGET_ALERT))
+                    val alertType = cursor.getString(cursor.getColumnIndex(COLUMN_ALERT_TYPE_BUDGET_ALERT))
+                    val message = cursor.getString(cursor.getColumnIndex(COLUMN_MESSAGE_BUDGET_ALERT))
+                    val categoryId = cursor.getInt(cursor.getColumnIndex(COLUMN_CATEGORY_ID_BUDGET_ALERT))
                     val targetAmount = cursor.getDouble(cursor.getColumnIndex(COLUMN_TARGET_AMOUNT_BUDGET_ALERT))
                     val currentAmount = cursor.getDouble(cursor.getColumnIndex(COLUMN_CURRENT_AMOUNT_BUDGET_ALERT))
                     val createdAt = cursor.getString(cursor.getColumnIndex(COLUMN_CREATED_AT_BUDGET_ALERT))
-                    val budgetAlert = BudgetAlert(id, userId, alertType, message,targetAmount, currentAmount ,createdAt, categoryName, )
+                    val budgetAlert = BudgetAlert(id, userId, alertType, message,targetAmount, currentAmount ,createdAt, categoryId )
                     budgetAlerts.add(budgetAlert)
                 } while (cursor.moveToNext())
             }

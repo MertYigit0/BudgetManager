@@ -14,7 +14,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.mertyigit0.budgetmanager.R
 import com.mertyigit0.budgetmanager.data.BudgetAlert
 import com.mertyigit0.budgetmanager.data.DatabaseHelper
-import com.mertyigit0.budgetmanager.data.Expense
 import com.mertyigit0.budgetmanager.databinding.FragmentAddBudgetAlertBinding
 import com.mertyigit0.budgetmanager.databinding.FragmentBudgetAlertBinding
 import java.text.SimpleDateFormat
@@ -49,7 +48,7 @@ class AddBudgetAlertFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val dbHelper = DatabaseHelper(requireContext())
+
         toggleButtonGroup = view.findViewById(R.id.toggleButtonGroup)
 
         setupToggleButtonGroup()
@@ -80,7 +79,7 @@ class AddBudgetAlertFragment : Fragment() {
     }
 
 
-    private fun addBudgetAlertToDatabase(alertType: String, message: String, targetAmount: Double, currentAmount: Double, category: String, currency: String): Boolean {
+    private fun addBudgetAlertToDatabase(alertType: String, message: String, targetAmount: Double, currentAmount: Double, ): Boolean {
         val dbHelper = DatabaseHelper(requireContext())
         val userId = currentUserEmail?.let { dbHelper.getUserData(it) }?.id ?: -1
         val budgetAlert = BudgetAlert(
@@ -91,7 +90,7 @@ class AddBudgetAlertFragment : Fragment() {
             targetAmount = targetAmount,
             currentAmount = currentAmount,
             createdAt = "", // Burası için geçici olarak boş bir değer atıyorum, bu değeri veritabanında otomatik olarak oluşturulabilirsiniz.
-            categoryName = category
+            categoryId = 0
         )
 
         val databaseHelper = DatabaseHelper(requireContext())
@@ -103,12 +102,9 @@ class AddBudgetAlertFragment : Fragment() {
             val alertType = "your_alert_type_here" // Alert tipini buraya ekleyin
             val message = "your_message_here" // Mesajı buraya ekleyin
             val targetAmount = binding.targetAmountEditText.text.toString().toDoubleOrNull() ?: 0.0
-          //  val currentAmount = binding.currentAmountEditText.text.toString().toDoubleOrNull() ?: 0.0
-            val currentAmount = 0.0
-            val category = getSelectedCategory()
-            val currency = binding.currencySpinner.selectedItem.toString()
+            val currentAmount = 1.0
 
-            if (addBudgetAlertToDatabase(alertType, message, targetAmount, currentAmount, category, currency)) {
+            if (addBudgetAlertToDatabase(alertType, message, targetAmount, currentAmount)) {
                 showSnackbar("Budget alert added: $message")
                 findNavController().navigate(R.id.action_addBudgetAlertFragment_to_budgetAlertFragment)
             } else {

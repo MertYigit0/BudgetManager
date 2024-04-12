@@ -114,7 +114,7 @@ data class BudgetAlert(
     val targetAmount: Double,
     val currentAmount: Double,
     val createdAt: String,
-    val categoryName: String?
+    val categoryId: Int?
 
 )
 

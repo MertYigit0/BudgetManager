@@ -7,8 +7,9 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.mertyigit0.budgetmanager.data.BudgetAlert
 import com.mertyigit0.budgetmanager.R
+import com.mertyigit0.budgetmanager.data.Income
 
-class BudgetAlertAdapter(private val context: Context, private val budgetAlertList: List<BudgetAlert>) :
+class BudgetAlertAdapter(private val context: Context, private val budgetAlertList: ArrayList<BudgetAlert>) :
     RecyclerView.Adapter<BudgetAlertAdapter.BudgetAlertViewHolder>() {
 
     inner class BudgetAlertViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -31,11 +32,22 @@ class BudgetAlertAdapter(private val context: Context, private val budgetAlertLi
     override fun onBindViewHolder(holder: BudgetAlertViewHolder, position: Int) {
         val budgetAlert = budgetAlertList[position]
 
-        holder.categoryTextView.text = budgetAlert.categoryName
+       // holder.categoryTextView.text = budgetAlert.categoryName
         holder.limitAmountTextView.text = "Target Amount: ${budgetAlert.targetAmount}"
         holder.currentAmountTextView.text = "Current Amount: ${budgetAlert.currentAmount}"
 
         val progress = (budgetAlert.currentAmount.toFloat() / budgetAlert.targetAmount.toFloat() * 100).toInt()
         holder.progressBar.progress = progress
     }
+
+
+    fun updateBudgetAlertList(newBudgetAlertList: List<BudgetAlert>) {
+        budgetAlertList.clear()
+        budgetAlertList.addAll(newBudgetAlertList)
+        notifyDataSetChanged()
+    }
+
+
+
+
 }

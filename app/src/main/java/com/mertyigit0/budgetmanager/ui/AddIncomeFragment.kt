@@ -125,7 +125,7 @@ class AddIncomeFragment : Fragment() {
     private fun getSelectedCategoryId(): Int {
         val selectedCategoryName = getSelectedCategory()
         val dbHelper = DatabaseHelper(requireContext())
-        val  selectedCategoryId =   dbHelper.getCategoryIdByCategoryName(selectedCategoryName)
+        val  selectedCategoryId =   dbHelper.getIncomeCategoryIdByCategoryName(selectedCategoryName)
         return selectedCategoryId
     }
 

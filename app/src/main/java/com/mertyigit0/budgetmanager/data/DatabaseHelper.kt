@@ -289,6 +289,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
         if (db != null) {
             insertDefaultIncomeCategories(db)
+            insertDefaultExpenseCategories(db)
         }
     }
 
@@ -573,7 +574,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         return categories
     }
     @SuppressLint("Range")
-    fun getCategoryIdByCategoryName(categoryName: String): Int {
+    fun getIncomeCategoryIdByCategoryName(categoryName: String): Int {
         val db = this.readableDatabase
         var categoryId = -1
         val selectQuery = "SELECT $COLUMN_ID_INCOME_CATEGORY FROM $TABLE_INCOME_CATEGORIES WHERE $COLUMN_NAME_INCOME_CATEGORY = ?"
@@ -586,6 +587,54 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         cursor.close()
         return categoryId
     }
+
+
+    fun insertDefaultExpenseCategories(db: SQLiteDatabase) {
+        val defaultCategories = listOf("Rent", "Utilities", "Food", "Transportation", "Entertainment")
+        val userId = 0
+
+        for (category in defaultCategories) {
+            val values = ContentValues().apply {
+                put(COLUMN_USER_ID_EXPENSE_CATEGORY, userId) // Kullanıcı kimliği eklendi
+                put(COLUMN_NAME_EXPENSE_CATEGORY, category)
+            }
+            db.insert(TABLE_EXPENSE_CATEGORIES, null, values)
+        }
+    }
+
+    @SuppressLint("Range")
+    fun getAllExpenseCategoriesByUserId(userId: Int): List<String> {
+        val categories = mutableListOf<String>()
+        val selectQuery = "SELECT * FROM $TABLE_EXPENSE_CATEGORIES WHERE $COLUMN_USER_ID_EXPENSE_CATEGORY = $userId OR $COLUMN_USER_ID_EXPENSE_CATEGORY = 0"
+        val db = this.readableDatabase
+        val cursor = db.rawQuery(selectQuery, null)
+        cursor.use { cursor ->
+            if (cursor.moveToFirst()) {
+                do {
+                    val category = cursor.getString(cursor.getColumnIndex(COLUMN_NAME_EXPENSE_CATEGORY))
+                    categories.add(category)
+                } while (cursor.moveToNext())
+            }
+        }
+        cursor.close()
+        return categories
+    }
+
+    @SuppressLint("Range")
+    fun getExpenseCategoryIdByCategoryName(categoryName: String): Int {
+        val db = this.readableDatabase
+        var categoryId = -1
+        val selectQuery = "SELECT $COLUMN_ID_EXPENSE_CATEGORY FROM $TABLE_EXPENSE_CATEGORIES WHERE $COLUMN_NAME_EXPENSE_CATEGORY = ?"
+        val cursor = db.rawQuery(selectQuery, arrayOf(categoryName))
+        cursor.use {
+            if (it.moveToFirst()) {
+                categoryId = it.getInt(it.getColumnIndex(COLUMN_ID_EXPENSE_CATEGORY))
+            }
+        }
+        cursor.close()
+        return categoryId
+    }
+
 
 
 

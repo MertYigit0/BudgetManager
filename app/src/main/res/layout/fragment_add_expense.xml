@@ -23,54 +23,14 @@
 
     <com.google.android.material.button.MaterialButtonToggleGroup
         android:id="@+id/toggleButtonGroup"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:singleSelection="true"
+        android:layout_width="350dp"
+        android:layout_height="135dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:singleSelection="true">
 
-        <Button
-            android:id="@+id/Salary"
-            android:text="Utils"
-            style="@style/ToggleButtonWithIconOnly"
-            app:icon="@drawable/baseline_attach_money_24"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:layout_editor_absoluteX="168dp"
-            tools:layout_editor_absoluteY="153dp" />
-
-        <Button
-            android:id="@+id/Investment"
-            android:text="Transport"
-            style="@style/ToggleButtonWithIconOnly"
-            app:icon="@drawable/baseline_account_balance_wallet_24"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:layout_editor_absoluteX="173dp"
-            tools:layout_editor_absoluteY="251dp" />
-
-        <Button
-            android:id="@+id/Rent"
-
-            android:text="Rent"
-            style="@style/ToggleButtonWithIconOnly"
-            app:icon="@drawable/baseline_house_24"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:layout_editor_absoluteX="166dp"
-            tools:layout_editor_absoluteY="340dp" />
-
-        <Button
-            android:id="@+id/Other"
-            android:text="Food&amp;Grocery"
-            style="@style/ToggleButtonWithIconOnly"
-            app:icon="@drawable/baseline_account_balance_24"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:layout_editor_absoluteX="166dp"
-            tools:layout_editor_absoluteY="447dp" />
 
     </com.google.android.material.button.MaterialButtonToggleGroup>
 

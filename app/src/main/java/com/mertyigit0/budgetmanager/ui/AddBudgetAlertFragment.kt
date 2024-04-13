@@ -1,5 +1,6 @@
 package com.mertyigit0.budgetmanager.ui
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -42,6 +43,7 @@ class AddBudgetAlertFragment : Fragment() {
                               savedInstanceState: Bundle?): View? {
         _binding = FragmentAddBudgetAlertBinding.inflate(inflater,container,false)
         val view = binding.root;
+        createToggleButtonsForIncomeCategories()
         return view
 
     }
@@ -79,7 +81,7 @@ class AddBudgetAlertFragment : Fragment() {
     }
 
 
-    private fun addBudgetAlertToDatabase(alertType: String, message: String, targetAmount: Double, currentAmount: Double, ): Boolean {
+    private fun addBudgetAlertToDatabase(alertType: String, message: String, targetAmount: Double, currentAmount: Double,createdAt : String ,categoryId : Int): Boolean {
         val dbHelper = DatabaseHelper(requireContext())
         val userId = currentUserEmail?.let { dbHelper.getUserData(it) }?.id ?: -1
         val budgetAlert = BudgetAlert(
@@ -89,8 +91,8 @@ class AddBudgetAlertFragment : Fragment() {
             message = message,
             targetAmount = targetAmount,
             currentAmount = currentAmount,
-            createdAt = "", // Burası için geçici olarak boş bir değer atıyorum, bu değeri veritabanında otomatik olarak oluşturulabilirsiniz.
-            categoryId = 0
+            createdAt = createdAt, // Burası için geçici olarak boş bir değer atıyorum, bu değeri veritabanında otomatik olarak oluşturulabilirsiniz.
+            categoryId = categoryId
         )
 
         val databaseHelper = DatabaseHelper(requireContext())
@@ -102,9 +104,10 @@ class AddBudgetAlertFragment : Fragment() {
             val alertType = "your_alert_type_here" // Alert tipini buraya ekleyin
             val message = "your_message_here" // Mesajı buraya ekleyin
             val targetAmount = binding.targetAmountEditText.text.toString().toDoubleOrNull() ?: 0.0
-            val currentAmount = 1.0
-
-            if (addBudgetAlertToDatabase(alertType, message, targetAmount, currentAmount)) {
+            val categoryId = getSelectedCategoryId()
+            val currentAmount = getCurrentTotalExpenseForCategory(categoryId)
+            val createdAt= getCurrentDate()
+            if (addBudgetAlertToDatabase(alertType, message, targetAmount, currentAmount,createdAt,categoryId)) {
                 showSnackbar("Budget alert added: $message")
                 findNavController().navigate(R.id.action_addBudgetAlertFragment_to_budgetAlertFragment)
             } else {
@@ -115,8 +118,20 @@ class AddBudgetAlertFragment : Fragment() {
 
 
 
+    private fun getCurrentTotalExpenseForCategory(categoryId: Int): Double {
+        val dbHelper = DatabaseHelper(requireContext())
+        val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
+        val userId = currentUserEmail?.let { dbHelper.getUserData(it)?.id } ?: -1
+        return dbHelper.getTotalExpenseForCategoryInCurrentMonth(userId, categoryId)
+    }
 
-
+    @SuppressLint("SuspiciousIndentation")
+    private fun getSelectedCategoryId(): Int {
+        val selectedCategoryName = getSelectedCategory()
+        val dbHelper = DatabaseHelper(requireContext())
+        val  selectedCategoryId =   dbHelper.getExpenseCategoryIdByCategoryName(selectedCategoryName)
+        return selectedCategoryId
+    }
     private fun getSelectedCategory(): String {
         val selectedButtonId = toggleButtonGroup.checkedButtonId
         return view?.findViewById<MaterialButton>(selectedButtonId)?.text.toString()
@@ -126,6 +141,31 @@ class AddBudgetAlertFragment : Fragment() {
         val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         return sdf.format(Date())
     }
+
+    fun createToggleButtonsForIncomeCategories() {
+        val dbHelper = DatabaseHelper(requireContext())
+        val userId = currentUserEmail?.let { dbHelper.getUserData(it) }?.id ?: -1
+        val expenseCategories = dbHelper.getAllExpenseCategoriesByUserId(userId)
+
+        for (category in expenseCategories) {
+            val button = MaterialButton(requireContext(), null, com.google.android.material.R.attr.materialButtonOutlinedStyle)
+            button.text = category
+            button.layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            button.setOnClickListener {
+                // Buttona tıklandığında yapılacak işlemler
+                showSnackbar("Clicked: $category")
+            }
+
+            // ToggleGroup'a butonları ekleme işlemi
+            binding.toggleButtonGroup.addView(button)
+        }
+    }
+
+
+
 
     override fun onDestroyView() {
         super.onDestroyView()

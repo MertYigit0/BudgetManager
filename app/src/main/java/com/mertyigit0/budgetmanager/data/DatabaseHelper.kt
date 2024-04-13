@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper
 import com.mertyigit0.budgetmanager.data.Income
 import java.sql.SQLException
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
@@ -150,6 +151,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 "$COLUMN_NOTIFICATION_ENABLED INTEGER," +
                 "$COLUMN_CREATED_AT_USER TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
         db?.execSQL(CREATE_USERS_TABLE)
+
 
         // Income categories table creation
         val CREATE_INCOME_CATEGORIES_TABLE = ("CREATE TABLE $TABLE_INCOME_CATEGORIES(" +
@@ -633,6 +635,70 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         }
         cursor.close()
         return categoryId
+    }
+
+
+    fun getTotalExpenseForCategoryInCurrentMonth(userId: Int, categoryId: Int): Double {
+        val db = this.readableDatabase
+        val currentDate = getCurrentDate() // Bu ayın ilk günü ve son günü alınır
+        val selectQuery = "SELECT SUM($COLUMN_AMOUNT_EXPENSE) FROM $TABLE_EXPENSES WHERE $COLUMN_USER_ID_EXPENSE = ? AND $COLUMN_CATEGORY_ID_EXPENSE = ? AND $COLUMN_DATE_EXPENSE BETWEEN ? AND ?"
+        val cursor = db.rawQuery(selectQuery, arrayOf(userId.toString(), categoryId.toString(), currentDate.first, currentDate.second))
+        var totalExpense = 0.0
+        cursor.use {
+            if (it.moveToFirst()) {
+                totalExpense = it.getDouble(0)
+            }
+        }
+        cursor.close()
+        return totalExpense
+    }
+
+    @SuppressLint("Range")
+    fun getBudgetAlertForCategoryByUserId(userId: Int, categoryId: Int): BudgetAlert? {
+        val db = this.readableDatabase
+        var budgetAlert: BudgetAlert? = null
+        val selectQuery = "SELECT * FROM $TABLE_BUDGET_ALERTS WHERE $COLUMN_USER_ID_BUDGET_ALERT = ? AND $COLUMN_CATEGORY_ID_BUDGET_ALERT = ?"
+        val cursor = db.rawQuery(selectQuery, arrayOf(userId.toString(), categoryId.toString()))
+        cursor.use {
+            if (it.moveToFirst()) {
+                val id = it.getInt(it.getColumnIndex(COLUMN_ID_BUDGET_ALERT))
+                val alertType = it.getString(it.getColumnIndex(COLUMN_ALERT_TYPE_BUDGET_ALERT))
+                val message = it.getString(it.getColumnIndex(COLUMN_MESSAGE_BUDGET_ALERT))
+                val targetAmount = it.getDouble(it.getColumnIndex(COLUMN_TARGET_AMOUNT_BUDGET_ALERT))
+                val currentAmount = it.getDouble(it.getColumnIndex(COLUMN_CURRENT_AMOUNT_BUDGET_ALERT))
+                val createdAt = it.getString(it.getColumnIndex(COLUMN_CREATED_AT_BUDGET_ALERT))
+                budgetAlert = BudgetAlert(id, userId, alertType, message, targetAmount, currentAmount, createdAt, categoryId)
+            }
+        }
+        cursor.close()
+        return budgetAlert
+    }
+    fun updateBudgetAlert(budgetAlert: BudgetAlert): Boolean {
+        val db = this.writableDatabase
+        val values = ContentValues().apply {
+            put(COLUMN_ALERT_TYPE_BUDGET_ALERT, budgetAlert.alertType)
+            put(COLUMN_MESSAGE_BUDGET_ALERT, budgetAlert.message)
+            put(COLUMN_TARGET_AMOUNT_BUDGET_ALERT, budgetAlert.targetAmount)
+            put(COLUMN_CURRENT_AMOUNT_BUDGET_ALERT, budgetAlert.currentAmount)
+            put(COLUMN_CREATED_AT_BUDGET_ALERT, budgetAlert.createdAt)
+        }
+        val whereClause = "$COLUMN_ID_BUDGET_ALERT = ?"
+        val whereArgs = arrayOf(budgetAlert.id.toString())
+        val affectedRows = db.update(TABLE_BUDGET_ALERTS, values, whereClause, whereArgs)
+        return affectedRows > 0
+    }
+
+
+
+    private fun getCurrentDate(): Pair<String, String> {
+        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val calendar = Calendar.getInstance()
+        val startDate = sdf.format(calendar.time)
+
+        calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH))
+        val endDate = sdf.format(calendar.time)
+
+        return Pair(startDate, endDate)
     }
 
 

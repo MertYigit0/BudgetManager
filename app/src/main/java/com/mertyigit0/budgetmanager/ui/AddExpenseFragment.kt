@@ -14,6 +14,7 @@ import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.mertyigit0.budgetmanager.R
+import com.mertyigit0.budgetmanager.data.BudgetAlert
 import com.mertyigit0.budgetmanager.data.DatabaseHelper
 import com.mertyigit0.budgetmanager.data.Expense
 import com.mertyigit0.budgetmanager.databinding.FragmentAddExpenseBinding
@@ -101,6 +102,7 @@ class AddExpenseFragment : Fragment() {
 
             if (addExpenseToDatabase(amount, category,categoryId, date, description, currency )) {
                 showSnackbar("Expense added: $amount  $currency")
+                updateBudgetAlertForCategory(categoryId)
                 findNavController().navigate(R.id.action_addExpenseFragment_to_expenseFragment)
             } else {
                 showSnackbar("Failed to add expense.")
@@ -158,6 +160,28 @@ class AddExpenseFragment : Fragment() {
             // ToggleGroup'a butonları ekleme işlemi
             binding.toggleButtonGroup.addView(button)
         }
+    }
+
+
+    // BudgetAlert'leri güncelleme işlevini oluşturun
+    private fun updateBudgetAlertForCategory(categoryId: Int) {
+        val dbHelper = DatabaseHelper(requireContext())
+        val userId = currentUserEmail?.let { dbHelper.getUserData(it) }?.id ?: -1
+        val totalExpense = dbHelper.getTotalExpenseForCategoryInCurrentMonth(userId, categoryId)
+        val budgetAlert = dbHelper.getBudgetAlertForCategoryByUserId(userId,categoryId)
+
+        if (budgetAlert != null) {
+            // Bütçe uyarısı varsa, güncelleme yap
+            val updatedBudgetAlert = budgetAlert.copy(currentAmount = totalExpense)
+            updateBudgetAlert(updatedBudgetAlert)
+        }
+    }
+
+    // Bütçe uyarısını güncelleme işlevini oluşturun
+    private fun updateBudgetAlert(budgetAlert: BudgetAlert) {
+
+        val dbHelper = DatabaseHelper(requireContext())
+        dbHelper.updateBudgetAlert(budgetAlert)
     }
 
 

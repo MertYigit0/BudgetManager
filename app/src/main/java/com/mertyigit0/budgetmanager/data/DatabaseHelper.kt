@@ -153,6 +153,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db?.execSQL(CREATE_USERS_TABLE)
 
 
+
         // Income categories table creation
         val CREATE_INCOME_CATEGORIES_TABLE = ("CREATE TABLE $TABLE_INCOME_CATEGORIES(" +
                 "$COLUMN_ID_INCOME_CATEGORY INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -636,6 +637,22 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         cursor.close()
         return categoryId
     }
+
+    @SuppressLint("Range")
+    fun getExpenseCategoryNameByCategoryId(categoryId: Int): String {
+        val db = this.readableDatabase
+        var categoryName = ""
+        val selectQuery = "SELECT $COLUMN_NAME_EXPENSE_CATEGORY FROM $TABLE_EXPENSE_CATEGORIES WHERE $COLUMN_ID_EXPENSE_CATEGORY = ?"
+        val cursor = db.rawQuery(selectQuery, arrayOf(categoryId.toString()))
+        cursor.use {
+            if (it.moveToFirst()) {
+                categoryName = it.getString(it.getColumnIndex(COLUMN_NAME_EXPENSE_CATEGORY))
+            }
+        }
+        cursor.close()
+        return categoryName
+    }
+
 
 
     fun getTotalExpenseForCategoryInCurrentMonth(userId: Int, categoryId: Int): Double {

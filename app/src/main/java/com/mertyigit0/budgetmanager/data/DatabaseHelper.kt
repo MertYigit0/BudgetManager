@@ -718,6 +718,26 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         return Pair(startDate, endDate)
     }
 
+    fun addRegularIncome(regularIncome: RegularIncome): Boolean {
+        val values = ContentValues().apply {
+            put(COLUMN_USER_ID_REGULAR_INCOME, regularIncome.userId)
+            put(COLUMN_TITLE_REGULAR_INCOME, regularIncome.title)
+            put(COLUMN_AMOUNT_REGULAR_INCOME, regularIncome.amount)
+            put(COLUMN_CURRENCY_REGULAR_INCOME, regularIncome.currency)
+            put(COLUMN_RECURRENCE_REGULAR_INCOME, regularIncome.recurrence)
+            put(COLUMN_DATE_REGULAR_INCOME, regularIncome.date)
+            put(COLUMN_CATEGORY_ID_REGULAR_INCOME, regularIncome.categoryId)
+        }
+
+        val db = this.writableDatabase
+
+        val newRowId = db.insert(TABLE_REGULAR_INCOMES, null, values)
+        db.close()
+
+        // Ekleme işlemi başarılı ise newRowId -1'den farklıdır
+        return newRowId != -1L
+    }
+
 
 
 

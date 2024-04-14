@@ -71,4 +71,29 @@
         app:layout_constraintStart_toEndOf="@+id/amountEditText"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <CheckBox
+        android:id="@+id/regularIncomeCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Is regular ?"
+        app:layout_constraintBottom_toTopOf="@+id/toggleButtonGroup"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.374"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/amountEditText"
+        app:layout_constraintVertical_bias="0.076" />
+
+    <Spinner
+        android:id="@+id/regularIncomeSpinner"
+        android:layout_width="194dp"
+        android:layout_height="59dp"
+        android:entries="@array/regular_income_options"
+        app:layout_constraintBottom_toTopOf="@+id/toggleButtonGroup"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.397"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/regularIncomeCheckBox"
+        app:layout_constraintVertical_bias="0.0" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

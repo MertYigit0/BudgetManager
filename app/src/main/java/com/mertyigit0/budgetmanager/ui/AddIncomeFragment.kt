@@ -18,6 +18,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.mertyigit0.budgetmanager.R
 import com.mertyigit0.budgetmanager.data.DatabaseHelper
 import com.mertyigit0.budgetmanager.data.Income
+import com.mertyigit0.budgetmanager.data.RegularIncome
 import com.mertyigit0.budgetmanager.databinding.FragmentAddIncomeBinding
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -57,9 +58,18 @@ class AddIncomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         toggleButtonGroup = view.findViewById(R.id.toggleButtonGroup)
-
         setupToggleButtonGroup()
-        addIncome()
+
+
+
+        binding.regularIncomeCheckBox.setOnCheckedChangeListener { buttonView, isChecked ->
+            if (isChecked) {
+                addRegularIncome()
+            } else {
+                addIncome()
+            }
+        }
+
 
         }
 
@@ -114,6 +124,34 @@ class AddIncomeFragment : Fragment() {
             }
         }
     }
+
+
+    private fun addRegularIncomeToDatabase(title: String, amount: Double, currency: String, recurrence: String, date: String, categoryId: Int): Boolean {
+        val dbHelper = DatabaseHelper(requireContext())
+        val userId = currentUserEmail?.let { dbHelper.getUserData(it) }?.id ?: -1
+        val regularIncome = RegularIncome(id = 0, userId = userId, title = title, amount = amount, currency = currency, recurrence = recurrence, date = date, categoryId = categoryId)
+
+        return dbHelper.addRegularIncome(regularIncome)
+    }
+
+    private fun addRegularIncome() {
+        binding.addButton.setOnClickListener {
+            val title = getSelectedCategory()
+            val amount = binding.amountEditText.text.toString().toDoubleOrNull() ?: 0.0
+            val currency = binding.currencySpinner.selectedItem.toString()
+            val recurrence = binding.regularIncomeSpinner.selectedItem.toString()
+            val date = getCurrentDate()
+            val categoryId = getSelectedCategoryId()
+
+            if (addRegularIncomeToDatabase(title, amount, currency, recurrence, date, categoryId)) {
+                showSnackbar("Regular income added: $amount $currency")
+                findNavController().navigate(R.id.action_addIncomeFragment_to_incomeFragment)
+            } else {
+                showSnackbar("Failed to add regular income.")
+            }
+        }
+    }
+
 
 
 

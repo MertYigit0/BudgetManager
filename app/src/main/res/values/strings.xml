@@ -177,4 +177,12 @@
     </string-array>
 
 
+        <string-array name="regular_income_options">
+            <item>Once a week</item>
+            <item>Once a month</item>
+        </string-array>
+
+
+
+
 </resources>

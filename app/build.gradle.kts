@@ -65,8 +65,6 @@ dependencies {
 
     implementation("androidx.sqlite:sqlite-ktx:$sqlite_version")
 
-
-
     //firebase
     implementation(platform("com.google.firebase:firebase-bom:32.7.4"))
     implementation("com.google.firebase:firebase-analytics-ktx")
@@ -75,7 +73,7 @@ dependencies {
     implementation("com.google.firebase:firebase-storage-ktx")
 
     val retrofitVersion = "2.11.0"
-//Retrofit
+    //Retrofit
     implementation ("com.squareup.retrofit2:retrofit:$retrofitVersion")
     implementation ("com.squareup.retrofit2:converter-gson:$retrofitVersion")
     implementation ("com.squareup.retrofit2:adapter-rxjava2:$retrofitVersion")

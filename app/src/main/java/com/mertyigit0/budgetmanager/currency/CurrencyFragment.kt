@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.mertyigit0.budgetmanager.R
+import com.mertyigit0.budgetmanager.data.DatabaseHelper
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
@@ -19,7 +20,7 @@ class CurrencyFragment : Fragment() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: CurrencyListAdapter
-    private val cacheManager = CurrencyCacheManager()
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -40,16 +41,11 @@ class CurrencyFragment : Fragment() {
     }
 
     private fun fetchData() {
-        val cachedData = cacheManager.getCachedData()
-        if (cachedData != null && cacheManager.isDataValid()) {
-            // Önbellekte geçerli veri var, bu veriyi kullan
-            val currencyResponse = Gson().fromJson(cachedData.toString(), CurrencyResponse::class.java)
-            updateUI(currencyResponse.rates)
-            showSnackbar("Veriler önbellekten geldi.")
-        } else {
+
+
             // Önbellekte geçerli veri yok veya veri geçerli değil, API'den veri çek
             fetchCurrencyFromAPI()
-        }
+
     }
 
     private fun fetchCurrencyFromAPI() {
@@ -59,7 +55,7 @@ class CurrencyFragment : Fragment() {
                     val currencyResponse = response.body()
                     currencyResponse?.let {
                         updateUI(it.rates)
-                        cacheManager.setCachedData(JSONObject(Gson().toJson(it)))
+                        saveExchangeRatesToDatabase(it.rates)
                         showSnackbar("Veriler API'den geldi.")
                     }
                 } else {
@@ -71,6 +67,14 @@ class CurrencyFragment : Fragment() {
                 // Hata oluştu
             }
         })
+    }
+
+    // API'den alınan verileri SQLite veritabanına kaydeden kod parçası
+    private fun saveExchangeRatesToDatabase(exchangeRates: Map<String, Double>) {
+        val dbHelper = DatabaseHelper(requireContext())
+        for ((currencyCode, rate) in exchangeRates) {
+            dbHelper.addExchangeRate(currencyCode, rate)
+        }
     }
 
     private fun updateUI(currencyRates: Map<String, Double>) {

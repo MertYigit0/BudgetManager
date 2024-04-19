@@ -18,6 +18,7 @@ import com.mertyigit0.budgetmanager.data.BudgetAlert
 import com.mertyigit0.budgetmanager.data.DatabaseHelper
 import com.mertyigit0.budgetmanager.data.Expense
 import com.mertyigit0.budgetmanager.databinding.FragmentAddExpenseBinding
+import java.math.RoundingMode
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -82,14 +83,40 @@ class AddExpenseFragment : Fragment() {
 
 
 
-    private fun addExpenseToDatabase(amount: Double, category: String,categoryId : Int, date: String, description: String?,currency: String): Boolean {
+    private fun addExpenseToDatabase(amount: Double, category: String, categoryId: Int, date: String, description: String?, currency: String): Boolean {
         val dbHelper = DatabaseHelper(requireContext())
         val userId = currentUserEmail?.let { dbHelper.getUserData(it) }?.id ?: -1
-        val expense = Expense(id = 0, userId = userId, amount = amount, currency = currency, categoryId = categoryId, categoryName = category, date = date, note = description ?: "", createdAt = "")
 
+        // Döviz kuru veritabanından al
+        val exchangeRate = dbHelper.getExchangeRate(currency)
+
+        // Dönüştürülmüş miktarı hesapla ve en fazla 2 basamakla sınırla
+        val convertedAmount = (amount / exchangeRate).toBigDecimal().setScale(2, RoundingMode.HALF_UP).toDouble()
+
+        // Dönüştürülmüş miktarı, para birimiyle birlikte ekranda göstermek için string oluştur
+        val equivalentAmountText = "%.2f".format(convertedAmount) + " USD"
+
+        // Expense nesnesini oluştur
+        val expense = Expense(id = 0, userId = userId, amount = convertedAmount, currency = "USD", categoryId = categoryId, categoryName = category, date = date, note = description ?: "", createdAt = "")
+
+        // Expense'ı veritabanına ekle
         val databaseHelper = DatabaseHelper(requireContext())
-        return databaseHelper.addExpense(expense)
+        val isSuccess = databaseHelper.addExpense(expense)
+
+        // Eğer eklenme başarılı ise
+        if (isSuccess) {
+            // Snackbar'da dönüştürülmüş miktarı ve para birimini göster
+            showSnackbar("Expense added: $amount $currency (Equivalent: $equivalentAmountText)")
+            // Bütçe uyarısını güncelle
+            updateBudgetAlertForCategory(categoryId)
+
+        } else {
+            // Ekleme başarısız olduysa Snackbar göster
+            showSnackbar("Failed to add expense.")
+        }
+        return isSuccess
     }
+
 
     private fun addExpense() {
         binding.addButton.setOnClickListener {
@@ -101,9 +128,10 @@ class AddExpenseFragment : Fragment() {
             val currency = binding.currencySpinner.selectedItem.toString()
 
             if (addExpenseToDatabase(amount, category,categoryId, date, description, currency )) {
+                findNavController().navigate(R.id.action_addExpenseFragment_to_expenseFragment)
                 showSnackbar("Expense added: $amount  $currency")
                 updateBudgetAlertForCategory(categoryId)
-                findNavController().navigate(R.id.action_addExpenseFragment_to_expenseFragment)
+
             } else {
                 showSnackbar("Failed to add expense.")
             }

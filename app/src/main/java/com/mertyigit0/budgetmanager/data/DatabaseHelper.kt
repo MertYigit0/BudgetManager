@@ -15,7 +15,7 @@ import java.util.Locale
 class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
     companion object {
         private const val DATABASE_NAME = "budget_manager.db"
-        private const val DATABASE_VERSION = 2
+        private const val DATABASE_VERSION = 3
 
 
         //users
@@ -138,10 +138,16 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         private const val COLUMN_CATEGORY_ID_REGULAR_INCOME = "category_id"
 
 
-
+        private const val TABLE_NAME = "exchange_rates"
+        private const val COLUMN_ID = "id"
+        private const val COLUMN_CURRENCY_CODE = "currency_code"
+        private const val COLUMN_RATE = "rate"
     }
 
     override fun onCreate(db: SQLiteDatabase?) {
+
+        val createTableQuery = "CREATE TABLE $TABLE_NAME ($COLUMN_ID INTEGER PRIMARY KEY, $COLUMN_CURRENCY_CODE TEXT, $COLUMN_RATE REAL)"
+        db?.execSQL(createTableQuery)
 
 
         val CREATE_USERS_TABLE = ("CREATE TABLE $TABLE_USERS(" +
@@ -297,8 +303,21 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
     }
 
 
-                override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
+    override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
+        // Eski tabloları sil ve yeniden oluştur
         db?.execSQL("DROP TABLE IF EXISTS $TABLE_INCOMES")
+        db?.execSQL("DROP TABLE IF EXISTS $TABLE_EXPENSES")
+        db?.execSQL("DROP TABLE IF EXISTS $TABLE_EXPENSE_CATEGORIES")
+        db?.execSQL("DROP TABLE IF EXISTS $TABLE_INCOME_CATEGORIES")
+        db?.execSQL("DROP TABLE IF EXISTS $TABLE_RECURRING_PAYMENTS")
+        db?.execSQL("DROP TABLE IF EXISTS $TABLE_DEBTS")
+        db?.execSQL("DROP TABLE IF EXISTS $TABLE_REGULAR_INCOMES")
+        db?.execSQL("DROP TABLE IF EXISTS $TABLE_REMINDERS")
+        db?.execSQL("DROP TABLE IF EXISTS $TABLE_FINANCIAL_GOALS")
+        db?.execSQL("DROP TABLE IF EXISTS $TABLE_FINANCIAL_SUGGESTIONS")
+        db?.execSQL("DROP TABLE IF EXISTS $TABLE_BUDGET_ALERTS")
+
+        // Yeniden oluştur
         onCreate(db)
     }
     fun addUser(user: User): Boolean {
@@ -761,7 +780,56 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
     }
 
 
+    // Kur verilerini veritabanına ekleyen işlev
+    fun addExchangeRate(currencyCode: String, rate: Double) {
+        val db = this.writableDatabase
+        val values = ContentValues().apply {
+            put(COLUMN_CURRENCY_CODE, currencyCode)
+            put(COLUMN_RATE, rate)
+        }
+        db.insert(TABLE_NAME, null, values)
+        db.close()
+    }
+
+    // Veritabanından tüm kur verilerini okuyan işlev
+    @SuppressLint("Range")
+    fun getAllExchangeRates(): Map<String, Double> {
+        val exchangeRates = mutableMapOf<String, Double>()
+        val db = this.readableDatabase
+        val cursor = db.rawQuery("SELECT * FROM $TABLE_NAME", null)
+        cursor.use {
+            while (it.moveToNext()) {
+                val currencyCode = it.getString(it.getColumnIndex(COLUMN_CURRENCY_CODE))
+                val rate = it.getDouble(it.getColumnIndex(COLUMN_RATE))
+                exchangeRates[currencyCode] = rate
+            }
+        }
+        db.close()
+        return exchangeRates
+    }
+
+    @SuppressLint("Range")
+    fun getExchangeRate(currencyCode: String): Double {
+        val db = this.readableDatabase
+        var exchangeRate = 0.0
+
+        val query = "SELECT $COLUMN_RATE FROM $TABLE_NAME WHERE $COLUMN_CURRENCY_CODE = ?"
+        val cursor = db.rawQuery(query, arrayOf(currencyCode))
+
+        if (cursor.moveToFirst()) {
+            exchangeRate = cursor.getDouble(cursor.getColumnIndex(COLUMN_RATE))
+        }
+
+        cursor.close()
+        db.close()
+
+        return exchangeRate
+    }
+
 
 
 
 }
+
+
+

@@ -1,5 +1,6 @@
 package com.mertyigit0.budgetmanager.currency
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -41,12 +42,35 @@ class CurrencyFragment : Fragment() {
     }
 
     private fun fetchData() {
+        val sharedPreferences = requireContext().getSharedPreferences("CurrencyPrefs", Context.MODE_PRIVATE)
 
+        // Önceki veri çekme tarihini al
+        val lastFetchTime = sharedPreferences.getLong("lastFetchTime", 0)
 
-            // Önbellekte geçerli veri yok veya veri geçerli değil, API'den veri çek
+        // Şu anki zamanı al
+        val currentTime = System.currentTimeMillis()
+
+        // Bir günün milisaniye cinsinden karşılığı
+        val oneDayInMillis = 24 * 60 * 60 * 1000
+
+        // Geçen zamanı hesapla (milisaniye cinsinden)
+        val elapsedTime = currentTime - lastFetchTime
+
+        // Eğer geçen zaman bir günden fazlaysa, verileri SQLite'dan al
+        if (elapsedTime > oneDayInMillis || lastFetchTime == 0L) {
             fetchCurrencyFromAPI()
 
+            // Son veri çekme tarihini güncelle
+            sharedPreferences.edit().putLong("lastFetchTime", currentTime).apply()
+        } else {
+            // Eğer bir gün geçmemişse ve önceki bir veri çekme tarihi varsa, verileri SQLite'dan al
+            val dbHelper = DatabaseHelper(requireContext())
+            val exchangeRates = dbHelper.getAllExchangeRates()
+            updateUI(exchangeRates)
+            showSnackbar("Veriler SharedPreferences'tan alındı.")
+        }
     }
+
 
     private fun fetchCurrencyFromAPI() {
         CurrencyApiClient.service.getCurrencyRates().enqueue(object : Callback<CurrencyResponse> {

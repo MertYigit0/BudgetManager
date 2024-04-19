@@ -155,11 +155,11 @@ class AddBudgetAlertFragment : Fragment() {
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
             button.setOnClickListener {
-                // Buttona tıklandığında yapılacak işlemler
+
                 showSnackbar("Clicked: $category")
             }
 
-            // ToggleGroup'a butonları ekleme işlemi
+
             binding.toggleButtonGroup.addView(button)
         }
     }

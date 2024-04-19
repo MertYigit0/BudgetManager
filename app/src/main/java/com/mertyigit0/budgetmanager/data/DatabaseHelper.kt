@@ -405,13 +405,13 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
     fun addExpense(expense: Expense): Boolean {
         val values = ContentValues().apply {
             put(COLUMN_AMOUNT_EXPENSE, expense.amount)
-            put(COLUMN_USER_ID_EXPENSE, expense.userId) // Kullanıcı kimliği eklendi
-            put(COLUMN_CURRENCY_EXPENSE, expense.currency) // Para birimi eklendi
+            put(COLUMN_USER_ID_EXPENSE, expense.userId)
+            put(COLUMN_CURRENCY_EXPENSE, expense.currency)
             put(COLUMN_CATEGORY_ID_EXPENSE, expense.categoryId)
             put(COLUMN_CATEGORY_NAME_EXPENSE, expense.categoryName)
             put(COLUMN_DATE_EXPENSE, expense.date)
             put(COLUMN_NOTE_EXPENSE, expense.note)
-            put(COLUMN_CREATED_AT_EXPENSE, expense.createdAt) // Oluşturulma tarihi eklendi
+            put(COLUMN_CREATED_AT_EXPENSE, expense.createdAt)
         }
 
         val db = this.writableDatabase
@@ -513,6 +513,16 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db.close()
         return success != -1L
     }
+
+    fun deleteBudgetAlert(budgetAlertId: Int): Boolean {
+        val db = this.writableDatabase
+        val whereClause = "$COLUMN_ID_BUDGET_ALERT = ?"
+        val whereArgs = arrayOf(budgetAlertId.toString())
+        val success = db.delete(TABLE_BUDGET_ALERTS, whereClause, whereArgs) > 0
+        db.close()
+        return success
+    }
+
 
     @SuppressLint("Range")
     fun getAllBudgetAlertsByUserId(userId: Int): List<BudgetAlert> {

@@ -70,7 +70,7 @@ class ExpenseFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = expenseAdapter
 
-        // ItemTouchHelper'ı kullanarak swipe to delete özelliğini ekleyin
+
         val itemTouchHelper = ItemTouchHelper(ExpenseSwipeToDeleteCallback(expenseAdapter))
         itemTouchHelper.attachToRecyclerView(recyclerView)
 
@@ -113,11 +113,11 @@ class ExpenseFragment : Fragment() {
 
         val currentUserEmail = auth.currentUser?.email
         val userData = currentUserEmail?.let { dbHelper.getUserData(it) }
-        // Veritabanından tüm gelirleri al
+
         val expenses = userData?.let { dbHelper.getAllExpensesByUserId(it.id) }
-        // Gelir verilerini RecyclerView'a aktar
+
         expenses?.let { expenseAdapter.updateExpenseList(it) }
-        // Gelir verileri listesini oluştur
+
         val entries = mutableListOf<PieEntry>()
 
         if (expenses != null) {
@@ -125,18 +125,14 @@ class ExpenseFragment : Fragment() {
                 entries.add(PieEntry(expense.amount.toFloat(), expense.categoryName))
             }
         }
-
         // Veri setini oluştur
         val dataSet = PieDataSet(entries, "Expense")
         // Kategori renklerini dataSet'e ekle
         dataSet.colors = entries.map { entry ->
             getColorForCategory(entry.label)
         }
-        // Veri setini PieData'ya ekle
         val pieData = PieData(dataSet)
-        // PieChart'a PieData'yı ayarla
        pieChart.data = pieData
-        // Chart'ın güncellenmesini sağla
         pieChart.invalidate()
 
     }

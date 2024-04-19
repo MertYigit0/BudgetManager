@@ -1,8 +1,12 @@
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.ImageButton
+import android.widget.PopupMenu
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.core.content.ContextCompat
@@ -21,6 +25,7 @@ class BudgetAlertAdapter(private val context: Context, private val budgetAlertLi
         val currentAmountTextView: TextView = itemView.findViewById(R.id.currentAmountTextView)
         val limitText : TextView = itemView.findViewById(R.id.limitText)
         val progressBar: ProgressBar = itemView.findViewById(R.id.progressBar)
+        val menuButton: ImageButton = itemView.findViewById(R.id.menuButton) // Menü düğmesi
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BudgetAlertViewHolder {
@@ -33,6 +38,7 @@ class BudgetAlertAdapter(private val context: Context, private val budgetAlertLi
     override fun getItemCount(): Int {
         return budgetAlertList.size
     }
+
 
     override fun onBindViewHolder(holder: BudgetAlertViewHolder, position: Int) {
         val budgetAlert = budgetAlertList[position]
@@ -72,6 +78,46 @@ class BudgetAlertAdapter(private val context: Context, private val budgetAlertLi
             progress > 50 -> holder.progressBar.progressDrawable.setTint(Color.YELLOW)
             else -> holder.progressBar.progressDrawable.setTint(Color.GREEN)
         }
+
+
+        // Menü düğmesine tıklama dinleyicisi ekleme
+        holder.menuButton.setOnClickListener {
+            // PopupMenu oluşturma
+            val popupMenu = PopupMenu(context, holder.menuButton)
+            popupMenu.menuInflater.inflate(R.menu.item_budget_alert_menu, popupMenu.menu)
+
+            // Menü öğelerine tıklama dinleyicisi ekleme
+            popupMenu.setOnMenuItemClickListener { menuItem ->
+                when (menuItem.itemId) {
+                    R.id.action_edit -> {
+                        // Düzenleme işlemi
+                        // TODO: Düzenleme işlemini burada gerçekleştir
+                        true
+                    }
+                    R.id.action_delete -> {
+                        // Silme işlemi
+                        dbHelper.deleteBudgetAlert(budgetAlertId = budgetAlert.id)
+
+                        deleteItem(position)
+
+
+                        true
+                    }
+
+                    else -> false
+                }
+            }
+
+            // Popup menüyü gösterme
+            popupMenu.show()
+        }
+
+
+
+    }
+    fun deleteItem(position: Int) {
+        budgetAlertList.removeAt(position)
+        notifyItemRemoved(position)
     }
 
 

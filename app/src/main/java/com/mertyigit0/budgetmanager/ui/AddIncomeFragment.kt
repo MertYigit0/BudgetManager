@@ -65,10 +65,9 @@ class AddIncomeFragment : Fragment() {
         binding.regularIncomeCheckBox.setOnCheckedChangeListener { buttonView, isChecked ->
             if (isChecked) {
                 addRegularIncome()
-            } else {
-                addIncome()
             }
         }
+        addIncome()
 
 
         }

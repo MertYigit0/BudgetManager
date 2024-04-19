@@ -15,7 +15,7 @@ data class Income(
 data class User(
     val id: Int,
     val email: String,
-    val createdAt: String, // Burada bir tarih ve saat değeri beklenmektedir, SQLite'da saklanacak veri türüne uygun olmalıdır
+    val createdAt: String,
     val currency: String,
     val notificationEnabled: Boolean
     )

@@ -471,6 +471,18 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db.close()
         return success != -1L
     }
+    fun deleteFinancialGoal(goalId: Int): Boolean {
+        val db = this.writableDatabase
+        val whereClause = "$COLUMN_ID_FINANCIAL_GOAL = ?"
+        val whereArgs = arrayOf(goalId.toString())
+        val success = db.delete(TABLE_FINANCIAL_GOALS, whereClause, whereArgs) > 0
+        db.close()
+        return success
+    }
+
+
+
+
 
     @SuppressLint("Range")
     fun getAllFinancialGoalsByUserId(userId: Int): List<FinancialGoal> {

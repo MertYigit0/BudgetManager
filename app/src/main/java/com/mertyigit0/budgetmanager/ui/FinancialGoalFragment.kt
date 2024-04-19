@@ -57,7 +57,7 @@ class FinancialGoalFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         // Adapter oluşturulmadan önce öncelikle başlatılmalı
-        adapter = FinancialGoalAdapter(financialGoals)
+        adapter = FinancialGoalAdapter(requireContext(),financialGoals)
 
         // RecyclerView'e adapter'ı bağla
         recyclerView.adapter = adapter

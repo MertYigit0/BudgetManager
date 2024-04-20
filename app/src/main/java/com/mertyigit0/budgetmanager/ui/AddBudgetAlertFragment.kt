@@ -107,6 +107,19 @@ class AddBudgetAlertFragment : Fragment() {
             val categoryId = getSelectedCategoryId()
             val currentAmount = getCurrentTotalExpenseForCategory(categoryId)
             val createdAt= getCurrentDate()
+
+
+            if (categoryId.equals(-1)) {
+                showSnackbar("Please select a category.")
+                return@setOnClickListener
+            }
+            if (targetAmount == 0.0) {
+                showSnackbar("Please enter an amount .")
+                return@setOnClickListener
+            }
+
+
+
             if (addBudgetAlertToDatabase(alertType, message, targetAmount, currentAmount,createdAt,categoryId)) {
                 showSnackbar("Budget alert added: $message")
                 findNavController().navigate(R.id.action_addBudgetAlertFragment_to_budgetAlertFragment)

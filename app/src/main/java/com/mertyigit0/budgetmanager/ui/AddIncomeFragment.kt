@@ -180,6 +180,10 @@ class AddIncomeFragment : Fragment() {
                 showSnackbar("Please select a category.")
                 return@setOnClickListener
             }
+            if (amount.equals(0.0)) {
+                showSnackbar("Please enter an amount .")
+                return@setOnClickListener
+            }
 
             if (addRegularIncomeToDatabase(title, amount, currency, recurrence, date, categoryId)) {
                 showSnackbar("Regular income added: $amount $currency")

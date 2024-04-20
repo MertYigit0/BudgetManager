@@ -127,6 +127,16 @@ class AddExpenseFragment : Fragment() {
             val description = binding.editTextText.text.toString()
             val currency = binding.currencySpinner.selectedItem.toString()
 
+
+            if (categoryId.equals(-1)) {
+                showSnackbar("Please select a category.")
+                return@setOnClickListener
+            }
+            if (amount.equals(0.0)) {
+                showSnackbar("Please enter an amount .")
+                return@setOnClickListener
+            }
+
             if (addExpenseToDatabase(amount, category,categoryId, date, description, currency )) {
                 findNavController().navigate(R.id.action_addExpenseFragment_to_expenseFragment)
                 showSnackbar("Expense added: $amount  $currency")

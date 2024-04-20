@@ -20,6 +20,7 @@ import com.mertyigit0.budgetmanager.data.DatabaseHelper
 import com.mertyigit0.budgetmanager.data.Income
 import com.mertyigit0.budgetmanager.data.RegularIncome
 import com.mertyigit0.budgetmanager.databinding.FragmentAddIncomeBinding
+import java.math.RoundingMode
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -100,10 +101,38 @@ class AddIncomeFragment : Fragment() {
     private fun addIncomeToDatabase(amount: Double, category: String,categoryId : Int, date: String, description: String?, currency: String): Boolean {
         val dbHelper = DatabaseHelper(requireContext())
         val userId = currentUserEmail?.let { dbHelper.getUserData(it) }?.id ?: -1
-        val income = Income(id = 0, userId = userId, amount = amount, currency = currency, categoryId = categoryId, categoryName = category, date = date, note = description ?: "", createdAt = "")
+
+        // Döviz kuru veritabanından al
+        val exchangeRate = dbHelper.getExchangeRate(currency)
+
+        // Dönüştürülmüş miktarı hesapla ve en fazla 2 basamakla sınırla
+        val convertedAmount = (amount / exchangeRate).toBigDecimal().setScale(2, RoundingMode.HALF_UP).toDouble()
+
+        // Dönüştürülmüş miktarı, para birimiyle birlikte ekranda göstermek için string oluştur
+        val equivalentAmountText = "%.2f".format(convertedAmount) + " USD"
+
+
+
+
+
+
+        val income = Income(id = 0, userId = userId, amount = convertedAmount, currency ="USD", categoryId = categoryId, categoryName = category, date = date, note = description ?: "", createdAt = "")
 
         val databaseHelper = DatabaseHelper(requireContext())
-        return databaseHelper.addIncome(income)
+
+
+        val isSuccess = databaseHelper.addIncome(income)
+
+        // Eğer eklenme başarılı ise
+        if (isSuccess) {
+            // Snackbar'da dönüştürülmüş miktarı ve para birimini göster
+            showSnackbar("Expense added: $amount $currency (Equivalent: $equivalentAmountText)")
+
+        } else {
+            // Ekleme başarısız olduysa Snackbar göster
+            showSnackbar("Failed to add expense.")
+        }
+        return isSuccess
     }
 
     private fun addIncome() {
@@ -114,6 +143,11 @@ class AddIncomeFragment : Fragment() {
             val date = getCurrentDate()
             val description = binding.editTextText.text.toString()
             val currency = binding.currencySpinner.selectedItem.toString()
+
+            if (categoryId.equals(-1)) {
+                showSnackbar("Please select a category.")
+                return@setOnClickListener
+            }
 
             if (addIncomeToDatabase(amount, category,categoryId, date, description,currency)) {
                 showSnackbar("Income added: $amount $currency")
@@ -141,6 +175,11 @@ class AddIncomeFragment : Fragment() {
             val recurrence = binding.regularIncomeSpinner.selectedItem.toString()
             val date = getCurrentDate()
             val categoryId = getSelectedCategoryId()
+
+            if (categoryId.equals(-1)) {
+                showSnackbar("Please select a category.")
+                return@setOnClickListener
+            }
 
             if (addRegularIncomeToDatabase(title, amount, currency, recurrence, date, categoryId)) {
                 showSnackbar("Regular income added: $amount $currency")

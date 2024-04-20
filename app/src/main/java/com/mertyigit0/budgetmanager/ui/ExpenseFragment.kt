@@ -18,6 +18,7 @@ import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
+import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.utils.ColorTemplate
 import com.google.firebase.auth.FirebaseAuth
 import com.mertyigit0.budgetmanager.R
@@ -118,36 +119,56 @@ class ExpenseFragment : Fragment() {
 
         expenses?.let { expenseAdapter.updateExpenseList(it) }
 
+        val categoryTotals = mutableMapOf<String, Float>()
+
+        expenses?.forEach { expense ->
+            val categoryName = expense.categoryName
+            val amount = categoryTotals.getOrDefault(categoryName, 0f)
+            categoryTotals[categoryName] = amount + expense.amount.toFloat()
+        }
+
         val entries = mutableListOf<PieEntry>()
 
-        if (expenses != null) {
-            expenses.forEach { expense ->
-                entries.add(PieEntry(expense.amount.toFloat(), expense.categoryName))
-            }
+        // Her kategori için toplam miktarı pie chart'a ekle
+        for ((categoryName, totalAmount) in categoryTotals) {
+            entries.add(PieEntry(totalAmount, categoryName))
         }
+
         // Veri setini oluştur
         val dataSet = PieDataSet(entries, "Expense")
+
         // Kategori renklerini dataSet'e ekle
         dataSet.colors = entries.map { entry ->
             getColorForCategory(entry.label)
         }
+
+        //centertext
+        val totalExpense = expenses?.sumOf { it.amount.toDouble() }
+
+        val centerText = "Total Income:\n${totalExpense ?: 0.0} USD"
+        pieChart.centerText = centerText
+
         val pieData = PieData(dataSet)
-       pieChart.data = pieData
+        pieChart.data = pieData
         pieChart.invalidate()
 
     }
+
 
     private fun calculateAndDisplayWeeklyExpenses(barChart: BarChart) {
         val dbHelper = DatabaseHelper(requireContext())
         val currentUserEmail = auth.currentUser?.email
         val userData = currentUserEmail?.let { dbHelper.getUserData(it) }
         val expenses = userData?.let { dbHelper.getAllExpensesByUserId(it.id) }
-
         val calendar = Calendar.getInstance()
         val currentWeek = calendar.get(Calendar.WEEK_OF_YEAR)
 
         val weeklyExpensesMap =
             HashMap<Int, Float>() // Haftanın günlerine göre harcamaları saklamak için bir map
+
+
+
+
 
         // Haftanın günlerine göre harcamaları hesapla
         expenses?.forEach { expense ->
@@ -168,6 +189,26 @@ class ExpenseFragment : Fragment() {
         for (i in Calendar.SUNDAY..Calendar.SATURDAY) {
             if (!weeklyExpensesMap.containsKey(i)) {
                 weeklyExpensesMap[i] = 0f
+            }
+        }
+
+        // Haftanın günlerini kısaltmalarıyla eşleştiren bir harita oluştur
+        val dayAbbreviations = hashMapOf(
+            Calendar.SUNDAY to "Sun",
+            Calendar.MONDAY to "Mon",
+            Calendar.TUESDAY to "Tue",
+            Calendar.WEDNESDAY to "Wed",
+            Calendar.THURSDAY to "Thu",
+            Calendar.FRIDAY to "Fri",
+            Calendar.SATURDAY to "Sat"
+        )
+
+        // BarChart'ın X ekseni (günler ekseni) üzerindeki etiketleri ayarla
+        val xAxis = barChart.xAxis
+        xAxis.valueFormatter = object : ValueFormatter() {
+            override fun getFormattedValue(value: Float): String {
+                val dayOfWeek = value.toInt()
+                return dayAbbreviations[dayOfWeek] ?: "" // Kısaltmaları döndür, yoksa boş dize döndür
             }
         }
 

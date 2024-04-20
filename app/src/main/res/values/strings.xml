@@ -182,5 +182,11 @@
         <item>Once a month</item>
     </string-array>
 
+    <string-array name="income_sort_types">
+        <item>By Date</item>
+        <item>By Amount</item>
+        <item>By Category</item>
+    </string-array>
+
 
 </resources>

@@ -11,7 +11,7 @@
         android:layout_margin="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
-        app:cardBackgroundColor="@color/tgray"
+        app:cardBackgroundColor="@color/smoke"
         app:cardCornerRadius="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -44,6 +44,7 @@
                     android:id="@+id/textViewAmount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textColor="@color/dgreen"
                     android:text="Amount"
                     android:textSize="18sp"
                     android:textStyle="bold"
@@ -54,20 +55,13 @@
                     android:id="@+id/textViewCurrency"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textColor="@color/dgreen"
                     android:text="Currency"
                     android:textSize="16sp"
                     android:layout_marginEnd="8dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
             </LinearLayout>
-
-            <TextView
-                android:id="@+id/textViewDescription"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Description"
-                android:textSize="16sp"
-                app:layout_constraintStart_toStartOf="parent"  app:layout_constraintBottom_toBottomOf="@id/textViewCategory" />
 
             <TextView
                 android:id="@+id/textViewDate"

@@ -12,4 +12,12 @@
     <color name="tgray">#959595</color>
     <color name="yellow">#F6C561</color>
     <color name="brown">#977B60</color>
+    <color name="red">#DC143C</color>
+    <color name="dgreen">#006400</color>
+    <color name="smoke">#F5F5F5</color>
+    <color name="alice">#F0F8FF</color>
+
+
+
+
 </resources>

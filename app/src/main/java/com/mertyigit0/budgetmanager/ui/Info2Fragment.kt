@@ -43,4 +43,5 @@ class Info2Fragment : Fragment() {
 
 
 
+
 }

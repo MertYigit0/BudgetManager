@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.Info1Fragment">
+
+    <ImageView
+        android:id="@+id/imageView6"
+        android:layout_width="284dp"
+        android:layout_height="294dp"
+        android:layout_marginTop="100dp"
+        android:src="@drawable/info2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView10"
+        android:layout_width="301dp"
+        android:layout_height="138dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="40dp"
+        android:gravity="center"
+        android:text="Budget Manager is here to help you take control of your finances, making budgeting and expense tracking easier than ever before. Get started today and take the first step towards to your financial goals."
+        android:textSize="16dp"
+        android:textStyle="italic|bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView6" />
+
+    <Button
+        android:id="@+id/nextButton"
+        android:layout_width="72dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="64dp"
+        android:layout_marginEnd="40dp"
+        android:background="@drawable/baseline_arrow_forward_ios_24"
+        android:text=""
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView10" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

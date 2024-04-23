@@ -4,13 +4,10 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import androidx.navigation.NavController
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
-import androidx.viewpager.widget.ViewPager
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.mertyigit0.budgetmanager.adapters.InfoPagerAdapter
 import com.mertyigit0.budgetmanager.ui.Info1Fragment
 import com.mertyigit0.budgetmanager.ui.Info2Fragment
 
@@ -66,20 +63,6 @@ class MainActivity : AppCompatActivity() {
                 bottomNavigationView.visibility = View.VISIBLE
             }
         }
-
-            ///viewpager islemleri
-        val infoFragments = listOf(
-            Info1Fragment(),
-            Info2Fragment()
-        )
-
-        val adapter = InfoPagerAdapter(this, infoFragments)
-        val viewPager = findViewById<ViewPager2>(R.id.viewPager)
-        viewPager.adapter = adapter
-
-
-
-
 
 
 

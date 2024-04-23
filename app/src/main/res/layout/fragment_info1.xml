@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.Info1Fragment">
+
+    <ImageView
+        android:id="@+id/imageView6"
+        android:layout_width="309dp"
+        android:layout_height="408dp"
+        android:layout_marginTop="46dp"
+        android:layout_marginBottom="127dp"
+        android:src="@drawable/infoimage1"
+        app:layout_constraintBottom_toTopOf="@+id/textView9"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.132" />
+
+
+    <TextView
+        android:id="@+id/textView9"
+        android:layout_width="345dp"
+        android:layout_height="219dp"
+        android:layout_marginBottom="72dp"
+        android:gravity="center"
+        android:text="Budget Manager is here to help you take control of your finances, making budgeting and expense tracking easier than ever before. Get started today and take the first step towards to your financial goals."
+        android:textSize="16dp"
+        android:textStyle="bold|italic"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>

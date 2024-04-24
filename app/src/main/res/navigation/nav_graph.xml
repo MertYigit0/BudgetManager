@@ -68,6 +68,7 @@
         <action
             android:id="@+id/action_settingsFragment_to_currencyFragment"
             app:destination="@id/currencyFragment" />
+
     </fragment>
     <fragment
         android:id="@+id/addExpenseFragment"

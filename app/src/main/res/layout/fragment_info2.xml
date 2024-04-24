@@ -4,14 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     tools:context=".ui.Info2Fragment">
 
     <ImageView
         android:id="@+id/imageView6"
-        android:layout_width="326dp"
-        android:layout_height="343dp"
-        android:layout_marginTop="52dp"
-        android:src="@drawable/info4"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:layout_marginTop="44dp"
+        android:src="@drawable/info5"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.494"
         app:layout_constraintStart_toStartOf="parent"
@@ -19,23 +20,29 @@
 
     <TextView
         android:id="@+id/textView10"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="136dp"
-        android:layout_marginTop="384dp"
-        android:text="TextView"
-        app:layout_constraintStart_toStartOf="@+id/imageView6"
+        android:layout_width="335dp"
+        android:layout_height="139dp"
+        android:layout_marginStart="44dp"
+        android:layout_marginTop="380dp"
+        android:gravity="center"
+        android:text="Manage your finances effectively by tracking your income and expenses, and visualize them with various charts for better insights"
+        android:textSize="20dp"
+        android:textStyle="italic|bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.38"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/imageView6" />
 
     <Button
         android:id="@+id/nextButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="284dp"
-        android:layout_marginTop="496dp"
-        android:text="Button"
-        app:layout_constraintStart_toStartOf="@+id/imageView6"
-        app:layout_constraintTop_toTopOf="@+id/imageView6" />
+        android:layout_width="72dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="100dp"
+        android:layout_marginEnd="20dp"
+        android:background="@drawable/baseline_arrow_forward_ios_24"
+        android:text=""
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView10" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

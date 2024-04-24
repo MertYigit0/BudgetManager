@@ -1,5 +1,6 @@
 package com.mertyigit0.budgetmanager.ui
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -46,6 +47,11 @@ class SettingsFragment : Fragment() {
         binding.cardCurrency.setOnClickListener{
             navController.navigate(R.id.action_settingsFragment_to_currencyFragment)
         }
+        binding.cardHelp.setOnClickListener {
+            val intent = Intent(requireContext(), InfoActivity::class.java)
+            startActivity(intent)
+        }
+
 
 
 

@@ -94,6 +94,8 @@ class ExpenseFragment : Fragment() {
             navController.navigate(R.id.action_expenseFragment_to_addExpenseFragment)
         }
 
+        updateWeekDatesText()
+
     }
 
 
@@ -155,44 +157,44 @@ class ExpenseFragment : Fragment() {
     }
 
 
+    private var currentWeek: Int = 0 // Mevcut haftanın numarasını saklamak için değişken
+
     private fun calculateAndDisplayWeeklyExpenses(barChart: BarChart) {
         val dbHelper = DatabaseHelper(requireContext())
         val currentUserEmail = auth.currentUser?.email
         val userData = currentUserEmail?.let { dbHelper.getUserData(it) }
         val expenses = userData?.let { dbHelper.getAllExpensesByUserId(it.id) }
         val calendar = Calendar.getInstance()
-        val currentWeek = calendar.get(Calendar.WEEK_OF_YEAR)
 
-        val weeklyExpensesMap =
-            HashMap<Int, Float>() // Haftanın günlerine göre harcamaları saklamak için bir map
+        val weeklyExpensesMap = HashMap<Int, Float>()
 
-
-
-
-
-        // Haftanın günlerine göre harcamaları hesapla
+        // Harcamaları haftalara göre grupla
         expenses?.forEach { expense ->
             val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-            val date = dateFormat.parse(expense.date) // String tarihini Date türüne dönüştür
+            val date = dateFormat.parse(expense.date)
             calendar.time = date
             val expenseWeek = calendar.get(Calendar.WEEK_OF_YEAR)
 
-            if (expenseWeek == currentWeek) { // Harcama bu haftadaysa
+            if (expenseWeek == currentWeek) {
                 val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
-                val amount = weeklyExpensesMap[dayOfWeek] ?: 0f // Günlük harcamayı al (varsa)
-                weeklyExpensesMap[dayOfWeek] =
-                    amount + expense.amount.toFloat() // Günlük harcamayı güncelle
+                val amount = weeklyExpensesMap[dayOfWeek] ?: 0f
+                weeklyExpensesMap[dayOfWeek] = amount + expense.amount.toFloat()
             }
         }
 
-        // Haftanın her gününü kontrol et ve harcama olmayan günler için 0 değeri ekle
+        // Eksik günler için 0 değeri ekle
         for (i in Calendar.SUNDAY..Calendar.SATURDAY) {
             if (!weeklyExpensesMap.containsKey(i)) {
                 weeklyExpensesMap[i] = 0f
             }
         }
 
-        // Haftanın günlerini kısaltmalarıyla eşleştiren bir harita oluştur
+        // Haftanın günlerine göre harcamaları görselleştir
+        displayWeeklyExpenses(barChart, weeklyExpensesMap)
+    }
+    // Haftalık harcamaları görselleştiren bir yardımcı işlev
+    // Haftalık harcamaları görselleştiren bir yardımcı işlev
+    private fun displayWeeklyExpenses(barChart: BarChart, weeklyExpensesMap: HashMap<Int, Float>) {
         val dayAbbreviations = hashMapOf(
             Calendar.SUNDAY to "Sun",
             Calendar.MONDAY to "Mon",
@@ -203,35 +205,38 @@ class ExpenseFragment : Fragment() {
             Calendar.SATURDAY to "Sat"
         )
 
-        // BarChart'ın X ekseni (günler ekseni) üzerindeki etiketleri ayarla
-        val xAxis = barChart.xAxis
-        xAxis.valueFormatter = object : ValueFormatter() {
-            override fun getFormattedValue(value: Float): String {
-                val dayOfWeek = value.toInt()
-                return dayAbbreviations[dayOfWeek] ?: "" // Kısaltmaları döndür, yoksa boş dize döndür
-            }
-        }
-
-        // Haftanın günlerine göre harcamaları bar chart'a ekle
         val barEntries = ArrayList<BarEntry>()
         for (i in Calendar.SUNDAY..Calendar.SATURDAY) {
             barEntries.add(BarEntry(i.toFloat(), weeklyExpensesMap[i]!!))
         }
 
-        // BarDataSet oluştur
-        val dataSet = BarDataSet(barEntries, "Haftalık Harcamalar")
+        val dataSet = BarDataSet(barEntries, "Weekly Expenses")
         dataSet.colors = ColorTemplate.MATERIAL_COLORS.asList()
 
-        // BarData oluştur
         val barData = BarData(dataSet)
-        barData.barWidth = 0.9f // Bar genişliğini ayarla
+        barData.barWidth = 0.9f
 
-        // BarChart'a BarData'yı ayarla
         barChart.data = barData
-
-        // Chart'ın güncellenmesini sağla
+        barChart.xAxis.valueFormatter = object : ValueFormatter() {
+            override fun getFormattedValue(value: Float): String {
+                val dayOfWeek = value.toInt()
+                return dayAbbreviations[dayOfWeek] ?: ""
+            }
+        }
+        binding.buttonPreviousWeek.setOnClickListener {
+            currentWeek-- // Her tıklandığında bir önceki haftaya git
+            calculateAndDisplayWeeklyExpenses(barChart)
+            updateWeekDatesText()
+        }
+        binding.nextWeekButton.setOnClickListener {
+            currentWeek++ // Her tıklandığında bir önceki haftaya git
+            calculateAndDisplayWeeklyExpenses(barChart)
+            updateWeekDatesText()
+        }
         barChart.invalidate()
     }
+
+
 
     private fun chart_select() {
         binding.barTypeSpinner.onItemSelectedListener =
@@ -246,7 +251,9 @@ class ExpenseFragment : Fragment() {
                         0 -> {
                             binding.expensePieChart.visibility = View.GONE
                             binding.expenseBarChart.visibility = View.VISIBLE
-
+                            binding.nextWeekButton.visibility  = View.VISIBLE
+                            binding.buttonPreviousWeek.visibility  = View.VISIBLE
+                            binding.weekDatesTextView.visibility  = View.VISIBLE
                             calculateAndDisplayWeeklyExpenses(binding.expenseBarChart)
 
                         }
@@ -255,6 +262,9 @@ class ExpenseFragment : Fragment() {
 
                             binding.expensePieChart.visibility = View.VISIBLE
                             binding.expenseBarChart.visibility = View.GONE
+                            binding.nextWeekButton.visibility  = View.GONE
+                            binding.buttonPreviousWeek.visibility  = View.GONE
+                            binding.weekDatesTextView.visibility  = View.GONE
                             calculateAndDisplayGeneralExpenses(binding.expensePieChart)
 
                         }
@@ -265,8 +275,23 @@ class ExpenseFragment : Fragment() {
                     TODO("Not yet implemented")
                 }
             }
+    }
 
+    private fun updateWeekDatesText() {
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.WEEK_OF_YEAR, currentWeek)
+        calendar.firstDayOfWeek = Calendar.SUNDAY
 
+        val startDate = calendar.time
+        calendar.add(Calendar.DAY_OF_YEAR, 6)
+        val endDate = calendar.time
+
+        val dateFormat = SimpleDateFormat("d MMMM", Locale.getDefault())
+        val formattedStartDate = dateFormat.format(startDate)
+        val formattedEndDate = dateFormat.format(endDate)
+
+        val weekDatesText = "$formattedStartDate - $formattedEndDate"
+        binding.weekDatesTextView.text = weekDatesText
     }
 }
 

@@ -16,9 +16,52 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <TextView
+            android:id="@+id/weekDatesTextView"
+            android:layout_width="159dp"
+            android:layout_height="24dp"
+            android:text=""
+            android:textColor="@color/black"
+            android:gravity="center"
+            android:textStyle="bold|italic"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="4dp"
+            android:layout_marginEnd="4dp"
+            android:layout_marginStart="4dp"
+            android:textSize="18dp"
+            android:layout_gravity="center_horizontal"
+
+
+             />
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
+
+            <Button
+                android:id="@+id/buttonPreviousWeek"
+                android:layout_width="40dp"
+                android:layout_height="30dp"
+                android:layout_marginBottom="4dp"
+                android:layout_marginEnd="4dp"
+                android:background="@drawable/baseline_arrow_back_ios_24"
+                android:text=""
+                app:layout_constraintBottom_toTopOf="@+id/expenseBarChart"
+                app:layout_constraintStart_toStartOf="parent" />
+
+
+
+
+            <Button
+                android:id="@+id/nextWeekButton"
+                android:layout_width="40dp"
+                android:layout_height="30dp"
+                android:layout_marginEnd="4dp"
+                android:layout_marginBottom="4dp"
+                android:background="@drawable/baseline_arrow_forward_ios_24"
+                android:text=""
+                app:layout_constraintBottom_toTopOf="@+id/expenseBarChart"
+                app:layout_constraintEnd_toEndOf="parent" />
 
             <com.github.mikephil.charting.charts.PieChart
                 android:id="@+id/expensePieChart"
@@ -29,7 +72,11 @@
                 app:layout_constraintHorizontal_bias="0.489"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.168" />
+                app:layout_constraintVertical_bias="0.168" >
+
+
+            </com.github.mikephil.charting.charts.PieChart>
+
             <com.github.mikephil.charting.charts.BarChart
                 android:id="@+id/expenseBarChart"
                 android:layout_width="384dp"
@@ -42,17 +89,16 @@
                 app:layout_constraintVertical_bias="0.586" />
 
 
-
-
             <Button
                 android:id="@+id/addExpensebutton"
-                android:layout_width="60dp"
-                android:layout_height="50dp"
-                android:text="+"
+                android:layout_width="45dp"
+                android:layout_height="41dp"
+                android:layout_marginEnd="2dp"
+                android:layout_marginBottom="2dp"
+                android:background="@drawable/baseline_add_24"
+                android:text=""
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="16dp" />
+                app:layout_constraintEnd_toEndOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -122,6 +168,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent" />
+
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

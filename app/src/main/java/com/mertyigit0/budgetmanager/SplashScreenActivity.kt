@@ -30,7 +30,7 @@ class SplashScreenActivity : AppCompatActivity() {
 
         Handler().postDelayed({
             // Giriş sayısını kontrol ederek yönlendirme yapma
-            if (entryCount >= 120) {
+            if (entryCount >= 12) {
                 val intent = Intent(this, MainActivity::class.java)
                 startActivity(intent)
                 finish() // SplashActivity'yi kapat

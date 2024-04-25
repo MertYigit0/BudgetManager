@@ -39,6 +39,10 @@ class ExpenseFragment : Fragment() {
     private val binding get() = _binding!!;
     private lateinit var auth: FirebaseAuth
     private lateinit var expenseAdapter: ExpenseAdapter
+
+    private var currentYear: Int = 0 // Mevcut yılı saklamak için değişken
+    private var currentMonth: Int = 0 // Mevcut ayı saklamak için değişken
+    private var currentWeek: Int = 0 // Mevcut haftanın numarasını saklamak için değişken
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -60,7 +64,7 @@ class ExpenseFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        chart_select()
+
 
         expenseAdapter = ExpenseAdapter(
             requireContext(),
@@ -72,6 +76,8 @@ class ExpenseFragment : Fragment() {
         recyclerView.adapter = expenseAdapter
 
         currentWeek = Calendar.getInstance().get(Calendar.WEEK_OF_YEAR)
+        currentMonth = Calendar.getInstance().get(Calendar.MONTH) + 1 // Mevcut ayı al (1 ile başlar, 0-based değil)
+        currentYear = Calendar.getInstance().get(Calendar.YEAR) // Mevcut yılı al
 
 
 
@@ -97,7 +103,49 @@ class ExpenseFragment : Fragment() {
             navController.navigate(R.id.action_expenseFragment_to_addExpenseFragment)
         }
 
-        updateWeekDatesText()
+
+
+        chart_select()
+
+        binding.buttonPreviousWeek.setOnClickListener {
+            // Önceki hafta butonuna tıklandığında yapılacak işlemler
+            if (binding.barTypeSpinner.selectedItemPosition == 0) {
+                // Haftalık görünümdeyiz, haftayı bir önceki haftaya kaydır
+                currentWeek--
+                calculateAndDisplayWeeklyExpenses(binding.expenseBarChart)
+                updateWeekDatesText()
+            } else {
+                // Aylık görünümdeyiz, mevcut ayı bir önceki aya kaydır
+                currentMonth--
+                if (currentMonth < 1) {
+                    currentMonth = 12 // 12'den küçükse, yılı bir azalt ve ayı Aralık yap
+                    currentYear--
+                }
+
+                calculateAndDisplayMonthlyExpenses(binding.expensePieChart)
+                updateMonthYearText()
+            }
+        }
+
+        binding.nextWeekButton.setOnClickListener {
+            // Önceki hafta butonuna tıklandığında yapılacak işlemler
+            if (binding.barTypeSpinner.selectedItemPosition == 0) {
+                // Haftalık görünümdeyiz, haftayı bir önceki haftaya kaydır
+                currentWeek++
+                calculateAndDisplayWeeklyExpenses(binding.expenseBarChart)
+                updateWeekDatesText()
+            } else {
+                // Aylık görünümdeyiz, mevcut ayı bir önceki aya kaydır
+                currentMonth++
+                if (currentMonth > 12) {
+                    currentMonth = 1 // 12'den küçükse, yılı bir azalt ve ayı Aralık yap
+                    currentYear++
+                }
+                calculateAndDisplayMonthlyExpenses(binding.expensePieChart)
+                updateMonthYearText()
+            }
+        }
+
 
     }
 
@@ -150,7 +198,7 @@ class ExpenseFragment : Fragment() {
         //centertext
         val totalExpense = expenses?.sumOf { it.amount.toDouble() }
 
-        val centerText = "Total Income:\n${totalExpense ?: 0.0} USD"
+        val centerText = "Total Expense:\n${totalExpense ?: 0.0} USD"
         pieChart.centerText = centerText
 
         val pieData = PieData(dataSet)
@@ -160,7 +208,69 @@ class ExpenseFragment : Fragment() {
     }
 
 
-    private var currentWeek: Int = 0 // Mevcut haftanın numarasını saklamak için değişken
+
+    private fun calculateAndDisplayMonthlyExpenses(pieChart: PieChart) {
+        val dbHelper = DatabaseHelper(requireContext())
+
+        val currentUserEmail = auth.currentUser?.email
+        val userData = currentUserEmail?.let { dbHelper.getUserData(it) }
+
+        val expenses = userData?.let { dbHelper.getAllExpensesByUserId(it.id) }
+
+        expenses?.let { expenseAdapter.updateExpenseList(it) }
+
+        val monthYearTotals = mutableMapOf<String, Float>()
+
+        // currentMonth = Calendar.getInstance().get(Calendar.MONTH) + 1 // Months are 0-based in Calendar class
+
+        expenses?.forEach { expense ->
+            val expenseMonth = getMonthFromDate(expense.date)
+
+            if (expenseMonth == currentMonth) {
+                val categoryName = expense.categoryName
+                val amount = monthYearTotals.getOrDefault(categoryName, 0f)
+                monthYearTotals[categoryName] = amount + expense.amount.toFloat()
+            }
+        }
+
+        val entries = mutableListOf<PieEntry>()
+
+        // Belirli bir ay için toplam miktarı pie chart'a ekle
+        for ((categoryName, totalAmount) in monthYearTotals) {
+            entries.add(PieEntry(totalAmount, categoryName))
+        }
+
+        // Veri setini oluştur
+        val dataSet = PieDataSet(entries, "Expense")
+
+        // Kategori renklerini dataSet'e ekle
+        dataSet.colors = entries.map { entry ->
+            getColorForCategory(entry.label)
+        }
+
+        // Centertext
+        val totalExpense = monthYearTotals.values.sum()
+        val centerText = "Total Expense:\n${totalExpense} USD"
+        pieChart.centerText = centerText
+
+        val pieData = PieData(dataSet)
+        pieChart.data = pieData
+        pieChart.invalidate()
+
+
+    }
+
+    // Tarih formatından ayı almak için yardımcı bir fonksiyon
+    private fun getMonthFromDate(date: String): Int {
+        val parts = date.split("-")
+        return parts[1].toInt()
+    }
+
+
+
+
+
+
 
     private fun calculateAndDisplayWeeklyExpenses(barChart: BarChart) {
         val dbHelper = DatabaseHelper(requireContext())
@@ -226,16 +336,7 @@ class ExpenseFragment : Fragment() {
                 return dayAbbreviations[dayOfWeek] ?: ""
             }
         }
-        binding.buttonPreviousWeek.setOnClickListener {
-            currentWeek-- // Her tıklandığında bir önceki haftaya git
-            calculateAndDisplayWeeklyExpenses(barChart)
-            updateWeekDatesText()
-        }
-        binding.nextWeekButton.setOnClickListener {
-            currentWeek++ // Her tıklandığında bir önceki haftaya git
-            calculateAndDisplayWeeklyExpenses(barChart)
-            updateWeekDatesText()
-        }
+
         barChart.invalidate()
     }
 
@@ -254,39 +355,45 @@ class ExpenseFragment : Fragment() {
                         0 -> {
                             binding.expensePieChart.visibility = View.GONE
                             binding.expenseBarChart.visibility = View.VISIBLE
-                            binding.nextWeekButton.visibility  = View.VISIBLE
-                            binding.buttonPreviousWeek.visibility  = View.VISIBLE
-                            binding.weekDatesTextView.visibility  = View.VISIBLE
                             calculateAndDisplayWeeklyExpenses(binding.expenseBarChart)
-
+                            updateWeekDatesText()
                         }
 
                         1 -> {
 
                             binding.expensePieChart.visibility = View.VISIBLE
                             binding.expenseBarChart.visibility = View.GONE
-                            binding.nextWeekButton.visibility  = View.GONE
-                            binding.buttonPreviousWeek.visibility  = View.GONE
-                            binding.weekDatesTextView.visibility  = View.GONE
-                            calculateAndDisplayGeneralExpenses(binding.expensePieChart)
-
+                            calculateAndDisplayMonthlyExpenses(binding.expensePieChart)
+                            updateMonthYearText()
                         }
                     }
+
+
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>?) {
                     TODO("Not yet implemented")
                 }
+
             }
+
     }
 
     private fun updateWeekDatesText() {
         val calendar = Calendar.getInstance()
         calendar.set(Calendar.WEEK_OF_YEAR, currentWeek)
-        calendar.firstDayOfWeek = Calendar.SUNDAY
+        calendar.firstDayOfWeek = Calendar.MONDAY // Yılın ilk gününü Pazartesi olarak ayarla
 
+        // İlk günü ayarla
+        while (calendar.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY) {
+            calendar.add(Calendar.DAY_OF_YEAR, -1)
+        }
         val startDate = calendar.time
-        calendar.add(Calendar.DAY_OF_YEAR, 6)
+
+        // Son günü ayarla
+        while (calendar.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY) {
+            calendar.add(Calendar.DAY_OF_YEAR, 1)
+        }
         val endDate = calendar.time
 
         val dateFormat = SimpleDateFormat("d MMMM", Locale.getDefault())
@@ -296,6 +403,16 @@ class ExpenseFragment : Fragment() {
         val weekDatesText = "$formattedStartDate - $formattedEndDate"
         binding.weekDatesTextView.text = weekDatesText
     }
+
+    private fun updateMonthYearText() {
+
+        val monthYearText = "${currentMonth}. $currentYear"
+        binding.weekDatesTextView.text = monthYearText
+    }
+
+
+
+
 }
 
 

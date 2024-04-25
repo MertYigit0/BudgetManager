@@ -1,6 +1,7 @@
 package com.mertyigit0.budgetmanager.ui
 
 import android.annotation.SuppressLint
+import android.app.DatePickerDialog
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -20,6 +21,7 @@ import com.mertyigit0.budgetmanager.data.Expense
 import com.mertyigit0.budgetmanager.databinding.FragmentAddExpenseBinding
 import java.math.RoundingMode
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
@@ -29,6 +31,8 @@ class AddExpenseFragment : Fragment() {
     private val binding get() = _binding!!;
 
     private lateinit var toggleButtonGroup: MaterialButtonToggleGroup
+
+    private var selectedDate: String? = null
 
     val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,6 +59,11 @@ class AddExpenseFragment : Fragment() {
 
         setupToggleButtonGroup()
         addExpense()
+
+
+        binding.selectDateButton.setOnClickListener {
+            showDatePickerDialog()
+        }
 
 
 
@@ -122,7 +131,7 @@ class AddExpenseFragment : Fragment() {
         binding.addButton.setOnClickListener {
             val amount = binding.amountEditText.text.toString().toDoubleOrNull() ?: 0.0
             val category = getSelectedCategory()
-            val date = getCurrentDate()
+            val date = selectedDate ?: getCurrentDate()
             val categoryId = getSelectedCategoryId()
             val description = binding.editTextText.text.toString()
             val currency = binding.currencySpinner.selectedItem.toString()
@@ -220,6 +229,29 @@ class AddExpenseFragment : Fragment() {
 
         val dbHelper = DatabaseHelper(requireContext())
         dbHelper.updateBudgetAlert(budgetAlert)
+    }
+
+
+    private fun showDatePickerDialog() {
+        val calendar = Calendar.getInstance()
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+        val datePickerDialog = DatePickerDialog(
+            requireContext(),
+            { _, selectedYear, selectedMonth, selectedDay ->
+                // Tarihi doğru formatta ayarlayın
+                val formattedMonth = String.format("%02d", selectedMonth + 1)
+                val formattedDay = String.format("%02d", selectedDay)
+                selectedDate = "$selectedYear-$formattedMonth-$formattedDay"
+                binding.dateTextView.text = selectedDate // Seçilen tarihi bir TextView'a yazdırın
+            },
+            year,
+            month,
+            day
+        )
+        datePickerDialog.show()
     }
 
 

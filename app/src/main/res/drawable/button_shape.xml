@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/blue" /> <!-- Buton rengi -->
+    <corners android:radius="8dp" /> <!-- Köşe yarıçapı -->
+    <stroke
+        android:width="1dp"
+        android:color="@color/darkGray" /> <!-- Kenarlık rengi -->
+</shape>

@@ -37,7 +37,17 @@
             android:elevation="4dp"
             android:focusable="true"
             android:foreground="?android:attr/selectableItemBackground">
-
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="left|center"
+                android:src="@drawable/baseline_currency_exchange_24"
+                android:layout_marginLeft="80dp"
+                android:layout_marginTop="2dp"
+                android:scaleType="fitEnd"
+                android:adjustViewBounds="true"
+                android:background="@android:color/transparent"
+                android:padding="16dp" />
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -67,7 +77,17 @@
             android:elevation="4dp"
             android:focusable="true"
             android:foreground="?android:attr/selectableItemBackground">
-
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="left|center"
+                android:src="@drawable/baseline_security_24"
+                android:layout_marginLeft="70dp"
+                android:layout_marginTop="2dp"
+                android:scaleType="fitEnd"
+                android:adjustViewBounds="true"
+                android:background="@android:color/transparent"
+                android:padding="16dp" />
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -95,7 +115,17 @@
             android:elevation="4dp"
             android:focusable="true"
             android:foreground="?android:attr/selectableItemBackground">
-
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="left|center"
+                android:src="@drawable/baseline_notifications_24"
+                android:layout_marginLeft="110dp"
+                android:layout_marginTop="2dp"
+                android:scaleType="fitEnd"
+                android:adjustViewBounds="true"
+                android:background="@android:color/transparent"
+                android:padding="16dp" />
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -123,7 +153,17 @@
             android:elevation="4dp"
             android:focusable="true"
             android:foreground="?android:attr/selectableItemBackground">
-
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="left|center"
+                android:src="@drawable/baseline_question_mark_24"
+                android:layout_marginLeft="70dp"
+                android:layout_marginTop="2dp"
+                android:scaleType="fitEnd"
+                android:adjustViewBounds="true"
+                android:background="@android:color/transparent"
+                android:padding="16dp" />
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -151,7 +191,17 @@
             android:elevation="4dp"
             android:focusable="true"
             android:foreground="?android:attr/selectableItemBackground">
-
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="left|center"
+                android:src="@drawable/baseline_help_outline_24"
+                android:layout_marginLeft="70dp"
+                android:layout_marginTop="2dp"
+                android:scaleType="fitEnd"
+                android:adjustViewBounds="true"
+                android:background="@android:color/transparent"
+                android:padding="16dp" />
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

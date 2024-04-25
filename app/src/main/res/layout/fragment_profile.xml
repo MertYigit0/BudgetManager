@@ -24,6 +24,17 @@
             android:elevation="4dp"
             app:cardCornerRadius="8dp">
 
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="left|center"
+                android:src="@drawable/baseline_account_balance_24"
+                android:layout_marginLeft="75dp"
+                android:layout_marginTop="2dp"
+                android:scaleType="fitEnd"
+                android:adjustViewBounds="true"
+                android:background="@android:color/transparent"
+                android:padding="16dp" />
             <TextView
                 android:id="@+id/item_account"
                 android:layout_width="match_parent"
@@ -51,6 +62,17 @@
             android:layout_margin="12dp"
             android:elevation="4dp"
             app:cardCornerRadius="8dp">
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="left|center"
+                android:src="@drawable/baseline_settings_24"
+                android:layout_marginLeft="75dp"
+                android:layout_marginTop="2dp"
+                android:scaleType="fitEnd"
+                android:adjustViewBounds="true"
+                android:background="@android:color/transparent"
+                android:padding="16dp" />
 
             <TextView
                 android:id="@+id/item_settings"
@@ -80,6 +102,17 @@
             android:elevation="4dp"
             app:cardCornerRadius="8dp">
 
+            <ImageView
+                android:layout_width="60dp"
+                android:layout_height="54dp"
+                android:layout_gravity="left|center"
+                android:src="@drawable/baseline_import_export_24"
+                android:layout_marginLeft="100dp"
+                android:layout_marginTop="2dp"
+                android:scaleType="fitEnd"
+                android:adjustViewBounds="true"
+                android:background="@android:color/transparent"
+                android:padding="16dp" />
             <TextView
                 android:id="@+id/item_export_data"
                 android:layout_width="match_parent"
@@ -107,6 +140,18 @@
             android:layout_margin="12dp"
             android:elevation="4dp"
             app:cardCornerRadius="8dp">
+
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="left|center"
+                android:src="@drawable/baseline_logout_24"
+                android:layout_marginLeft="70dp"
+                android:layout_marginTop="2dp"
+                android:scaleType="fitEnd"
+                android:adjustViewBounds="true"
+                android:background="@android:color/transparent"
+                android:padding="16dp" />
 
             <TextView
                 android:id="@+id/item_logout"

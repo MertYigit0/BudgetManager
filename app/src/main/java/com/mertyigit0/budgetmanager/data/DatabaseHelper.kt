@@ -826,6 +826,15 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
     }
 
 
+    fun addExpenseCategory(userId: Int, categoryName: String): Long {
+        val db = this.writableDatabase
+        val values = ContentValues()
+        values.put(COLUMN_USER_ID_EXPENSE_CATEGORY, userId)
+        values.put(COLUMN_NAME_EXPENSE_CATEGORY, categoryName)
+        val id = db.insert(TABLE_EXPENSE_CATEGORIES, null, values)
+        db.close()
+        return id
+    }
 
 
 }

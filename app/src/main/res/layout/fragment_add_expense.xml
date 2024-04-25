@@ -23,23 +23,12 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.138" />
 
-    <com.google.android.material.button.MaterialButtonToggleGroup
-        android:id="@+id/toggleButtonGroup"
-        android:layout_width="350dp"
-        android:layout_height="135dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:singleSelection="true">
-
-
-    </com.google.android.material.button.MaterialButtonToggleGroup>
 
     <EditText
         android:id="@+id/editTextText"
         android:layout_width="214dp"
         android:layout_height="40dp"
+        android:layout_marginBottom="192dp"
         android:background="@drawable/shape"
         android:ems="10"
         android:hint="Description"
@@ -47,10 +36,8 @@
         android:textAlignment="center"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toggleButtonGroup"
-        app:layout_constraintVertical_bias="0.233" />
+        app:layout_constraintHorizontal_bias="0.451"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/addButton"
@@ -79,25 +66,28 @@
         android:id="@+id/dateTextView"
         android:layout_width="272dp"
         android:layout_height="36dp"
-        android:layout_marginBottom="45dp"
+        android:layout_marginTop="80dp"
         android:background="@drawable/shape"
         android:padding="6dp"
         android:text="Date"
         android:textAlignment="center"
-        app:layout_constraintBottom_toTopOf="@+id/toggleButtonGroup"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintHorizontal_bias="0.395"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/amountEditText" />
 
     <Button
         android:id="@+id/selectDateButton"
         android:layout_width="35dp"
         android:layout_height="35dp"
-        android:layout_marginStart="4dp"
-        android:layout_marginBottom="45dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="84dp"
         android:background="@drawable/baseline_calendar_month_24"
         android:text="Button"
-        app:layout_constraintBottom_toTopOf="@+id/toggleButtonGroup"
-        app:layout_constraintStart_toEndOf="@+id/dateTextView" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/dateTextView"
+        app:layout_constraintTop_toBottomOf="@+id/currencySpinner" />
 
     <TextView
         android:id="@+id/textView11"
@@ -116,5 +106,44 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.033" />
+
+    <Button
+        android:id="@+id/addCategoryButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add new Category"
+        app:layout_constraintBottom_toTopOf="@+id/editTextText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+         />
+
+    <HorizontalScrollView
+        android:layout_width="392dp"
+        android:layout_height="118dp"
+        android:layout_marginTop="72dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.473"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dateTextView">
+
+
+        <com.google.android.material.button.MaterialButtonToggleGroup
+
+            android:id="@+id/toggleButtonGroup"
+            android:layout_width="350dp"
+            android:layout_height="135dp"
+            android:layout_marginTop="20dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.573"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.51"
+            app:singleSelection="true">
+
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+
+
+    </HorizontalScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,13 +1,15 @@
 package com.mertyigit0.budgetmanager.ui
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
+import android.widget.EditText
+import android.widget.Toast
 import androidx.core.view.children
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.button.MaterialButton
@@ -64,10 +66,18 @@ class AddExpenseFragment : Fragment() {
         binding.selectDateButton.setOnClickListener {
             showDatePickerDialog()
         }
+        binding.addCategoryButton.setOnClickListener{
+            addNewExpenseCategory()
+
+        }
 
 
 
     }
+    private fun clearToggleButtons() {
+        binding.toggleButtonGroup.removeAllViews()
+    }
+
     private fun setupToggleButtonGroup() {
         toggleButtonGroup.addOnButtonCheckedListener { group, checkedId, isChecked ->
             val checkedButton = group.findViewById<MaterialButton>(checkedId)
@@ -210,6 +220,10 @@ class AddExpenseFragment : Fragment() {
     }
 
 
+
+
+
+
     // BudgetAlert'leri güncelleme işlevini oluşturun
     private fun updateBudgetAlertForCategory(categoryId: Int) {
         val dbHelper = DatabaseHelper(requireContext())
@@ -253,6 +267,46 @@ class AddExpenseFragment : Fragment() {
         )
         datePickerDialog.show()
     }
+
+    fun addNewExpenseCategory() {
+        val dbHelper = DatabaseHelper(requireContext())
+        val alertDialog = AlertDialog.Builder(requireContext())
+        alertDialog.setTitle("Add New Category")
+        val input = EditText(requireContext())
+        input.hint = "Category Name"
+        alertDialog.setView(input)
+
+        alertDialog.setPositiveButton("OK") { dialog, which ->
+            val categoryName = input.text.toString().trim()
+            if (categoryName.isNotEmpty()) {
+                val userData = currentUserEmail?.let { dbHelper.getUserData(it) }
+                val userId = userData?.id
+                val categoryId = userId?.let { dbHelper.addExpenseCategory(it, categoryName) }
+                if (categoryId != -1L) {
+                    // Kategori başarıyla eklendi
+                    Toast.makeText(requireContext(), "Category added successfully", Toast.LENGTH_SHORT).show()
+                    // ToggleButton grubunu temizle ve yeniden oluştur
+                    clearToggleButtons()
+                    createToggleButtonsForIncomeCategories()
+                } else {
+                    // Kategori eklenirken bir hata oluştu
+                    Toast.makeText(requireContext(), "Failed to add category", Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                // Kategori adı boş
+                Toast.makeText(requireContext(), "Category name cannot be empty", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        alertDialog.setNegativeButton("Cancel") { dialog, which ->
+            dialog.cancel()
+        }
+
+        alertDialog.show()
+    }
+
+
+
 
 
 }

@@ -232,22 +232,17 @@ class ExpenseFragment : Fragment() {
                 monthYearTotals[categoryName] = amount + expense.amount.toFloat()
             }
         }
-
         val entries = mutableListOf<PieEntry>()
-
         // Belirli bir ay için toplam miktarı pie chart'a ekle
         for ((categoryName, totalAmount) in monthYearTotals) {
             entries.add(PieEntry(totalAmount, categoryName))
         }
-
         // Veri setini oluştur
         val dataSet = PieDataSet(entries, "Expense")
-
         // Kategori renklerini dataSet'e ekle
         dataSet.colors = entries.map { entry ->
             getColorForCategory(entry.label)
         }
-
         // Centertext
         val totalExpense = monthYearTotals.values.sum()
         val centerText = "Total Expense:\n${totalExpense} USD"
@@ -256,8 +251,6 @@ class ExpenseFragment : Fragment() {
         val pieData = PieData(dataSet)
         pieChart.data = pieData
         pieChart.invalidate()
-
-
     }
 
     // Tarih formatından ayı almak için yardımcı bir fonksiyon

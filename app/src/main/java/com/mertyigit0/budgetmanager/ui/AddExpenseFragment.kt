@@ -214,6 +214,7 @@ class AddExpenseFragment : Fragment() {
                 showSnackbar("Clicked: $category")
             }
 
+
             // ToggleGroup'a butonları ekleme işlemi
             binding.toggleButtonGroup.addView(button)
         }

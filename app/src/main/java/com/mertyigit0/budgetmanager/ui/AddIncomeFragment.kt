@@ -1,12 +1,16 @@
 package com.mertyigit0.budgetmanager.ui
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
+import android.app.DatePickerDialog
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.Toast
 import android.widget.ToggleButton
 import androidx.core.view.children
 import androidx.navigation.Navigation.findNavController
@@ -22,6 +26,7 @@ import com.mertyigit0.budgetmanager.data.RegularIncome
 import com.mertyigit0.budgetmanager.databinding.FragmentAddIncomeBinding
 import java.math.RoundingMode
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.Random
@@ -35,6 +40,8 @@ class AddIncomeFragment : Fragment() {
     private lateinit var toggleButtonGroup: MaterialButtonToggleGroup
 
     val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
+
+    private var selectedDate: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,6 +75,14 @@ class AddIncomeFragment : Fragment() {
                 addRegularIncome()
             }
         }
+        binding.selectDateButton.setOnClickListener {
+            showDatePickerDialog()
+        }
+        binding.addCategoryButton.setOnClickListener{
+            addNewIncomeCategory()
+
+        }
+
         addIncome()
 
 
@@ -126,11 +141,11 @@ class AddIncomeFragment : Fragment() {
         // Eğer eklenme başarılı ise
         if (isSuccess) {
             // Snackbar'da dönüştürülmüş miktarı ve para birimini göster
-            showSnackbar("Expense added: $amount $currency (Equivalent: $equivalentAmountText)")
+            showSnackbar("Income added: $amount $currency (Equivalent: $equivalentAmountText)")
 
         } else {
             // Ekleme başarısız olduysa Snackbar göster
-            showSnackbar("Failed to add expense.")
+            showSnackbar("Failed to add income.")
         }
         return isSuccess
     }
@@ -140,7 +155,7 @@ class AddIncomeFragment : Fragment() {
             val amount = binding.amountEditText.text.toString().toDoubleOrNull() ?: 0.0
             val category = getSelectedCategory()
             val categoryId = getSelectedCategoryId()
-            val date = getCurrentDate()
+            val date = selectedDate ?: getCurrentDate()
             val description = binding.editTextText.text.toString()
             val currency = binding.currencySpinner.selectedItem.toString()
 
@@ -195,7 +210,27 @@ class AddIncomeFragment : Fragment() {
     }
 
 
+    private fun showDatePickerDialog() {
+        val calendar = Calendar.getInstance()
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
 
+        val datePickerDialog = DatePickerDialog(
+            requireContext(),
+            { _, selectedYear, selectedMonth, selectedDay ->
+                // Tarihi doğru formatta ayarlayın
+                val formattedMonth = String.format("%02d", selectedMonth + 1)
+                val formattedDay = String.format("%02d", selectedDay)
+                selectedDate = "$selectedYear-$formattedMonth-$formattedDay"
+                binding.dateTextView.text = selectedDate // Seçilen tarihi bir TextView'a yazdırın
+            },
+            year,
+            month,
+            day
+        )
+        datePickerDialog.show()
+    }
 
     private fun getSelectedCategory(): String {
         val selectedButtonId = toggleButtonGroup.checkedButtonId
@@ -239,7 +274,45 @@ class AddIncomeFragment : Fragment() {
 
 
 
+    fun addNewIncomeCategory() {
+        val dbHelper = DatabaseHelper(requireContext())
+        val alertDialog = AlertDialog.Builder(requireContext())
+        alertDialog.setTitle("Add New Category")
+        val input = EditText(requireContext())
+        input.hint = "Category Name"
+        alertDialog.setView(input)
 
+        alertDialog.setPositiveButton("OK") { dialog, which ->
+            val categoryName = input.text.toString().trim()
+            if (categoryName.isNotEmpty()) {
+                val userData = currentUserEmail?.let { dbHelper.getUserData(it) }
+                val userId = userData?.id
+                val categoryId = userId?.let { dbHelper.addIncomeCategory(it, categoryName) }
+                if (categoryId != -1L) {
+                    // Kategori başarıyla eklendi
+                    Toast.makeText(requireContext(), "Category added successfully", Toast.LENGTH_SHORT).show()
+                    // ToggleButton grubunu temizle ve yeniden oluştur
+                    clearToggleButtons()
+                    createToggleButtonsForIncomeCategories()
+                } else {
+                    // Kategori eklenirken bir hata oluştu
+                    Toast.makeText(requireContext(), "Failed to add category", Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                // Kategori adı boş
+                Toast.makeText(requireContext(), "Category name cannot be empty", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        alertDialog.setNegativeButton("Cancel") { dialog, which ->
+            dialog.cancel()
+        }
+
+        alertDialog.show()
+    }
+    private fun clearToggleButtons() {
+        binding.toggleButtonGroup.removeAllViews()
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()

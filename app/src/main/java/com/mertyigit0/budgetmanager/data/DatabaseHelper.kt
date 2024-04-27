@@ -5,17 +5,15 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import com.mertyigit0.budgetmanager.data.Income
 import java.sql.SQLException
 import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Date
 import java.util.Locale
 
 class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
     companion object {
         private const val DATABASE_NAME = "budget_manager.db"
-        private const val DATABASE_VERSION = 5
+        private const val DATABASE_VERSION = 6
 
 
         //users
@@ -75,6 +73,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         private const val COLUMN_DEADLINE_FINANCIAL_GOAL = "deadline"
         private const val COLUMN_CREATED_AT_FINANCIAL_GOAL = "created_at"
         private const val COLUMN_CATEGORY_ID_FINANCIAL_GOAL = "category_id"
+        private const val COLUMN_PERCENTAGE_FINANCIAL_GOAL = "percentage"
 
         //Recurring Payments
         private const val TABLE_RECURRING_PAYMENTS = "recurring_payments"
@@ -216,6 +215,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 "$COLUMN_DEADLINE_FINANCIAL_GOAL TEXT," +
                 "$COLUMN_CREATED_AT_FINANCIAL_GOAL TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
                 "$COLUMN_CATEGORY_ID_FINANCIAL_GOAL INTEGER NOT NULL," +
+                "$COLUMN_PERCENTAGE_FINANCIAL_GOAL INTEGER NOT NULL," +
                 "FOREIGN KEY($COLUMN_USER_ID_FINANCIAL_GOAL) REFERENCES $TABLE_USERS($COLUMN_USER_ID)," +
                 "FOREIGN KEY($COLUMN_CATEGORY_ID_FINANCIAL_GOAL) REFERENCES $TABLE_INCOME_CATEGORIES($COLUMN_ID_INCOME_CATEGORY))")
 
@@ -490,6 +490,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             put(COLUMN_CURRENT_AMOUNT_FINANCIAL_GOAL, goal.currentAmount)
             put(COLUMN_DEADLINE_FINANCIAL_GOAL, goal.deadline)
             put(COLUMN_CATEGORY_ID_FINANCIAL_GOAL,goal.categoryId)
+            put(COLUMN_PERCENTAGE_FINANCIAL_GOAL,goal.percentage)
             // Diğer sütunlar default değerleri alacakları için eklemeye gerek yok
         }
 
@@ -529,7 +530,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                     cursor.getDouble(cursor.getColumnIndex(COLUMN_CURRENT_AMOUNT_FINANCIAL_GOAL)),
                     cursor.getString(cursor.getColumnIndex(COLUMN_DEADLINE_FINANCIAL_GOAL)),
                     cursor.getString(cursor.getColumnIndex(COLUMN_CREATED_AT_FINANCIAL_GOAL)),
-                    cursor.getInt(cursor.getColumnIndex(COLUMN_CATEGORY_ID_FINANCIAL_GOAL))
+                    cursor.getInt(cursor.getColumnIndex(COLUMN_CATEGORY_ID_FINANCIAL_GOAL)),
+                    cursor.getInt(cursor.getColumnIndex(COLUMN_PERCENTAGE_FINANCIAL_GOAL))
 
                 )
                 financialGoalsList.add(financialGoal)
@@ -539,6 +541,39 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db.close()
         return financialGoalsList
     }
+
+
+    @SuppressLint("Range")
+    fun getAllFinancialGoalsByUserIdByCategoryId(userId: Int, categoryId: Int): List<FinancialGoal> {
+        val financialGoalsList = mutableListOf<FinancialGoal>()
+        val db = this.readableDatabase
+        val selectQuery = "SELECT * FROM $TABLE_FINANCIAL_GOALS WHERE $COLUMN_USER_ID_FINANCIAL_GOAL = ? AND  $COLUMN_CATEGORY_ID_FINANCIAL_GOAL = ? "
+        val cursor = db.rawQuery(selectQuery, arrayOf(userId.toString(), categoryId.toString()))
+
+        if (cursor.moveToFirst()) {
+            do {
+                val financialGoal = FinancialGoal(
+                    cursor.getInt(cursor.getColumnIndex(COLUMN_ID_FINANCIAL_GOAL)),
+                    cursor.getInt(cursor.getColumnIndex(COLUMN_USER_ID_FINANCIAL_GOAL)),
+                    cursor.getString(cursor.getColumnIndex(COLUMN_TITLE_FINANCIAL_GOAL)),
+                    cursor.getString(cursor.getColumnIndex(COLUMN_DESCRIPTION_FINANCIAL_GOAL)),
+                    cursor.getDouble(cursor.getColumnIndex(COLUMN_TARGET_AMOUNT_FINANCIAL_GOAL)),
+                    cursor.getDouble(cursor.getColumnIndex(COLUMN_CURRENT_AMOUNT_FINANCIAL_GOAL)),
+                    cursor.getString(cursor.getColumnIndex(COLUMN_DEADLINE_FINANCIAL_GOAL)),
+                    cursor.getString(cursor.getColumnIndex(COLUMN_CREATED_AT_FINANCIAL_GOAL)),
+                    cursor.getInt(cursor.getColumnIndex(COLUMN_CATEGORY_ID_FINANCIAL_GOAL)),
+                    cursor.getInt(cursor.getColumnIndex(COLUMN_PERCENTAGE_FINANCIAL_GOAL))
+
+                )
+                financialGoalsList.add(financialGoal)
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        db.close()
+        return financialGoalsList
+    }
+
+
 
     fun addBudgetAlert(budgetAlert: BudgetAlert): Boolean {
         val db = this.writableDatabase
@@ -754,6 +789,22 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         val whereArgs = arrayOf(budgetAlert.id.toString())
         val affectedRows = db.update(TABLE_BUDGET_ALERTS, values, whereClause, whereArgs)
         return affectedRows > 0
+    }
+
+    fun updateFinancialGoal(goal: FinancialGoal): Boolean {
+        val db = this.writableDatabase
+        val contentValues = ContentValues()
+        contentValues.put(COLUMN_TITLE_FINANCIAL_GOAL, goal.title)
+        contentValues.put(COLUMN_DESCRIPTION_FINANCIAL_GOAL, goal.description)
+        contentValues.put(COLUMN_TARGET_AMOUNT_FINANCIAL_GOAL, goal.targetAmount)
+        contentValues.put(COLUMN_CURRENT_AMOUNT_FINANCIAL_GOAL, goal.currentAmount)
+        contentValues.put(COLUMN_DEADLINE_FINANCIAL_GOAL, goal.deadline)
+        contentValues.put(COLUMN_CATEGORY_ID_FINANCIAL_GOAL, goal.categoryId)
+        contentValues.put(COLUMN_PERCENTAGE_FINANCIAL_GOAL, goal.percentage)
+
+        val success = db.update(TABLE_FINANCIAL_GOALS, contentValues, "$COLUMN_ID=?", arrayOf(goal.id.toString()))
+        db.close()
+        return success != -1
     }
 
 

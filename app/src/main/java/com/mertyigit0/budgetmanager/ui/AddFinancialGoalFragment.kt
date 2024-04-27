@@ -15,7 +15,6 @@ import com.mertyigit0.budgetmanager.R
 import com.mertyigit0.budgetmanager.data.DatabaseHelper
 import com.mertyigit0.budgetmanager.data.FinancialGoal
 import com.mertyigit0.budgetmanager.databinding.FragmentAddFinancialGoalBinding
-import com.mertyigit0.budgetmanager.databinding.FragmentExpenseBinding
 import java.util.Calendar
 
 
@@ -72,7 +71,8 @@ class AddFinancialGoalFragment : Fragment() {
         val currentAmount = 0.0
         val deadline = binding.dateTextView.text.toString()
         val categoryId = getSelectedCategoryId() // Kategori kimliğini almak için bir metot
-
+        val percentage = binding.percentageEditTextNumber.text.toString().toInt()
+        val navController = Navigation.findNavController(requireView())
         // Yeni bir FinancialGoal nesnesi oluştur
         val newGoal = FinancialGoal(
             id = 0, // ID veritabanında otomatik artan olduğu için sıfır geçiyoruz
@@ -83,7 +83,9 @@ class AddFinancialGoalFragment : Fragment() {
             currentAmount = currentAmount,
             deadline = deadline,
             createdAt = "", // Bu alan veritabanında otomatik ayarlanacağı için boş geçilebilir
-            categoryId = categoryId
+            categoryId = categoryId,
+            percentage = percentage
+
         )
 
         // Yeni finansal hedefi veritabanına ekleyin
@@ -95,7 +97,6 @@ class AddFinancialGoalFragment : Fragment() {
             Toast.makeText(requireContext(), "Financial goal successfully added!", Toast.LENGTH_SHORT).show()
 
             // Adapter oluşturulduktan sonra kullanılabilir
-            val navController = Navigation.findNavController(requireView())
                 navController.navigate(R.id.action_addFinancialGoalFragment_to_financialGoalFragment)
 
 

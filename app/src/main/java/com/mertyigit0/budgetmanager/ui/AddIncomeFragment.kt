@@ -152,6 +152,7 @@ class AddIncomeFragment : Fragment() {
     }
 
     private fun addIncome() {
+        val dbHelper = DatabaseHelper(requireContext())
         binding.addButton.setOnClickListener {
             val amount = binding.amountEditText.text.toString().toDoubleOrNull() ?: 0.0
             val category = getSelectedCategory()
@@ -159,10 +160,21 @@ class AddIncomeFragment : Fragment() {
             val date = selectedDate ?: getCurrentDate()
             val description = binding.editTextText.text.toString()
             val currency = binding.currencySpinner.selectedItem.toString()
-
+            val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
+            val userId = currentUserEmail?.let { dbHelper.getUserData(it) }?.id ?: -1
             if (categoryId.equals(-1)) {
                 showSnackbar("Please select a category.")
                 return@setOnClickListener
+            }
+
+            // Gelirin eklendiği tarihte aynı kategoride bir finansal hedef var mı kontrol et
+            val financialGoals = dbHelper.getAllFinancialGoalsByUserIdByCategoryId(userId ,  categoryId)
+            financialGoals.forEach { goal ->
+                if (goal.categoryId == categoryId) {
+                    val updatedAmount = amount * (goal.percentage.toDouble() / 100) // Gelir miktarını yüzdeyle çarp
+                    goal.currentAmount += updatedAmount // Finansal hedefin mevcut tutarına ekleyin
+                    dbHelper.updateFinancialGoal(goal) // Güncellenmiş finansal hedefi veritabanına kaydet
+                }
             }
 
             if (addIncomeToDatabase(amount, category,categoryId, date, description,currency)) {

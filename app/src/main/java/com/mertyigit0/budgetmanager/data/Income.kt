@@ -52,10 +52,11 @@ data class FinancialGoal(
     val title: String,
     val description: String?,
     val targetAmount: Double,
-    val currentAmount: Double,
+    var currentAmount: Double,
     val deadline: String,
     val createdAt: String,
-    val categoryId: Int
+    val categoryId: Int,
+    val percentage: Int
 )
 
 data class RecurringPayment(

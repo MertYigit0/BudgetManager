@@ -39,7 +39,6 @@ class AddIncomeFragment : Fragment() {
 
     private lateinit var toggleButtonGroup: MaterialButtonToggleGroup
 
-    val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
 
     private var selectedDate: String? = null
 
@@ -49,6 +48,7 @@ class AddIncomeFragment : Fragment() {
 
 
             val dbHelper = DatabaseHelper(requireContext())
+            val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
             val userId = currentUserEmail?.let { it1 -> dbHelper.getUserData(it1) }
         }
     }
@@ -115,6 +115,7 @@ class AddIncomeFragment : Fragment() {
 
     private fun addIncomeToDatabase(amount: Double, category: String,categoryId : Int, date: String, description: String?, currency: String): Boolean {
         val dbHelper = DatabaseHelper(requireContext())
+        val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
         val userId = currentUserEmail?.let { dbHelper.getUserData(it) }?.id ?: -1
 
         // Döviz kuru veritabanından al
@@ -176,6 +177,7 @@ class AddIncomeFragment : Fragment() {
 
     private fun addRegularIncomeToDatabase(title: String, amount: Double, currency: String, recurrence: String, date: String, categoryId: Int): Boolean {
         val dbHelper = DatabaseHelper(requireContext())
+        val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
         val userId = currentUserEmail?.let { dbHelper.getUserData(it) }?.id ?: -1
         val regularIncome = RegularIncome(id = 0, userId = userId, title = title, amount = amount, currency = currency, recurrence = recurrence, date = date, categoryId = categoryId)
 
@@ -251,6 +253,7 @@ class AddIncomeFragment : Fragment() {
     }
     fun createToggleButtonsForIncomeCategories() {
         val dbHelper = DatabaseHelper(requireContext())
+        val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
         val userId = currentUserEmail?.let { dbHelper.getUserData(it) }?.id ?: -1
         val incomeCategories = dbHelper.getAllIncomeCategoriesByUserId(userId)
 
@@ -285,6 +288,7 @@ class AddIncomeFragment : Fragment() {
         alertDialog.setPositiveButton("OK") { dialog, which ->
             val categoryName = input.text.toString().trim()
             if (categoryName.isNotEmpty()) {
+                val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
                 val userData = currentUserEmail?.let { dbHelper.getUserData(it) }
                 val userId = userData?.id
                 val categoryId = userId?.let { dbHelper.addIncomeCategory(it, categoryName) }

@@ -95,7 +95,11 @@
         android:id="@+id/financialGoalFragment"
         android:name="com.mertyigit0.budgetmanager.ui.FinancialGoalFragment"
         android:label="fragment_financial_goal"
-        tools:layout="@layout/fragment_financial_goal" />
+        tools:layout="@layout/fragment_financial_goal" >
+        <action
+            android:id="@+id/action_financialGoalFragment_to_addFinancialGoalFragment"
+            app:destination="@id/addFinancialGoalFragment" />
+    </fragment>
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.mertyigit0.budgetmanager.ui.ProfileFragment"
@@ -135,5 +139,14 @@
         <action
             android:id="@+id/action_budgetAlertFragment_to_addBudgetAlertFragment"
             app:destination="@id/addBudgetAlertFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/addFinancialGoalFragment"
+        android:name="com.mertyigit0.budgetmanager.ui.AddFinancialGoalFragment"
+        android:label="fragment_add_financial_goal"
+        tools:layout="@layout/fragment_add_financial_goal" >
+        <action
+            android:id="@+id/action_addFinancialGoalFragment_to_financialGoalFragment"
+            app:destination="@id/financialGoalFragment" />
     </fragment>
 </navigation>

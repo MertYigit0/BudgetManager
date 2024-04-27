@@ -15,7 +15,7 @@ import java.util.Locale
 class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
     companion object {
         private const val DATABASE_NAME = "budget_manager.db"
-        private const val DATABASE_VERSION = 3
+        private const val DATABASE_VERSION = 5
 
 
         //users
@@ -74,6 +74,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         private const val COLUMN_CURRENT_AMOUNT_FINANCIAL_GOAL = "current_amount"
         private const val COLUMN_DEADLINE_FINANCIAL_GOAL = "deadline"
         private const val COLUMN_CREATED_AT_FINANCIAL_GOAL = "created_at"
+        private const val COLUMN_CATEGORY_ID_FINANCIAL_GOAL = "category_id"
 
         //Recurring Payments
         private const val TABLE_RECURRING_PAYMENTS = "recurring_payments"
@@ -137,8 +138,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         private const val COLUMN_DATE_REGULAR_INCOME = "date"
         private const val COLUMN_CATEGORY_ID_REGULAR_INCOME = "category_id"
 
-
-        private const val TABLE_NAME = "exchange_rates"
+        //excgange rates
+        private const val TABLE_EXCHANGE_RATES = "exchange_rates"
         private const val COLUMN_ID = "id"
         private const val COLUMN_CURRENCY_CODE = "currency_code"
         private const val COLUMN_RATE = "rate"
@@ -146,7 +147,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
     override fun onCreate(db: SQLiteDatabase?) {
 
-        val createTableQuery = "CREATE TABLE $TABLE_NAME ($COLUMN_ID INTEGER PRIMARY KEY, $COLUMN_CURRENCY_CODE TEXT, $COLUMN_RATE REAL)"
+        val createTableQuery = "CREATE TABLE $TABLE_EXCHANGE_RATES ($COLUMN_ID INTEGER PRIMARY KEY, $COLUMN_CURRENCY_CODE TEXT, $COLUMN_RATE REAL)"
         db?.execSQL(createTableQuery)
 
 
@@ -214,8 +215,12 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 "$COLUMN_CURRENT_AMOUNT_FINANCIAL_GOAL REAL," +
                 "$COLUMN_DEADLINE_FINANCIAL_GOAL TEXT," +
                 "$COLUMN_CREATED_AT_FINANCIAL_GOAL TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
-                "FOREIGN KEY($COLUMN_USER_ID_FINANCIAL_GOAL) REFERENCES $TABLE_USERS($COLUMN_USER_ID))")
+                "$COLUMN_CATEGORY_ID_FINANCIAL_GOAL INTEGER NOT NULL," +
+                "FOREIGN KEY($COLUMN_USER_ID_FINANCIAL_GOAL) REFERENCES $TABLE_USERS($COLUMN_USER_ID)," +
+                "FOREIGN KEY($COLUMN_CATEGORY_ID_FINANCIAL_GOAL) REFERENCES $TABLE_INCOME_CATEGORIES($COLUMN_ID_INCOME_CATEGORY))")
+
         db?.execSQL(CREATE_FINANCIAL_GOALS_TABLE)
+
 
         val CREATE_RECURRING_PAYMENTS_TABLE = ("CREATE TABLE $TABLE_RECURRING_PAYMENTS (" +
                 "$COLUMN_ID_RECURRING_PAYMENT INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -304,6 +309,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
         // Eski tabloları sil ve yeniden oluştur
+        db?.execSQL("DROP TABLE IF EXISTS $TABLE_USERS")
         db?.execSQL("DROP TABLE IF EXISTS $TABLE_INCOMES")
         db?.execSQL("DROP TABLE IF EXISTS $TABLE_EXPENSES")
         db?.execSQL("DROP TABLE IF EXISTS $TABLE_EXPENSE_CATEGORIES")
@@ -315,6 +321,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db?.execSQL("DROP TABLE IF EXISTS $TABLE_FINANCIAL_GOALS")
         db?.execSQL("DROP TABLE IF EXISTS $TABLE_FINANCIAL_SUGGESTIONS")
         db?.execSQL("DROP TABLE IF EXISTS $TABLE_BUDGET_ALERTS")
+        db?.execSQL("DROP TABLE IF EXISTS $TABLE_EXCHANGE_RATES")
+
 
         // Yeniden oluştur
         onCreate(db)
@@ -481,6 +489,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             put(COLUMN_TARGET_AMOUNT_FINANCIAL_GOAL, goal.targetAmount)
             put(COLUMN_CURRENT_AMOUNT_FINANCIAL_GOAL, goal.currentAmount)
             put(COLUMN_DEADLINE_FINANCIAL_GOAL, goal.deadline)
+            put(COLUMN_CATEGORY_ID_FINANCIAL_GOAL,goal.categoryId)
             // Diğer sütunlar default değerleri alacakları için eklemeye gerek yok
         }
 
@@ -519,7 +528,9 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                     cursor.getDouble(cursor.getColumnIndex(COLUMN_TARGET_AMOUNT_FINANCIAL_GOAL)),
                     cursor.getDouble(cursor.getColumnIndex(COLUMN_CURRENT_AMOUNT_FINANCIAL_GOAL)),
                     cursor.getString(cursor.getColumnIndex(COLUMN_DEADLINE_FINANCIAL_GOAL)),
-                    cursor.getString(cursor.getColumnIndex(COLUMN_CREATED_AT_FINANCIAL_GOAL))
+                    cursor.getString(cursor.getColumnIndex(COLUMN_CREATED_AT_FINANCIAL_GOAL)),
+                    cursor.getInt(cursor.getColumnIndex(COLUMN_CATEGORY_ID_FINANCIAL_GOAL))
+
                 )
                 financialGoalsList.add(financialGoal)
             } while (cursor.moveToNext())
@@ -786,7 +797,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             put(COLUMN_CURRENCY_CODE, currencyCode)
             put(COLUMN_RATE, rate)
         }
-        db.insert(TABLE_NAME, null, values)
+        db.insert(TABLE_EXCHANGE_RATES, null, values)
         db.close()
     }
 
@@ -795,7 +806,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
     fun getAllExchangeRates(): Map<String, Double> {
         val exchangeRates = mutableMapOf<String, Double>()
         val db = this.readableDatabase
-        val cursor = db.rawQuery("SELECT * FROM $TABLE_NAME", null)
+        val cursor = db.rawQuery("SELECT * FROM $TABLE_EXCHANGE_RATES", null)
         cursor.use {
             while (it.moveToNext()) {
                 val currencyCode = it.getString(it.getColumnIndex(COLUMN_CURRENCY_CODE))
@@ -812,7 +823,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         val db = this.readableDatabase
         var exchangeRate = 0.0
 
-        val query = "SELECT $COLUMN_RATE FROM $TABLE_NAME WHERE $COLUMN_CURRENCY_CODE = ?"
+        val query = "SELECT $COLUMN_RATE FROM $TABLE_EXCHANGE_RATES WHERE $COLUMN_CURRENCY_CODE = ?"
         val cursor = db.rawQuery(query, arrayOf(currencyCode))
 
         if (cursor.moveToFirst()) {

@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
@@ -29,8 +30,7 @@ class FinancialGoalFragment : Fragment() {
 
     private val financialGoals = mutableListOf<FinancialGoal>()
     private lateinit var adapter: FinancialGoalAdapter
-    private lateinit var dbHelper: DatabaseHelper
-    private val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -48,7 +48,7 @@ class FinancialGoalFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        dbHelper = DatabaseHelper(requireContext())
+        var dbHelper = DatabaseHelper(requireContext())
 
         // RecyclerView'i bul
         val recyclerView: RecyclerView = binding.financialGoalRecyclerView
@@ -61,6 +61,7 @@ class FinancialGoalFragment : Fragment() {
 
         // RecyclerView'e adapter'ı bağla
         recyclerView.adapter = adapter
+       val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
 
         // Kullanıcının finansal hedeflerini al
         currentUserEmail?.let { email ->
@@ -71,16 +72,24 @@ class FinancialGoalFragment : Fragment() {
                 adapter.notifyDataSetChanged()
             }
         }
-
+        val navController = Navigation.findNavController(requireView())
         // Adapter oluşturulduktan sonra kullanılabilir
         binding.addFinancialGoalButton.setOnClickListener{
-            showAddFinancialGoalDialog()
+            navController.navigate(R.id.action_financialGoalFragment_to_addFinancialGoalFragment)
+
         }
+
+
+
+
+
+
     }
 
 
 
     // Yeni FinancialGoal eklemek için AlertDialog gösteren fonksiyon
+    /*
     private fun showAddFinancialGoalDialog() {
         val builder = AlertDialog.Builder(requireContext())
         val inflater = requireActivity().layoutInflater
@@ -109,6 +118,7 @@ class FinancialGoalFragment : Fragment() {
                     currentAmount = 0.0, // Başlangıçta 0 olarak ayarlanabilir
                     deadline = deadline,
                     createdAt = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+                    categoryId =
                 )
 
                 // Oluşturulan hedefi listeye ekle
@@ -122,11 +132,11 @@ class FinancialGoalFragment : Fragment() {
                 dialog.cancel()
             }
             .show()
-    }
+    }*/
 
 
     private fun addFinancialGoalToDatabase(financialGoal: FinancialGoal) {
-
+        val dbHelper = DatabaseHelper(requireContext())
         val success = dbHelper.addFinancialGoal(financialGoal)
         if (success) {
 

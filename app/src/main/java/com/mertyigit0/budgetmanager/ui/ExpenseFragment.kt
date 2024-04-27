@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
+import androidx.core.content.ContextCompat
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -31,6 +32,7 @@ import com.mertyigit0.budgetmanager.databinding.FragmentExpenseBinding
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import kotlin.random.Random
 
 
 class ExpenseFragment : Fragment() {
@@ -151,14 +153,36 @@ class ExpenseFragment : Fragment() {
 
 
     // Kategoriye göre renk atayan yardımcı fonksiyon
-    private fun getColorForCategory(categoryName: String): Int {
-        return when (categoryName) {
-            "Utils" -> Color.GREEN
-            "Transport" -> Color.BLUE
-            "Rent" -> Color.RED
-            "Food&Grocery" -> Color.CYAN
-            else -> Color.parseColor("#FFA500") // Diğer kategoriler için turuncu renk
+    private fun getColorForCategory(categoryLabel: String): Int {
+        val categoryIdStartIndex = categoryLabel.lastIndexOf("(") + 1
+        val categoryIdEndIndex = categoryLabel.lastIndexOf(")")
+        val categoryIdString = categoryLabel.substring(categoryIdStartIndex, categoryIdEndIndex)
+        val categoryId = categoryIdString.trim().toFloat() // Parantez içindeki kategori ID'sini al ve float'a çevir
+        // Kategori ID'sine göre renk belirle
+        return when (categoryId) {
+            // Kategori ID'lerine göre renkleri belirle
+            1f ->  ContextCompat.getColor(requireContext(), R.color.chart_green)
+            2f ->  ContextCompat.getColor(requireContext(), R.color.chart_blue)
+            3f ->  ContextCompat.getColor(requireContext(), R.color.chart_red)
+            4f ->  ContextCompat.getColor(requireContext(), R.color.chart_yellow)
+            5f -> ContextCompat.getColor(requireContext(), R.color.chart_purple)
+            6f -> ContextCompat.getColor(requireContext(), R.color.chart_cyan)
+            7f -> ContextCompat.getColor(requireContext(), R.color.chart_gray)
+            8f -> ContextCompat.getColor(requireContext(), R.color.chart_orange)
+            9f -> Color.BLACK
+            else -> getRandomColor() // Tanımlanmamış kategori id'leri için rastgele renk döndür
         }
+    }
+
+    // Rastgele renkler üretmek için bir fonksiyon
+    fun getRandomColor(): Int {
+        // Renkleri oluşturmak için rastgele RGB değerleri alın
+        val r = Random.nextInt(256)
+        val g = Random.nextInt(256)
+        val b = Random.nextInt(256)
+
+        // RGB değerlerini tek bir Int olarak birleştirin ve döndürün
+        return (0xFF shl 24) or (r shl 16) or (g shl 8) or b
     }
 
     private fun calculateAndDisplayGeneralExpenses(pieChart: PieChart){
@@ -235,7 +259,9 @@ class ExpenseFragment : Fragment() {
         val entries = mutableListOf<PieEntry>()
         // Belirli bir ay için toplam miktarı pie chart'a ekle
         for ((categoryName, totalAmount) in monthYearTotals) {
-            entries.add(PieEntry(totalAmount, categoryName))
+            val categoryID = dbHelper.getExpenseCategoryIdByCategoryName(categoryName) // Kategori adından ID'yi alabilirsiniz, kendi projenize göre uyarlayın
+            val entryLabel = "$categoryName ($categoryID)" // Kategori adı ve ID'sini birleştirin
+            entries.add(PieEntry(totalAmount, entryLabel))
         }
         // Veri setini oluştur
         val dataSet = PieDataSet(entries, "Expense")

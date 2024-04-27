@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.navigation.Navigation
 import com.google.firebase.auth.FirebaseAuth
 import com.mertyigit0.budgetmanager.R
+import com.mertyigit0.budgetmanager.data.DatabaseHelper
 import com.mertyigit0.budgetmanager.databinding.FragmentProfileBinding
 import com.mertyigit0.budgetmanager.databinding.FragmentSettingsBinding
 
@@ -48,7 +49,7 @@ class ProfileFragment : Fragment() {
             auth.signOut()
             redirectToLoginScreen()
         }
-
+        displayUserData()
 
     }
 
@@ -56,7 +57,16 @@ class ProfileFragment : Fragment() {
         navController.navigate(R.id.action_profileFragment_to_loginFragment)
     }
 
+    fun displayUserData() {
+        val dbHelper = DatabaseHelper(requireContext())
+        val currentUserEmail = auth.currentUser?.email
+        val userData = currentUserEmail?.let { dbHelper.getUserData(it) }
 
+        if (userData != null) {
+            binding.textView12.text = "Email: ${userData.email}"+"User ID: ${userData.id}"
+
+        }
+    }
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

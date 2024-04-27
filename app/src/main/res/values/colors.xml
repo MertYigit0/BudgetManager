@@ -19,5 +19,16 @@
 
 
 
+    <color name="chart_orange">#EF9234</color>
+    <color name="chart_blue">#519DE9</color>
+    <color name="chart_red">#A30000</color>
+    <color name="chart_green">#7CC674</color>
+    <color name="chart_purple">#8481DD</color>
+    <color name="chart_yellow">#F4C145</color>
+    <color name="chart_cyan">#009596</color>
+    <color name="chart_gray">#B8BBBE</color>
+
+
+
 
 </resources>

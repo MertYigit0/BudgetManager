@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -141,18 +142,24 @@ class IncomeFragment : Fragment() {
         binding.weekDatesTextView.text = monthYearText
     }
     // Kategoriye göre renk atayan yardımcı fonksiyon
-    private fun getColorForCategory(categoryId: Float): Int {
+    private fun getColorForCategory(categoryLabel: String): Int {
+        val categoryIdStartIndex = categoryLabel.lastIndexOf("(") + 1
+        val categoryIdEndIndex = categoryLabel.lastIndexOf(")")
+        val categoryIdString = categoryLabel.substring(categoryIdStartIndex, categoryIdEndIndex)
+        val categoryId = categoryIdString.trim().toFloat() // Parantez içindeki kategori ID'sini al ve float'a çevir
+        // Kategori ID'sine göre renk belirle
         return when (categoryId) {
-            1f -> Color.GREEN
-            2f -> Color.BLUE
-            3f -> Color.RED
-            4f -> Color.YELLOW
-            5f -> Color.MAGENTA
-            6f -> Color.CYAN
-            7f -> Color.GRAY
-            8f -> Color.LTGRAY
+            // Kategori ID'lerine göre renkleri belirle
+            1f ->  ContextCompat.getColor(requireContext(), R.color.chart_green)
+            2f ->  ContextCompat.getColor(requireContext(), R.color.chart_blue)
+            3f ->  ContextCompat.getColor(requireContext(), R.color.chart_red)
+            4f ->  ContextCompat.getColor(requireContext(), R.color.chart_yellow)
+            5f -> ContextCompat.getColor(requireContext(), R.color.chart_purple)
+            6f -> ContextCompat.getColor(requireContext(), R.color.chart_cyan)
+            7f -> ContextCompat.getColor(requireContext(), R.color.chart_gray)
+            8f -> ContextCompat.getColor(requireContext(), R.color.chart_orange)
             9f -> Color.BLACK
-            else -> Color.parseColor("#FFA500") // Tanımlanmamış kategori id'leri için turuncu renk
+            else -> getRandomColor() // Tanımlanmamış kategori id'leri için rastgele renk döndür
         }
     }
 
@@ -195,17 +202,22 @@ class IncomeFragment : Fragment() {
 
         val entries = mutableListOf<PieEntry>()
 
-        // Belirli bir ay için toplam miktarı pie chart'a ekle
+
+
+    // Belirli bir ay için toplam miktarı pie chart'a ekle
         for ((categoryName, totalAmount) in monthYearTotals) {
-            entries.add(PieEntry(totalAmount, categoryName))
+            val categoryID = dbHelper.getIncomeCategoryIdByCategoryName(categoryName) // Kategori adından ID'yi alabilirsiniz, kendi projenize göre uyarlayın
+            val entryLabel = "$categoryName ($categoryID)" // Kategori adı ve ID'sini birleştirin
+            entries.add(PieEntry(totalAmount, entryLabel))
         }
 
-        // Veri setini oluştur
+    // Veri setini oluştur
         val dataSet = PieDataSet(entries, "Income")
+
 
         // Kategori renklerini dataSet'e ekle
         dataSet.colors = entries.map { entry ->
-            getColorForCategory(entry.value)
+            getColorForCategory(entry.label)
         }
 
         // Centertext

@@ -236,6 +236,7 @@ class AddExpenseFragment : Fragment() {
             // Bütçe uyarısı varsa, güncelleme yap
             val updatedBudgetAlert = budgetAlert.copy(currentAmount = totalExpense)
             updateBudgetAlert(updatedBudgetAlert)
+
         }
     }
 

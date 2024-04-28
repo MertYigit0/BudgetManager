@@ -16,19 +16,20 @@
         android:inputType="number"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.303"
+        app:layout_constraintHorizontal_bias="0.263"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.142" />
+        app:layout_constraintVertical_bias="0.201" />
+
 
     <HorizontalScrollView
         android:id="@+id/horizontalScrollView"
-        android:layout_width="392dp"
-        android:layout_height="118dp"
-        android:layout_marginBottom="40dp"
+        android:layout_width="384dp"
+        android:layout_height="99dp"
+        android:layout_marginBottom="72dp"
         app:layout_constraintBottom_toTopOf="@+id/editTextText"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.473"
+        app:layout_constraintHorizontal_bias="0.407"
         app:layout_constraintStart_toStartOf="parent">
 
         <com.google.android.material.button.MaterialButtonToggleGroup
@@ -45,12 +46,11 @@
         </com.google.android.material.button.MaterialButtonToggleGroup>
     </HorizontalScrollView>
 
-
     <EditText
         android:id="@+id/editTextText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="168dp"
+        android:layout_marginBottom="136dp"
         android:ems="10"
         android:hint="Description"
         android:inputType="text"
@@ -72,17 +72,17 @@
         app:layout_constraintTop_toBottomOf="@+id/editTextText"
         app:layout_constraintVertical_bias="0.372" />
 
+
     <Spinner
         android:id="@+id/currencySpinner"
         android:layout_width="120dp"
         android:layout_height="46dp"
-        android:layout_marginTop="104dp"
+        android:layout_marginTop="148dp"
         android:entries="@array/currency_list"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/amountEditText"
         app:layout_constraintTop_toTopOf="parent" />
-
 
     <TextView
         android:id="@+id/dateTextView"
@@ -113,10 +113,12 @@
 
     <EditText
         android:id="@+id/titleEditText"
-        android:layout_width="174dp"
-        android:layout_height="29dp"
-        android:layout_marginTop="68dp"
+        android:layout_width="179dp"
+        android:layout_height="38dp"
+        android:layout_marginTop="96dp"
+        android:layout_marginBottom="4dp"
         android:text="Title"
+        app:layout_constraintBottom_toTopOf="@+id/amountEditText"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.32"
         app:layout_constraintStart_toStartOf="parent"
@@ -124,16 +126,17 @@
 
     <EditText
         android:id="@+id/percentageEditTextNumber"
-        android:layout_width="191dp"
-        android:layout_height="33dp"
+        android:layout_width="195dp"
+        android:layout_height="42dp"
         android:layout_marginStart="108dp"
         android:layout_marginTop="8dp"
         android:ems="10"
+        android:hint="Save up Percentage "
         android:inputType="number"
         app:layout_constraintBottom_toTopOf="@+id/editTextText"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/horizontalScrollView"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintVertical_bias="0.454" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

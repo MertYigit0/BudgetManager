@@ -149,6 +149,12 @@ class ExpenseFragment : Fragment() {
         }
 
 
+        binding.viewAllButton.setOnClickListener {
+            navController.navigate(R.id.action_expenseFragment_to_expenseListFragment)
+        }
+
+
+
     }
 
 

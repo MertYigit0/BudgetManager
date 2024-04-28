@@ -90,6 +90,9 @@
         <action
             android:id="@+id/action_expenseFragment_to_incomeFragment"
             app:destination="@id/incomeFragment" />
+        <action
+            android:id="@+id/action_expenseFragment_to_expenseListFragment"
+            app:destination="@id/expenseListFragment" />
     </fragment>
     <fragment
         android:id="@+id/financialGoalFragment"
@@ -148,5 +151,14 @@
         <action
             android:id="@+id/action_addFinancialGoalFragment_to_financialGoalFragment"
             app:destination="@id/financialGoalFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/expenseListFragment"
+        android:name="com.mertyigit0.budgetmanager.ui.ExpenseListFragment"
+        android:label="fragment_expense_list"
+        tools:layout="@layout/fragment_expense_list" >
+        <action
+            android:id="@+id/action_expenseListFragment_to_expenseFragment"
+            app:destination="@id/expenseFragment" />
     </fragment>
 </navigation>

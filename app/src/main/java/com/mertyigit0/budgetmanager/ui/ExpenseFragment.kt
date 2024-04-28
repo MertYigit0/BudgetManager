@@ -13,12 +13,14 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.charts.PieChart
+import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.utils.ColorTemplate
 import com.google.firebase.auth.FirebaseAuth
@@ -152,6 +154,11 @@ class ExpenseFragment : Fragment() {
         binding.viewAllButton.setOnClickListener {
             navController.navigate(R.id.action_expenseFragment_to_expenseListFragment)
         }
+
+
+
+
+
 
 
 
@@ -326,11 +333,9 @@ class ExpenseFragment : Fragment() {
                 weeklyExpensesMap[i] = 0f
             }
         }
-
         // Haftanın günlerine göre harcamaları görselleştir
         displayWeeklyExpenses(barChart, weeklyExpensesMap)
     }
-    // Haftalık harcamaları görselleştiren bir yardımcı işlev
     // Haftalık harcamaları görselleştiren bir yardımcı işlev
     private fun displayWeeklyExpenses(barChart: BarChart, weeklyExpensesMap: HashMap<Int, Float>) {
         val dayAbbreviations = hashMapOf(
@@ -380,7 +385,8 @@ class ExpenseFragment : Fragment() {
                         0 -> {
                             binding.expensePieChart.visibility = View.GONE
                             binding.expenseBarChart.visibility = View.VISIBLE
-                            calculateAndDisplayWeeklyExpenses(binding.expenseBarChart)
+                           // calculateAndDisplayWeeklyExpenses(binding.expenseBarChart)
+                            displayMonthlyIncomeAndExpenses(binding.expenseBarChart)
                             updateWeekDatesText()
                         }
 
@@ -388,7 +394,8 @@ class ExpenseFragment : Fragment() {
 
                             binding.expensePieChart.visibility = View.VISIBLE
                             binding.expenseBarChart.visibility = View.GONE
-                            calculateAndDisplayMonthlyExpenses(binding.expensePieChart)
+                           calculateAndDisplayMonthlyExpenses(binding.expensePieChart)
+
                             updateMonthYearText()
                         }
                     }
@@ -435,7 +442,48 @@ class ExpenseFragment : Fragment() {
         binding.weekDatesTextView.text = monthYearText
     }
 
+    private fun displayMonthlyIncomeAndExpenses(barChart: BarChart) {
+        val dbHelper = DatabaseHelper(requireContext())
+        val currentUserEmail = auth.currentUser?.email
+        val userData = currentUserEmail?.let { dbHelper.getUserData(it) }
 
+        val months = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+
+        val monthlyIncomes = ArrayList<Double>()
+        val monthlyExpenses = ArrayList<Double>()
+
+        for (i in Calendar.JANUARY..Calendar.DECEMBER) {
+            val month = i + 1 // Ay indeksi 0'dan başladığı için +1 ekliyoruz
+            val monthlyIncome = dbHelper.getTotalIncomeForMonth(userData?.id ?: -1, month)
+            val monthlyExpense = dbHelper.getTotalExpenseInMonth(userData?.id ?: -1, month)
+
+            monthlyIncomes.add(monthlyIncome)
+            monthlyExpenses.add(monthlyExpense)
+        }
+
+        val incomeDataSet = BarDataSet(monthlyIncomes.mapIndexed { index, value -> BarEntry(index.toFloat(), value.toFloat()) }, "Income")
+        val expenseDataSet = BarDataSet(monthlyExpenses.mapIndexed { index, value -> BarEntry(index.toFloat(), value.toFloat()) }, "Expense")
+
+        // Gelir ve gider için farklı renkler belirleyebilirsiniz
+        incomeDataSet.color =  ContextCompat.getColor(requireContext(), R.color.chart_green)
+        expenseDataSet.color =  ContextCompat.getColor(requireContext(), R.color.chart_red)
+
+        val barData = BarData(incomeDataSet, expenseDataSet)
+        barData.barWidth = 0.35f // Barların genişliğini ayarlayın (yan yana durmaları için)
+        barChart.data = barData
+
+        // Ay isimlerini ayarlayın
+        val xAxis = barChart.xAxis
+        xAxis.valueFormatter = IndexAxisValueFormatter(months)
+        xAxis.position = XAxis.XAxisPosition.BOTTOM
+        xAxis.setDrawGridLines(false)
+        xAxis.granularity = 1f
+        xAxis.isGranularityEnabled = true
+
+        barChart.groupBars(0f, 0.08f, 0.03f) // Gruplanmış veri setlerini ayarlayın
+
+        barChart.invalidate()
+    }
 
 
 }

@@ -756,6 +756,60 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         return totalExpense
     }
 
+
+    fun getTotalExpenseInMonth(userId: Int, month: Int): Double {
+        val db = this.readableDatabase
+        val startDate = getFirstDayOfMonth(month) // Verilen ayın ilk gününü al
+        val endDate = getLastDayOfMonth(month) // Verilen ayın son gününü al
+
+        val selectQuery = "SELECT SUM($COLUMN_AMOUNT_EXPENSE) FROM $TABLE_EXPENSES WHERE $COLUMN_USER_ID_EXPENSE = ? AND $COLUMN_DATE_EXPENSE BETWEEN ? AND ?"
+        val cursor = db.rawQuery(selectQuery, arrayOf(userId.toString(), startDate, endDate))
+        var totalExpense = 0.0
+        cursor.use {
+            if (it.moveToFirst()) {
+                totalExpense = it.getDouble(0)
+            }
+        }
+        cursor.close()
+        return totalExpense
+    }
+
+
+    fun getTotalIncomeForMonth(userId: Int, month: Int): Double {
+        val db = this.readableDatabase
+        val startDate = getFirstDayOfMonth(month) // Verilen ayın ilk gününü al
+        val endDate = getLastDayOfMonth(month) // Verilen ayın son gününü al
+
+        val selectQuery = "SELECT SUM($COLUMN_AMOUNT_INCOME) FROM $TABLE_INCOMES WHERE $COLUMN_USER_ID_INCOME = ? AND $COLUMN_DATE_INCOME BETWEEN ? AND ?"
+        val cursor = db.rawQuery(selectQuery, arrayOf(userId.toString(), startDate, endDate))
+        var totalIncome = 0.0
+        cursor.use {
+            if (it.moveToFirst()) {
+                totalIncome = it.getDouble(0)
+            }
+        }
+        cursor.close()
+        return totalIncome
+    }
+
+    fun getFirstDayOfMonth(month: Int): String {
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.MONTH, month - 1) // Ay indeksi 0'dan başladığı için -1 ekliyoruz
+        calendar.set(Calendar.DAY_OF_MONTH, 1)
+        return SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.time)
+    }
+
+    fun getLastDayOfMonth(month: Int): String {
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.MONTH, month - 1) // Ay indeksi 0'dan başladığı için -1 ekliyoruz
+        calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH))
+        return SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.time)
+    }
+
+
+
+
+
     @SuppressLint("Range")
     fun getBudgetAlertForCategoryByUserId(userId: Int, categoryId: Int): BudgetAlert? {
         val db = this.readableDatabase

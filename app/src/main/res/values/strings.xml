@@ -172,7 +172,8 @@
 
     <string-array name="expense_bar_type">
         <item>WEEKLY</item>
-        <item>GENERAL</item>
+        <item>MONTHLY</item>
+        <item>YEAR-COMPARISON</item>
 
     </string-array>
 

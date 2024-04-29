@@ -4,9 +4,11 @@ import android.graphics.Color
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
+import android.widget.HorizontalScrollView
 import androidx.core.content.ContextCompat
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -384,9 +386,10 @@ class ExpenseFragment : Fragment() {
                     when (position) {
                         0 -> {
                             binding.expensePieChart.visibility = View.GONE
+                            binding.expenseIncomeBarChart.visibility = View.GONE
                             binding.expenseBarChart.visibility = View.VISIBLE
-                           // calculateAndDisplayWeeklyExpenses(binding.expenseBarChart)
-                            displayMonthlyIncomeAndExpenses(binding.expenseBarChart)
+                            calculateAndDisplayWeeklyExpenses(binding.expenseBarChart)
+
                             updateWeekDatesText()
                         }
 
@@ -394,10 +397,22 @@ class ExpenseFragment : Fragment() {
 
                             binding.expensePieChart.visibility = View.VISIBLE
                             binding.expenseBarChart.visibility = View.GONE
+                            binding.expenseIncomeBarChart.visibility = View.GONE
                            calculateAndDisplayMonthlyExpenses(binding.expensePieChart)
 
                             updateMonthYearText()
                         }
+                        2 -> {
+
+                            binding.expensePieChart.visibility = View.GONE
+                            binding.expenseBarChart.visibility = View.GONE
+                            binding.expenseIncomeBarChart.visibility = View.VISIBLE
+                            binding.weekDatesTextView.visibility = View.GONE
+                            calculateAndDisplayMonthlyExpenses(binding.expensePieChart)
+                            displayMonthlyIncomeAndExpenses(binding.expenseIncomeBarChart)
+
+                        }
+
                     }
 
 
@@ -452,8 +467,11 @@ class ExpenseFragment : Fragment() {
         val monthlyIncomes = ArrayList<Double>()
         val monthlyExpenses = ArrayList<Double>()
 
-        for (i in Calendar.JANUARY..Calendar.DECEMBER) {
-            val month = i + 1 // Ay indeksi 0'dan başladığı için +1 ekliyoruz
+        // Yatay kaydırma için gösterilecek maksimum ay sayısı
+        val maxVisibleMonths = 12
+
+        for (i in Calendar.JANUARY until Calendar.JANUARY + maxVisibleMonths) {
+            val month = i % 12 + 1 // Ay indeksi 0'dan başladığı için +1 ekliyoruz, döngü geçişleri için mod işlemi yapılır
             val monthlyIncome = dbHelper.getTotalIncomeForMonth(userData?.id ?: -1, month)
             val monthlyExpense = dbHelper.getTotalExpenseInMonth(userData?.id ?: -1, month)
 
@@ -465,8 +483,8 @@ class ExpenseFragment : Fragment() {
         val expenseDataSet = BarDataSet(monthlyExpenses.mapIndexed { index, value -> BarEntry(index.toFloat(), value.toFloat()) }, "Expense")
 
         // Gelir ve gider için farklı renkler belirleyebilirsiniz
-        incomeDataSet.color =  ContextCompat.getColor(requireContext(), R.color.chart_green)
-        expenseDataSet.color =  ContextCompat.getColor(requireContext(), R.color.chart_red)
+        incomeDataSet.color = ContextCompat.getColor(requireContext(), R.color.chart_green)
+        expenseDataSet.color = ContextCompat.getColor(requireContext(), R.color.chart_red)
 
         val barData = BarData(incomeDataSet, expenseDataSet)
         barData.barWidth = 0.35f // Barların genişliğini ayarlayın (yan yana durmaları için)
@@ -480,10 +498,20 @@ class ExpenseFragment : Fragment() {
         xAxis.granularity = 1f
         xAxis.isGranularityEnabled = true
 
-        barChart.groupBars(0f, 0.08f, 0.03f) // Gruplanmış veri setlerini ayarlayın
+        // Yatay kaydırma özelliklerini ayarlayın
+        barChart.setPinchZoom(true) // Yakınlaştırma ve kaydırma özelliğini etkinleştirir
+        barChart.isDragEnabled = true // Kaydırmayı etkinleştirir
+        barChart.setVisibleXRangeMaximum(maxVisibleMonths.toFloat()) // Aynı anda gösterilecek maksimum ay sayısını belirler
+        barChart.moveViewToX(0f) // Başlangıç pozisyonunu ayarlar
+
+        barChart.groupBars(0f, 0.08f, 0.03f) // Gruplanmış veri setlerini ayarlar
 
         barChart.invalidate()
     }
+
+
+
+
 
 
 }

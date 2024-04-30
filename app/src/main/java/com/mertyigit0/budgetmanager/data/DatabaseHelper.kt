@@ -13,7 +13,7 @@ import java.util.Locale
 class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
     companion object {
         private const val DATABASE_NAME = "budget_manager.db"
-        private const val DATABASE_VERSION = 6
+        private const val DATABASE_VERSION = 7
 
 
         //users
@@ -74,6 +74,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         private const val COLUMN_CREATED_AT_FINANCIAL_GOAL = "created_at"
         private const val COLUMN_CATEGORY_ID_FINANCIAL_GOAL = "category_id"
         private const val COLUMN_PERCENTAGE_FINANCIAL_GOAL = "percentage"
+        private const val COLUMN_PHOTO_FINANCIAL_GOAL = "photo"
 
         //Recurring Payments
         private const val TABLE_RECURRING_PAYMENTS = "recurring_payments"
@@ -216,6 +217,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 "$COLUMN_CREATED_AT_FINANCIAL_GOAL TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
                 "$COLUMN_CATEGORY_ID_FINANCIAL_GOAL INTEGER NOT NULL," +
                 "$COLUMN_PERCENTAGE_FINANCIAL_GOAL INTEGER NOT NULL," +
+                "$COLUMN_PHOTO_FINANCIAL_GOAL  BLOB," +
                 "FOREIGN KEY($COLUMN_USER_ID_FINANCIAL_GOAL) REFERENCES $TABLE_USERS($COLUMN_USER_ID)," +
                 "FOREIGN KEY($COLUMN_CATEGORY_ID_FINANCIAL_GOAL) REFERENCES $TABLE_INCOME_CATEGORIES($COLUMN_ID_INCOME_CATEGORY))")
 
@@ -491,6 +493,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             put(COLUMN_DEADLINE_FINANCIAL_GOAL, goal.deadline)
             put(COLUMN_CATEGORY_ID_FINANCIAL_GOAL,goal.categoryId)
             put(COLUMN_PERCENTAGE_FINANCIAL_GOAL,goal.percentage)
+            put(COLUMN_PHOTO_FINANCIAL_GOAL,goal.photo)
             // Diğer sütunlar default değerleri alacakları için eklemeye gerek yok
         }
 
@@ -521,6 +524,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
         if (cursor.moveToFirst()) {
             do {
+                val photoBlob = cursor.getBlob(cursor.getColumnIndex(COLUMN_PHOTO_FINANCIAL_GOAL))
+                val photoByteArray = photoBlob?.copyOf()
                 val financialGoal = FinancialGoal(
                     cursor.getInt(cursor.getColumnIndex(COLUMN_ID_FINANCIAL_GOAL)),
                     cursor.getInt(cursor.getColumnIndex(COLUMN_USER_ID_FINANCIAL_GOAL)),
@@ -531,7 +536,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                     cursor.getString(cursor.getColumnIndex(COLUMN_DEADLINE_FINANCIAL_GOAL)),
                     cursor.getString(cursor.getColumnIndex(COLUMN_CREATED_AT_FINANCIAL_GOAL)),
                     cursor.getInt(cursor.getColumnIndex(COLUMN_CATEGORY_ID_FINANCIAL_GOAL)),
-                    cursor.getInt(cursor.getColumnIndex(COLUMN_PERCENTAGE_FINANCIAL_GOAL))
+                    cursor.getInt(cursor.getColumnIndex(COLUMN_PERCENTAGE_FINANCIAL_GOAL)),
+                    photoByteArray
 
                 )
                 financialGoalsList.add(financialGoal)
@@ -552,6 +558,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
         if (cursor.moveToFirst()) {
             do {
+                val photoBlob = cursor.getBlob(cursor.getColumnIndex(COLUMN_PHOTO_FINANCIAL_GOAL))
+                val photoByteArray = photoBlob?.copyOf()
                 val financialGoal = FinancialGoal(
                     cursor.getInt(cursor.getColumnIndex(COLUMN_ID_FINANCIAL_GOAL)),
                     cursor.getInt(cursor.getColumnIndex(COLUMN_USER_ID_FINANCIAL_GOAL)),
@@ -562,7 +570,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                     cursor.getString(cursor.getColumnIndex(COLUMN_DEADLINE_FINANCIAL_GOAL)),
                     cursor.getString(cursor.getColumnIndex(COLUMN_CREATED_AT_FINANCIAL_GOAL)),
                     cursor.getInt(cursor.getColumnIndex(COLUMN_CATEGORY_ID_FINANCIAL_GOAL)),
-                    cursor.getInt(cursor.getColumnIndex(COLUMN_PERCENTAGE_FINANCIAL_GOAL))
+                    cursor.getInt(cursor.getColumnIndex(COLUMN_PERCENTAGE_FINANCIAL_GOAL)),
+                    photoByteArray
 
                 )
                 financialGoalsList.add(financialGoal)

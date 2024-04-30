@@ -56,7 +56,8 @@ data class FinancialGoal(
     val deadline: String,
     val createdAt: String,
     val categoryId: Int,
-    val percentage: Int
+    val percentage: Int,
+    val photo: ByteArray? // Byte dizisi olarak fotoğraf
 )
 
 data class RecurringPayment(

@@ -48,17 +48,18 @@
 
     <EditText
         android:id="@+id/editTextText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="136dp"
+        android:layout_width="135dp"
+        android:layout_height="45dp"
+        android:layout_marginBottom="248dp"
         android:ems="10"
         android:hint="Description"
         android:inputType="text"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
 
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintHorizontal_bias="0.39"
+        app:layout_constraintStart_toEndOf="@+id/percentageEditTextNumber" />
+
 
     <Button
         android:id="@+id/addButton"
@@ -67,11 +68,10 @@
         android:text="ADD"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.501"
+        app:layout_constraintHorizontal_bias="0.51"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editTextText"
-        app:layout_constraintVertical_bias="0.372" />
-
+        app:layout_constraintVertical_bias="0.517" />
 
     <Spinner
         android:id="@+id/currencySpinner"
@@ -126,17 +126,27 @@
 
     <EditText
         android:id="@+id/percentageEditTextNumber"
-        android:layout_width="195dp"
-        android:layout_height="42dp"
-        android:layout_marginStart="108dp"
-        android:layout_marginTop="8dp"
+        android:layout_width="140dp"
+        android:layout_height="45dp"
+        android:layout_marginStart="72dp"
+        android:layout_marginTop="56dp"
         android:ems="10"
         android:hint="Save up Percentage "
         android:inputType="number"
-        app:layout_constraintBottom_toTopOf="@+id/editTextText"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/horizontalScrollView"
-        app:layout_constraintVertical_bias="0.454" />
+        app:layout_constraintTop_toBottomOf="@+id/dateTextView" />
+
+    <ImageView
+        android:id="@+id/imageAdd"
+        android:layout_width="80dp"
+        android:layout_height="55dp"
+        android:focusable="true"
+        android:clickable="true"
+        android:src="@android:drawable/ic_input_add"
+        app:layout_constraintBottom_toTopOf="@+id/addButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/percentageEditTextNumber" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

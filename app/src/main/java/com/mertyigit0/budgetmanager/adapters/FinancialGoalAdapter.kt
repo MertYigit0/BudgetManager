@@ -6,10 +6,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.PopupMenu
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.mertyigit0.budgetmanager.R
 import com.mertyigit0.budgetmanager.data.DatabaseHelper
 import com.mertyigit0.budgetmanager.data.FinancialGoal
@@ -66,6 +68,7 @@ class FinancialGoalAdapter(private val context: Context, private val financialGo
         private val deadlineTextView: TextView = itemView.findViewById(R.id.deadlineTextView)
         private val currentAmountTextView: TextView = itemView.findViewById(R.id.currentAmountTextView)
         private val progressBar: ProgressBar = itemView.findViewById(R.id.progressBar)
+        private var image:ImageView = itemView.findViewById(R.id.imageFinancialGoal)
         val menuButton: ImageButton = itemView.findViewById(R.id.menuButton) // Menü düğmesi
         @SuppressLint("SetTextI18n")
         fun bind(financialGoal: FinancialGoal) {
@@ -76,6 +79,13 @@ class FinancialGoalAdapter(private val context: Context, private val financialGo
             // ProgressBar'ı güncelle
             val progress = (financialGoal.currentAmount / financialGoal.targetAmount * 100).toInt()
             progressBar.progress = progress
+
+            // Glide kullanarak görüntü yükleme
+            Glide.with(itemView)
+                .load(financialGoal.photo) // Görüntünün URI'sini yükle
+                .placeholder(R.drawable.baseline_add_24) // Yükleme sırasında görüntülenecek yer tutucu resim
+                .error(R.drawable.baseline_add_24) // Hata durumunda görüntülenecek yer tutucu resim
+                .into(image) // Görüntünün gösterileceği ImageView
         }
     }
 

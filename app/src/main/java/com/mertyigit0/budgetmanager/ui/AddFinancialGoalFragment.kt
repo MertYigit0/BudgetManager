@@ -1,8 +1,12 @@
 package com.mertyigit0.budgetmanager.ui
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.DatePickerDialog
+import android.content.Intent
+import android.graphics.Bitmap
 import android.os.Bundle
+import android.provider.MediaStore
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -15,6 +19,10 @@ import com.mertyigit0.budgetmanager.R
 import com.mertyigit0.budgetmanager.data.DatabaseHelper
 import com.mertyigit0.budgetmanager.data.FinancialGoal
 import com.mertyigit0.budgetmanager.databinding.FragmentAddFinancialGoalBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import java.io.ByteArrayOutputStream
 import java.util.Calendar
 
 
@@ -24,12 +32,19 @@ class AddFinancialGoalFragment : Fragment() {
     private lateinit var dbHelper: DatabaseHelper
     private var selectedDate: String? = null
 
+    private var imageByte: ByteArray? = null
+
+
+
+    private val PICK_IMAGE_REQUEST = 2 // Resim seçim isteği kodu
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
         }
         dbHelper = DatabaseHelper(requireContext()) // Başlat
+
+
 
     }
 
@@ -53,6 +68,9 @@ class AddFinancialGoalFragment : Fragment() {
         }
         binding.addButton.setOnClickListener{
             addFinancialGoal()
+        }
+        binding.imageAdd.setOnClickListener{
+            openGallery()
         }
 
 
@@ -84,7 +102,8 @@ class AddFinancialGoalFragment : Fragment() {
             deadline = deadline,
             createdAt = "", // Bu alan veritabanında otomatik ayarlanacağı için boş geçilebilir
             categoryId = categoryId,
-            percentage = percentage
+            percentage = percentage,
+            photo = imageByte
 
         )
 
@@ -161,6 +180,34 @@ class AddFinancialGoalFragment : Fragment() {
 
             // ToggleGroup'a butonları ekleme işlemi
             binding.toggleButtonGroup.addView(button)
+        }
+    }
+    // Kullanıcının galerisini açma işlemi
+    private fun openGallery() {
+        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        startActivityForResult(intent, PICK_IMAGE_REQUEST)
+    }
+
+    // Kullanıcının galeriden resim seçtikten sonra geri dönüş işlemi
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
+            // Seçilen resmi işle
+            val selectedImageUri = data.data
+            selectedImageUri?.let { uri ->
+                // URI'den Bitmap oluşturma
+                val bitmap = MediaStore.Images.Media.getBitmap(requireContext().contentResolver, uri)
+                // Bitmap'i byte dizisine dönüştürme
+                val outputStream = ByteArrayOutputStream()
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+                val imageBytes = outputStream.toByteArray()
+
+                imageByte = imageBytes
+
+                // SQLite veritabanına resmi kaydetme işlemi
+
+            }
         }
     }
 

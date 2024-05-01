@@ -7,28 +7,50 @@
     tools:context=".ui.AddExpenseFragment">
 
 
-    <EditText
-        android:id="@+id/amountEditText"
-        android:layout_width="210dp"
-        android:layout_height="50dp"
-        android:background="@drawable/shape"
-        android:ems="10"
-        android:hint="Amount"
-        android:inputType="number"
-        android:textAlignment="center"
-        app:layout_constraintBottom_toBottomOf="parent"
+    <LinearLayout
+        android:id="@+id/linearLayout7"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:orientation="horizontal"
+        android:gravity="center"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.273"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.138" />
+        app:layout_constraintTop_toBottomOf="@+id/textView11">
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:text="Amount:"
+            android:layout_marginRight="10dp"
+            android:textSize="20dp" />
+
+        <EditText
+            android:id="@+id/amountEditText"
+            android:layout_width="172dp"
+            android:layout_height="50dp"
+            android:background="@drawable/shape"
+            android:ems="10"
+            android:hint="Amount"
+            android:inputType="number"
+            android:textAlignment="center" />
+
+        <Spinner
+            android:id="@+id/currencySpinner"
+            android:layout_width="120dp"
+            android:layout_height="46dp"
+            android:entries="@array/currency_list"
+            android:padding="10dp" />
+
+
+    </LinearLayout>
 
     <EditText
         android:id="@+id/editTextText"
         android:layout_width="214dp"
         android:layout_height="40dp"
-        android:layout_marginBottom="192dp"
+        android:layout_marginBottom="156dp"
         android:background="@drawable/shape"
         android:ems="10"
         android:hint="Description"
@@ -36,8 +58,9 @@
         android:textAlignment="center"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.451"
+        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent" />
+
 
     <Button
         android:id="@+id/addButton"
@@ -48,84 +71,67 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextText" />
+        app:layout_constraintTop_toBottomOf="@+id/editTextText"
+        app:layout_constraintVertical_bias="0.33" />
 
-    <Spinner
-        android:id="@+id/currencySpinner"
-        android:layout_width="120dp"
-        android:layout_height="46dp"
-        android:layout_marginTop="104dp"
-        android:entries="@array/currency_list"
-        android:padding="10dp"
+    <LinearLayout
+        android:id="@+id/linearLayout6"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/amountEditText"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/dateTextView"
-        android:layout_width="272dp"
-        android:layout_height="36dp"
-        android:layout_marginTop="80dp"
-        android:background="@drawable/shape"
-        android:padding="6dp"
-        android:text="Date"
-        android:textAlignment="center"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.395"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/amountEditText" />
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout7">
 
-    <Button
-        android:id="@+id/selectDateButton"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
-        android:layout_marginStart="12dp"
-        android:layout_marginTop="84dp"
-        android:background="@drawable/baseline_calendar_month_24"
-        android:text="Button"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/dateTextView"
-        app:layout_constraintTop_toBottomOf="@+id/currencySpinner" />
+        <TextView
+            android:id="@+id/dateTextView"
+            android:layout_width="272dp"
+            android:layout_height="36dp"
+            android:gravity="center"
+            android:layout_marginTop="80dp"
+            android:background="@drawable/shape"
+            android:padding="6dp"
+            android:text="Date"
+            android:layout_marginRight="10dp"
+            android:textAlignment="center" />
+
+        <Button
+            android:id="@+id/selectDateButton"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="84dp"
+            android:background="@drawable/baseline_calendar_month_24"
+            android:text="Button" />
+
+    </LinearLayout>
 
     <TextView
         android:id="@+id/textView11"
         android:layout_width="271dp"
         android:layout_height="45dp"
-        android:layout_marginTop="18dp"
-        android:layout_marginBottom="75dp"
+        android:layout_marginTop="16dp"
         android:background="@drawable/rounded_corner_background"
         android:gravity="center"
         android:text="ADD NEW EXPENSE"
         android:textColor="@color/blue"
         android:textSize="22dp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/amountEditText"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.033" />
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/addCategoryButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Add new Category"
-        app:layout_constraintBottom_toTopOf="@+id/editTextText"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-         />
 
     <HorizontalScrollView
-        android:layout_width="392dp"
-        android:layout_height="118dp"
-        android:layout_marginTop="72dp"
+        android:layout_width="387dp"
+        android:layout_height="74dp"
+        android:layout_marginTop="44dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.473"
+        app:layout_constraintHorizontal_bias="0.727"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/dateTextView">
-
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout6">
 
         <com.google.android.material.button.MaterialButtonToggleGroup
 
@@ -133,17 +139,23 @@
             android:layout_width="350dp"
             android:layout_height="135dp"
             android:layout_marginTop="20dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.573"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.51"
             app:singleSelection="true">
 
         </com.google.android.material.button.MaterialButtonToggleGroup>
 
 
     </HorizontalScrollView>
+
+    <Button
+        android:id="@+id/addCategoryButton"
+        android:layout_width="238dp"
+        android:layout_height="46dp"
+        android:layout_marginBottom="16dp"
+        android:text="Add new Category"
+        app:layout_constraintBottom_toTopOf="@+id/editTextText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.509"
+        app:layout_constraintStart_toStartOf="parent" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

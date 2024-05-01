@@ -893,6 +893,31 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         cursor.close()
         return budgetAlert
     }
+
+    @SuppressLint("Range")
+    fun getBudgetAlertById(alertId: Int): BudgetAlert? {
+        val db = this.readableDatabase
+        var budgetAlert: BudgetAlert? = null
+        val selectQuery = "SELECT * FROM $TABLE_BUDGET_ALERTS WHERE $COLUMN_ID_BUDGET_ALERT = ?"
+        val cursor = db.rawQuery(selectQuery, arrayOf(alertId.toString()))
+        cursor.use {
+            if (it.moveToFirst()) {
+                val userId = it.getInt(it.getColumnIndex(COLUMN_USER_ID_BUDGET_ALERT))
+                val categoryId = it.getInt(it.getColumnIndex(COLUMN_CATEGORY_ID_BUDGET_ALERT))
+                val alertType = it.getString(it.getColumnIndex(COLUMN_ALERT_TYPE_BUDGET_ALERT))
+                val message = it.getString(it.getColumnIndex(COLUMN_MESSAGE_BUDGET_ALERT))
+                val targetAmount = it.getDouble(it.getColumnIndex(COLUMN_TARGET_AMOUNT_BUDGET_ALERT))
+                val currentAmount = it.getDouble(it.getColumnIndex(COLUMN_CURRENT_AMOUNT_BUDGET_ALERT))
+                val createdAt = it.getString(it.getColumnIndex(COLUMN_CREATED_AT_BUDGET_ALERT))
+                budgetAlert = BudgetAlert(alertId, userId, alertType, message, targetAmount, currentAmount, createdAt, categoryId)
+            }
+        }
+        cursor.close()
+        return budgetAlert
+    }
+
+
+
     fun updateBudgetAlert(budgetAlert: BudgetAlert): Boolean {
         val db = this.writableDatabase
         val values = ContentValues().apply {

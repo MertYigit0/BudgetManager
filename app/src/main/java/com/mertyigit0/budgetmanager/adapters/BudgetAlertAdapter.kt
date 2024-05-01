@@ -1,6 +1,7 @@
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,13 +11,14 @@ import android.widget.PopupMenu
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.navigation.NavController
 import androidx.recyclerview.widget.RecyclerView
 import com.mertyigit0.budgetmanager.data.BudgetAlert
 import com.mertyigit0.budgetmanager.R
 import com.mertyigit0.budgetmanager.data.DatabaseHelper
 import com.mertyigit0.budgetmanager.data.Income
 
-class BudgetAlertAdapter(private val context: Context, private val budgetAlertList: ArrayList<BudgetAlert>) :
+class BudgetAlertAdapter(private val context: Context, private val budgetAlertList: ArrayList<BudgetAlert>, private val navController: NavController) :
     RecyclerView.Adapter<BudgetAlertAdapter.BudgetAlertViewHolder>() {
 
     inner class BudgetAlertViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -91,7 +93,10 @@ class BudgetAlertAdapter(private val context: Context, private val budgetAlertLi
                 when (menuItem.itemId) {
                     R.id.action_edit -> {
                         // Düzenleme işlemi
-                        // TODO: Düzenleme işlemini burada gerçekleştir
+                        val bundle = Bundle().apply {
+                            putInt("budgetAlertId", budgetAlert.id) // Bütçe uyarısı kimliğini ekleyin
+                        }
+                        navController.navigate(R.id.action_budgetAlertFragment_to_editBudgetAlertFragment, bundle)
                         true
                     }
                     R.id.action_delete -> {

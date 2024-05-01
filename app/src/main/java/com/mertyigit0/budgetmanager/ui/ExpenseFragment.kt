@@ -120,7 +120,7 @@ class ExpenseFragment : Fragment() {
                 currentWeek--
                 calculateAndDisplayWeeklyExpenses(binding.expenseBarChart)
                 updateWeekDatesText()
-            } else {
+            } else if ((binding.barTypeSpinner.selectedItemPosition == 1)) {
                 // Aylık görünümdeyiz, mevcut ayı bir önceki aya kaydır
                 currentMonth--
                 if (currentMonth < 1) {
@@ -130,6 +130,10 @@ class ExpenseFragment : Fragment() {
 
                 calculateAndDisplayMonthlyExpenses(binding.expensePieChart)
                 updateMonthYearText()
+            }else if ((binding.barTypeSpinner.selectedItemPosition == 2)) {
+                currentYear --
+                displayMonthlyIncomeAndExpenses(binding.expenseIncomeBarChart)
+
             }
         }
 
@@ -140,7 +144,7 @@ class ExpenseFragment : Fragment() {
                 currentWeek++
                 calculateAndDisplayWeeklyExpenses(binding.expenseBarChart)
                 updateWeekDatesText()
-            } else {
+            } else if (binding.barTypeSpinner.selectedItemPosition == 1){
                 // Aylık görünümdeyiz, mevcut ayı bir önceki aya kaydır
                 currentMonth++
                 if (currentMonth > 12) {
@@ -150,6 +154,11 @@ class ExpenseFragment : Fragment() {
                 calculateAndDisplayMonthlyExpenses(binding.expensePieChart)
                 updateMonthYearText()
             }
+            else if ((binding.barTypeSpinner.selectedItemPosition == 2)) {
+            currentYear ++
+            displayMonthlyIncomeAndExpenses(binding.expenseIncomeBarChart)
+
+        }
         }
 
 
@@ -388,6 +397,7 @@ class ExpenseFragment : Fragment() {
                             binding.expensePieChart.visibility = View.GONE
                             binding.expenseIncomeBarChart.visibility = View.GONE
                             binding.expenseBarChart.visibility = View.VISIBLE
+
                             calculateAndDisplayWeeklyExpenses(binding.expenseBarChart)
 
                             updateWeekDatesText()
@@ -398,6 +408,7 @@ class ExpenseFragment : Fragment() {
                             binding.expensePieChart.visibility = View.VISIBLE
                             binding.expenseBarChart.visibility = View.GONE
                             binding.expenseIncomeBarChart.visibility = View.GONE
+
                            calculateAndDisplayMonthlyExpenses(binding.expensePieChart)
 
                             updateMonthYearText()
@@ -407,8 +418,8 @@ class ExpenseFragment : Fragment() {
                             binding.expensePieChart.visibility = View.GONE
                             binding.expenseBarChart.visibility = View.GONE
                             binding.expenseIncomeBarChart.visibility = View.VISIBLE
-                            binding.weekDatesTextView.visibility = View.GONE
-                            calculateAndDisplayMonthlyExpenses(binding.expensePieChart)
+
+                           // calculateAndDisplayMonthlyExpenses(binding.expensePieChart)
                             displayMonthlyIncomeAndExpenses(binding.expenseIncomeBarChart)
 
                         }
@@ -457,6 +468,12 @@ class ExpenseFragment : Fragment() {
         binding.weekDatesTextView.text = monthYearText
     }
 
+    private fun updateYearText() {
+
+        val monthYearText = "$currentYear Income Expense Comparison"
+        binding.weekDatesTextView.text = monthYearText
+    }
+
     private fun displayMonthlyIncomeAndExpenses(barChart: BarChart) {
         val dbHelper = DatabaseHelper(requireContext())
         val currentUserEmail = auth.currentUser?.email
@@ -478,6 +495,7 @@ class ExpenseFragment : Fragment() {
             monthlyIncomes.add(monthlyIncome)
             monthlyExpenses.add(monthlyExpense)
         }
+        updateYearText()
 
         val incomeDataSet = BarDataSet(monthlyIncomes.mapIndexed { index, value -> BarEntry(index.toFloat(), value.toFloat()) }, "Income")
         val expenseDataSet = BarDataSet(monthlyExpenses.mapIndexed { index, value -> BarEntry(index.toFloat(), value.toFloat()) }, "Expense")

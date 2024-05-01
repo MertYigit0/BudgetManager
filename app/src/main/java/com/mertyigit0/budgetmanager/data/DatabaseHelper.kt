@@ -523,6 +523,10 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db.close()
         return success != -1L
     }
+
+
+
+
     fun deleteFinancialGoal(goalId: Int): Boolean {
         val db = this.writableDatabase
         val whereClause = "$COLUMN_ID_FINANCIAL_GOAL = ?"
@@ -602,6 +606,35 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db.close()
         return financialGoalsList
     }
+    @SuppressLint("Range")
+    fun getFinancialGoalById(goalId: Int): FinancialGoal? {
+        var financialGoal: FinancialGoal? = null
+        val db = this.readableDatabase
+        val selectQuery = "SELECT * FROM $TABLE_FINANCIAL_GOALS WHERE $COLUMN_ID_FINANCIAL_GOAL = ?"
+        val cursor = db.rawQuery(selectQuery, arrayOf(goalId.toString()))
+
+        if (cursor.moveToFirst()) {
+            val photoBlob = cursor.getBlob(cursor.getColumnIndex(COLUMN_PHOTO_FINANCIAL_GOAL))
+            val photoByteArray = photoBlob?.copyOf()
+            financialGoal = FinancialGoal(
+                cursor.getInt(cursor.getColumnIndex(COLUMN_ID_FINANCIAL_GOAL)),
+                cursor.getInt(cursor.getColumnIndex(COLUMN_USER_ID_FINANCIAL_GOAL)),
+                cursor.getString(cursor.getColumnIndex(COLUMN_TITLE_FINANCIAL_GOAL)),
+                cursor.getString(cursor.getColumnIndex(COLUMN_DESCRIPTION_FINANCIAL_GOAL)),
+                cursor.getDouble(cursor.getColumnIndex(COLUMN_TARGET_AMOUNT_FINANCIAL_GOAL)),
+                cursor.getDouble(cursor.getColumnIndex(COLUMN_CURRENT_AMOUNT_FINANCIAL_GOAL)),
+                cursor.getString(cursor.getColumnIndex(COLUMN_DEADLINE_FINANCIAL_GOAL)),
+                cursor.getString(cursor.getColumnIndex(COLUMN_CREATED_AT_FINANCIAL_GOAL)),
+                cursor.getInt(cursor.getColumnIndex(COLUMN_CATEGORY_ID_FINANCIAL_GOAL)),
+                cursor.getInt(cursor.getColumnIndex(COLUMN_PERCENTAGE_FINANCIAL_GOAL)),
+                photoByteArray
+            )
+        }
+        cursor.close()
+        db.close()
+        return financialGoal
+    }
+
 
 
 
@@ -890,6 +923,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db.close()
         return success != -1
     }
+
 
 
 

@@ -52,12 +52,12 @@ class FinancialGoalFragment : Fragment() {
 
         // RecyclerView'i bul
         val recyclerView: RecyclerView = binding.financialGoalRecyclerView
-
+        val navController = Navigation.findNavController(requireView())
         // Layout yöneticisini ayarla (Dikey olarak sıralama)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         // Adapter oluşturulmadan önce öncelikle başlatılmalı
-        adapter = FinancialGoalAdapter(requireContext(),financialGoals)
+        adapter = FinancialGoalAdapter(requireContext(),financialGoals,navController)
 
         // RecyclerView'e adapter'ı bağla
         recyclerView.adapter = adapter
@@ -72,17 +72,12 @@ class FinancialGoalFragment : Fragment() {
                 adapter.notifyDataSetChanged()
             }
         }
-        val navController = Navigation.findNavController(requireView())
+
         // Adapter oluşturulduktan sonra kullanılabilir
         binding.addFinancialGoalButton.setOnClickListener{
             navController.navigate(R.id.action_financialGoalFragment_to_addFinancialGoalFragment)
 
         }
-
-
-
-
-
 
     }
 

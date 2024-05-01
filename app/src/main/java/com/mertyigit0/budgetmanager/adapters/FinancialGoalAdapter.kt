@@ -2,6 +2,7 @@ package com.mertyigit0.budgetmanager.adapters
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,13 +11,15 @@ import android.widget.ImageView
 import android.widget.PopupMenu
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.navigation.NavController
+import androidx.navigation.Navigation
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.mertyigit0.budgetmanager.R
 import com.mertyigit0.budgetmanager.data.DatabaseHelper
 import com.mertyigit0.budgetmanager.data.FinancialGoal
 
-class FinancialGoalAdapter(private val context: Context, private val financialGoals: MutableList<FinancialGoal>) :
+class FinancialGoalAdapter(private val context: Context, private val financialGoals: MutableList<FinancialGoal>, private val navController: NavController) :
     RecyclerView.Adapter<FinancialGoalAdapter.FinancialGoalViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FinancialGoalViewHolder {
@@ -30,6 +33,7 @@ class FinancialGoalAdapter(private val context: Context, private val financialGo
         val dbHelper = DatabaseHelper(context)
         holder.bind(currentFinancialGoal)
 
+
         // Menü düğmesine tıklama dinleyicisi ekleme
         holder.menuButton.setOnClickListener {
             // PopupMenu oluşturma
@@ -41,7 +45,11 @@ class FinancialGoalAdapter(private val context: Context, private val financialGo
                 when (menuItem.itemId) {
                     R.id.action_edit -> {
                         // Düzenleme işlemi
-                        // TODO: Düzenleme işlemini burada gerçekleştir
+                        val financialGoalId = currentFinancialGoal.id
+                        val bundle = Bundle().apply {
+                            putInt("financialGoalId", financialGoalId)
+                        }
+                        navController.navigate(R.id.action_financialGoalFragment_to_editFinancialGoalFragment, bundle)
                         true
                     }
                     R.id.action_delete -> {

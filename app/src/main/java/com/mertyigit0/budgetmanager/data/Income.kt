@@ -17,7 +17,8 @@ data class User(
     val email: String,
     val createdAt: String,
     val currency: String,
-    val notificationEnabled: Boolean
+    val notificationEnabled: Boolean,
+    val photo: ByteArray? // Byte dizisi olarak fotoğraf
     )
 
 

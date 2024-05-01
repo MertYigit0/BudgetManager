@@ -103,6 +103,7 @@ class RegisterFragment : Fragment() {
         val createdAt = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
         val currency = "$"
         val notificationEnabled = false
+       // val photo = null
 
         // User nesnesini oluştur
         val newUser = User(
@@ -110,7 +111,9 @@ class RegisterFragment : Fragment() {
             email = email ?: "", // Kullanıcı e-postası
             createdAt = createdAt, // Kayıt tarihi ve saati
             currency = currency,
-            notificationEnabled = notificationEnabled
+            notificationEnabled = notificationEnabled,
+            photo = null
+
         )
 
         // SQLite veritabanına kullanıcıyı ekle

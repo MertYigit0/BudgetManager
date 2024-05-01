@@ -1,14 +1,214 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.DebtTrackFragment">
+    tools:context=".MainActivity"
+    android:orientation="vertical"
+    >
 
-    <!-- TODO: Update blank fragment layout -->
     <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp"
+        android:text="Add Financial Goal"
+        android:textColor="@color/darkGray"
+        android:textSize="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+    <View
+        android:layout_width="400dp"
+        android:layout_height="1dp"
+        android:background="#ACA1A1"
+        android:layout_gravity="center"
+        android:layout_marginTop="2dp"/>
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="5dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Title"
+            android:textSize="20dp"
+            android:layout_marginLeft="5dp"/>
+        <EditText
+            android:id="@+id/titleEditText"
+            android:layout_width="300dp"
+            android:layout_height="40dp"
+            android:textSize="20dp"
+            android:background="@drawable/shape"
+            android:hint="Title of Goal.."
+            android:layout_marginLeft="3dp"/>
+    </LinearLayout>
 
-</FrameLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="5dp">
+
+        <!-- Amount TextView -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Amount:"
+            android:textSize="20dp"
+            android:layout_marginLeft="5dp" />
+
+        <!-- Amount EditText -->
+        <EditText
+            android:id="@+id/amountEditText"
+            android:layout_width="200dp"
+            android:layout_height="40dp"
+            android:textSize="20dp"
+            android:background="#5676"
+            android:inputType="number"
+            android:hint="Amount.."
+            android:layout_marginLeft="5dp" />
+
+        <!-- Currency Spinner -->
+        <Spinner
+            android:id="@+id/currencySpinner"
+            android:layout_width="120dp"
+            android:layout_height="46dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="8dp"
+            android:entries="@array/currency_list" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="5dp">
+
+        <!-- Select Date Button -->
+        <Button
+            android:id="@+id/selectDateButton"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/baseline_calendar_month_24"
+            android:text="Button" />
+
+        <!-- Deadline Date EditText -->
+        <TextView
+            android:id="@+id/dateTextView"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:textSize="20dp"
+            android:background="#5676"
+            android:hint="Select Deadline Date.."
+            android:layout_marginLeft="8dp"
+            android:inputType="number" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="5dp">
+
+        <!-- Gender TextView -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Percentage"
+            android:textSize="20dp"
+            android:layout_marginRight="35dp"
+            android:layout_marginLeft="5dp"/>
+
+        <!-- Percentage EditText -->
+        <EditText
+            android:id="@+id/percentageEditTextNumber"
+            android:layout_width="192dp"
+            android:layout_height="45dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="8dp"
+            android:ems="10"
+            android:hint="Save up Percentage .. "
+            android:inputType="number" />
+    </LinearLayout>
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:orientation="horizontal">
+        <HorizontalScrollView
+            android:id="@+id/horizontalScrollView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="72dp"
+            app:layout_constraintBottom_toTopOf="@+id/editTextText"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.407"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/toggleButtonGroup"
+                android:layout_width="351dp"
+                android:layout_height="166dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:singleSelection="true">
+
+
+            </com.google.android.material.button.MaterialButtonToggleGroup>
+        </HorizontalScrollView>
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Note"
+            android:textSize="20dp"
+
+            android:layout_marginLeft="5dp"/>
+
+        <EditText
+            android:id="@+id/editTextText"
+            android:layout_width="157dp"
+            android:layout_height="100dp"
+            android:layout_marginLeft="15dp"
+            android:background="#5676"
+            android:hint="Enter your notes.." />
+        <ImageView
+            android:id="@+id/imageAdd"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:focusable="true"
+            android:clickable="true"
+            android:src="@android:drawable/ic_input_add"
+            />
+
+    </LinearLayout>
+    <Button
+        android:id="@+id/addButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Add new Financial Goal"
+        android:textColor="#F5FBF6"
+        android:background="#B71C1C"
+        android:layout_marginTop="10dp"/>
+
+</LinearLayout>

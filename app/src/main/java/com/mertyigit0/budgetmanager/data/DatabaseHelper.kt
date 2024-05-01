@@ -13,7 +13,7 @@ import java.util.Locale
 class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
     companion object {
         private const val DATABASE_NAME = "budget_manager.db"
-        private const val DATABASE_VERSION = 7
+        private const val DATABASE_VERSION = 12
 
 
         //users
@@ -23,6 +23,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         private const val COLUMN_CURRENCY = "currency"
         private const val COLUMN_NOTIFICATION_ENABLED = "reminder_enabled"
         private const val COLUMN_CREATED_AT_USER = "created_at"
+        private const val COLUMN_PHOTO_USER = "photo"
 
 
         //Expenses
@@ -156,8 +157,10 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 "$COLUMN_EMAIL TEXT NOT NULL UNIQUE," +
                 "$COLUMN_CURRENCY TEXT," +
                 "$COLUMN_NOTIFICATION_ENABLED INTEGER," +
-                "$COLUMN_CREATED_AT_USER TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
+                "$COLUMN_CREATED_AT_USER TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+                "$COLUMN_PHOTO_USER BLOB)")
         db?.execSQL(CREATE_USERS_TABLE)
+
 
 
         // Income categories table creation
@@ -336,6 +339,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             put(COLUMN_CREATED_AT_USER, user.createdAt)
             put(COLUMN_CURRENCY, user.currency)
             put(COLUMN_NOTIFICATION_ENABLED, if (user.notificationEnabled) 1 else 0)
+
         }
         val success = try {
             db.insertOrThrow(TABLE_USERS, null, values)
@@ -349,6 +353,17 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         }
         return success != -1L
     }
+
+    fun addPhotoToUser(userEmail: String, photoData: ByteArray): Boolean {
+        val db = this.writableDatabase
+        val values = ContentValues().apply {
+            put(COLUMN_PHOTO_USER, photoData)
+        }
+        val result = db.update(TABLE_USERS, values, "$COLUMN_EMAIL=?", arrayOf(userEmail.toString()))
+        db.close()
+        return result != -1
+    }
+
 
     fun addIncome(income: Income): Boolean {
         val values = ContentValues().apply {
@@ -462,7 +477,6 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         val db = this.readableDatabase
         val selectQuery = "SELECT * FROM $TABLE_USERS WHERE $COLUMN_EMAIL = ?"
         val cursor = db.rawQuery(selectQuery, arrayOf(email))
-
         cursor?.use { cursor ->
             if (cursor.moveToFirst()) {
                 val id = cursor.getInt(cursor.getColumnIndex(COLUMN_USER_ID))
@@ -471,15 +485,22 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 val currency = cursor.getString(cursor.getColumnIndex(COLUMN_CURRENCY))
                 val notificationEnabledInt = cursor.getInt(cursor.getColumnIndex(COLUMN_NOTIFICATION_ENABLED))
                 val notificationEnabled = notificationEnabledInt != 0
-                user = User(id, userEmail, createdAt,currency,notificationEnabled)
+                val photoBlobIndex = cursor.getColumnIndex(COLUMN_PHOTO_USER)
+                val photoByteArray = if (!cursor.isNull(photoBlobIndex)) {
+                    cursor.getBlob(photoBlobIndex).copyOf()
+                } else {
+                    null // Fotoğraf sütunu null ise null döndür
+                }
+                user = User(id, userEmail, createdAt, currency, notificationEnabled, photoByteArray)
             }
         }
 
-        cursor.close()
+        cursor?.close()
         db.close()
 
         return user
     }
+
 
 
 

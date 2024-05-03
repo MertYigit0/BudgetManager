@@ -162,7 +162,6 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db?.execSQL(CREATE_USERS_TABLE)
 
 
-
         // Income categories table creation
         val CREATE_INCOME_CATEGORIES_TABLE = ("CREATE TABLE $TABLE_INCOME_CATEGORIES(" +
                 "$COLUMN_ID_INCOME_CATEGORY INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -445,6 +444,57 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db.close()
         return expensesList
     }
+
+
+    @SuppressLint("Range")
+    fun getAllTransactions(userId: Int): Pair<List<Income>, List<Expense>> {
+        val incomesList = mutableListOf<Income>()
+        val expensesList = mutableListOf<Expense>()
+        val db = this.readableDatabase
+
+        // Gelirleri al
+        val incomeQuery = "SELECT * FROM $TABLE_INCOMES WHERE $COLUMN_USER_ID_INCOME = ?"
+        val incomeCursor = db.rawQuery(incomeQuery, arrayOf(userId.toString()))
+        incomeCursor.use {
+            while (it.moveToNext()) {
+                val income = Income(
+                    it.getInt(it.getColumnIndex(COLUMN_ID_INCOME)),
+                    it.getInt(it.getColumnIndex(COLUMN_USER_ID_INCOME)),
+                    it.getDouble(it.getColumnIndex(COLUMN_AMOUNT_INCOME)),
+                    it.getString(it.getColumnIndex(COLUMN_CURRENCY_INCOME)),
+                    it.getInt(it.getColumnIndex(COLUMN_CATEGORY_ID_INCOME)),
+                    it.getString(it.getColumnIndex(COLUMN_CATEGORY_NAME_INCOME)),
+                    it.getString(it.getColumnIndex(COLUMN_DATE_INCOME)),
+                    it.getString(it.getColumnIndex(COLUMN_NOTE_INCOME)),
+                    it.getString(it.getColumnIndex(COLUMN_CREATED_AT_INCOME))
+                )
+                incomesList.add(income)
+            }
+        }
+
+        // Giderleri al
+        val expenseQuery = "SELECT * FROM $TABLE_EXPENSES WHERE $COLUMN_USER_ID_EXPENSE = ?"
+        val expenseCursor = db.rawQuery(expenseQuery, arrayOf(userId.toString()))
+        expenseCursor.use {
+            while (it.moveToNext()) {
+                val expense = Expense(
+                    it.getInt(it.getColumnIndex(COLUMN_ID_EXPENSE)),
+                    it.getInt(it.getColumnIndex(COLUMN_USER_ID_EXPENSE)),
+                    it.getDouble(it.getColumnIndex(COLUMN_AMOUNT_EXPENSE)),
+                    it.getString(it.getColumnIndex(COLUMN_CURRENCY_EXPENSE)),
+                    it.getInt(it.getColumnIndex(COLUMN_CATEGORY_ID_EXPENSE)),
+                    it.getString(it.getColumnIndex(COLUMN_CATEGORY_NAME_EXPENSE)),
+                    it.getString(it.getColumnIndex(COLUMN_DATE_EXPENSE)),
+                    it.getString(it.getColumnIndex(COLUMN_NOTE_EXPENSE)),
+                    it.getString(it.getColumnIndex(COLUMN_CREATED_AT_EXPENSE))
+                )
+                expensesList.add(expense)
+            }
+        }
+
+        return Pair(incomesList, expensesList)
+    }
+
     fun addExpense(expense: Expense): Boolean {
         val values = ContentValues().apply {
             put(COLUMN_AMOUNT_EXPENSE, expense.amount)
@@ -804,6 +854,118 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
 
 
+    @SuppressLint("Range")
+    fun getAllTransactionsForMonth(userId: Int, month: Int): Pair<List<Income>, List<Expense>> {
+        val incomesList = mutableListOf<Income>()
+        val expensesList = mutableListOf<Expense>()
+        val db = this.readableDatabase
+        val startDate = getFirstDayOfMonth(month) // Verilen ayın ilk gününü al
+        val endDate = getLastDayOfMonth(month) // Verilen ayın son gününü al
+
+        // Gelirleri al
+        val incomeQuery = "SELECT * FROM $TABLE_INCOMES WHERE $COLUMN_USER_ID_INCOME = ? AND $COLUMN_DATE_INCOME BETWEEN ? AND ?"
+        val incomeCursor = db.rawQuery(incomeQuery, arrayOf(userId.toString(), startDate, endDate))
+        incomeCursor.use {
+            while (it.moveToNext()) {
+                val income = Income(
+                    it.getInt(it.getColumnIndex(COLUMN_ID_INCOME)),
+                    it.getInt(it.getColumnIndex(COLUMN_USER_ID_INCOME)),
+                    it.getDouble(it.getColumnIndex(COLUMN_AMOUNT_INCOME)),
+                    it.getString(it.getColumnIndex(COLUMN_CURRENCY_INCOME)),
+                    it.getInt(it.getColumnIndex(COLUMN_CATEGORY_ID_INCOME)),
+                    it.getString(it.getColumnIndex(COLUMN_CATEGORY_NAME_INCOME)),
+                    it.getString(it.getColumnIndex(COLUMN_DATE_INCOME)),
+                    it.getString(it.getColumnIndex(COLUMN_NOTE_INCOME)),
+                    it.getString(it.getColumnIndex(COLUMN_CREATED_AT_INCOME))
+                )
+                incomesList.add(income)
+            }
+        }
+
+        // Giderleri al
+        val expenseQuery = "SELECT * FROM $TABLE_EXPENSES WHERE $COLUMN_USER_ID_EXPENSE = ? AND $COLUMN_DATE_EXPENSE BETWEEN ? AND ?"
+        val expenseCursor = db.rawQuery(expenseQuery, arrayOf(userId.toString(), startDate, endDate))
+        expenseCursor.use {
+            while (it.moveToNext()) {
+                val expense = Expense(
+                    it.getInt(it.getColumnIndex(COLUMN_ID_EXPENSE)),
+                    it.getInt(it.getColumnIndex(COLUMN_USER_ID_EXPENSE)),
+                    it.getDouble(it.getColumnIndex(COLUMN_AMOUNT_EXPENSE)),
+                    it.getString(it.getColumnIndex(COLUMN_CURRENCY_EXPENSE)),
+                    it.getInt(it.getColumnIndex(COLUMN_CATEGORY_ID_EXPENSE)),
+                    it.getString(it.getColumnIndex(COLUMN_CATEGORY_NAME_EXPENSE)),
+                    it.getString(it.getColumnIndex(COLUMN_DATE_EXPENSE)),
+                    it.getString(it.getColumnIndex(COLUMN_NOTE_EXPENSE)),
+                    it.getString(it.getColumnIndex(COLUMN_CREATED_AT_EXPENSE))
+                )
+                expensesList.add(expense)
+            }
+        }
+
+        return Pair(incomesList, expensesList)
+    }
+
+    @SuppressLint("Range")
+    fun getAllExpensesForMonth(userId: Int, month: Int): List<Expense> {
+        val expensesList = mutableListOf<Expense>()
+        val db = this.readableDatabase
+        val startDate = getFirstDayOfMonth(month) // Verilen ayın ilk gününü al
+        val endDate = getLastDayOfMonth(month) // Verilen ayın son gününü al
+
+        val selectQuery = "SELECT * FROM $TABLE_EXPENSES WHERE $COLUMN_USER_ID_EXPENSE = ? AND $COLUMN_DATE_EXPENSE BETWEEN ? AND ?"
+        val cursor = db.rawQuery(selectQuery, arrayOf(userId.toString(), startDate, endDate))
+
+        cursor.use {
+            while (it.moveToNext()) {
+                val expense = Expense(
+                    it.getInt(it.getColumnIndex(COLUMN_ID_EXPENSE)),
+                    it.getInt(it.getColumnIndex(COLUMN_USER_ID_EXPENSE)),
+                    it.getDouble(it.getColumnIndex(COLUMN_AMOUNT_EXPENSE)),
+                    it.getString(it.getColumnIndex(COLUMN_CURRENCY_EXPENSE)),
+                    it.getInt(it.getColumnIndex(COLUMN_CATEGORY_ID_EXPENSE)),
+                    it.getString(it.getColumnIndex(COLUMN_CATEGORY_NAME_EXPENSE)),
+                    it.getString(it.getColumnIndex(COLUMN_DATE_EXPENSE)),
+                    it.getString(it.getColumnIndex(COLUMN_NOTE_EXPENSE)),
+                    it.getString(it.getColumnIndex(COLUMN_CREATED_AT_EXPENSE))
+                )
+                expensesList.add(expense)
+            }
+        }
+
+        return expensesList
+    }
+
+    @SuppressLint("Range")
+    fun getAllIncomesForMonth(userId: Int, month: Int): List<Income> {
+        val incomesList = mutableListOf<Income>()
+        val db = this.readableDatabase
+        val startDate = getFirstDayOfMonth(month) // Verilen ayın ilk gününü al
+        val endDate = getLastDayOfMonth(month) // Verilen ayın son gününü al
+
+        val selectQuery = "SELECT * FROM $TABLE_INCOMES WHERE $COLUMN_USER_ID_INCOME = ? AND $COLUMN_DATE_INCOME BETWEEN ? AND ?"
+        val cursor = db.rawQuery(selectQuery, arrayOf(userId.toString(), startDate, endDate))
+
+        cursor.use {
+            while (it.moveToNext()) {
+                val income = Income(
+                    it.getInt(it.getColumnIndex(COLUMN_ID_INCOME)),
+                    it.getInt(it.getColumnIndex(COLUMN_USER_ID_INCOME)),
+                    it.getDouble(it.getColumnIndex(COLUMN_AMOUNT_INCOME)),
+                    it.getString(it.getColumnIndex(COLUMN_CURRENCY_INCOME)),
+                    it.getInt(it.getColumnIndex(COLUMN_CATEGORY_ID_INCOME)),
+                    it.getString(it.getColumnIndex(COLUMN_CATEGORY_NAME_INCOME)),
+                    it.getString(it.getColumnIndex(COLUMN_DATE_INCOME)),
+                    it.getString(it.getColumnIndex(COLUMN_NOTE_INCOME)),
+                    it.getString(it.getColumnIndex(COLUMN_CREATED_AT_INCOME))
+                )
+                incomesList.add(income)
+            }
+        }
+
+        return incomesList
+    }
+
+
     fun getTotalExpenseForCategoryInCurrentMonth(userId: Int, categoryId: Int): Double {
         val db = this.readableDatabase
         val currentDate = getCurrentDate() // Bu ayın ilk günü ve son günü alınır
@@ -820,7 +982,9 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
     }
 
 
+
     fun getTotalExpenseInMonth(userId: Int, month: Int): Double {
+
         val db = this.readableDatabase
         val startDate = getFirstDayOfMonth(month) // Verilen ayın ilk gününü al
         val endDate = getLastDayOfMonth(month) // Verilen ayın son gününü al

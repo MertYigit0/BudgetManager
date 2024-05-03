@@ -1,6 +1,7 @@
 package com.mertyigit0.budgetmanager.ui
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -14,6 +15,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import android.widget.RadioButton
+import android.widget.RadioGroup
+import android.widget.Spinner
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
@@ -31,6 +36,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
+import java.util.Locale
 
 
 class ProfileFragment : Fragment() {
@@ -65,7 +71,45 @@ class ProfileFragment : Fragment() {
 
 
         binding.itemExportData.setOnClickListener {
-            createExcelFile()
+            // AlertDialog oluştur
+            val builder = AlertDialog.Builder(requireContext())
+            builder.setTitle("Export Options")
+
+            // Alert dialog içeriğini ayarla
+            val view = layoutInflater.inflate(R.layout.export_dialog_layout, null)
+            builder.setView(view)
+
+            // Spinner ve RadioGroup referanslarını al
+            val spinner = view.findViewById<Spinner>(R.id.spinner)
+            val radioGroup = view.findViewById<RadioGroup>(R.id.radioGroup)
+
+            // Spinner için adapter oluştur ve ayarla
+            val months = arrayOf("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")
+            val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, months)
+            spinner.adapter = adapter
+
+            // Pozitif buton için tıklama olayını ayarla
+            builder.setPositiveButton("Export") { dialog, _ ->
+                // Seçilen ayı ve seçilen radio button'u al
+                val selectedMonth = spinner.selectedItem.toString()
+                val radioButtonId = radioGroup.checkedRadioButtonId
+                val radioButton = view.findViewById<RadioButton>(radioButtonId)
+                val selectedOption = radioButton.text.toString()
+
+                // createExcelFile() fonksiyonunu çağır
+                createExcelFile(selectedMonth, selectedOption)
+
+                dialog.dismiss() // Dialog'u kapat
+            }
+
+            // Negatif buton için tıklama olayını ayarla
+            builder.setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss() // Dialog'u kapat
+            }
+
+            // AlertDialog'u göster
+            val dialog = builder.create()
+            dialog.show()
         }
 
 
@@ -116,15 +160,14 @@ class ProfileFragment : Fragment() {
         }
     }
 
-
-
-
-
     // Kullanıcının galerisini açma işlemi
     private fun openGallery() {
         val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
         startActivityForResult(intent, PICK_IMAGE_REQUEST)
     }
+
+
+
 
     // Kullanıcının galeriden resim seçtikten sonra geri dönüş işlemi
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -162,40 +205,118 @@ class ProfileFragment : Fragment() {
                 }
             }
         }
+
+
+
+
+
+
+
+
+
+
+
     }
 
 
 
-    private fun createExcelFile() {
-        val workbook = XSSFWorkbook()
-        val sheet = workbook.createSheet("Veriler")
 
-        // Örnek veri listesi
-        val data = listOf("Veri 1", "Veri 2", "Veri 3", "Veri 4")
+    private fun createExcelFile(selectedMonth: String, selectedOption: String) {
+        val dbHelper = DatabaseHelper(requireContext())
+        val currentUserEmail = auth.currentUser?.email
+        val userData = currentUserEmail?.let { dbHelper.getUserData(it) }
+        val userId = userData?.id
 
-        // Başlık satırı oluştur
-        val headerRow = sheet.createRow(0)
-        headerRow.createCell(0).setCellValue("Sıra No")
-
-        // Veri satırlarını oluştur
-        for ((index, item) in data.withIndex()) {
-            val row = sheet.createRow(index + 1)
-            row.createCell(0).setCellValue((index + 1).toDouble())
-            row.createCell(1).setCellValue(item)
+        // Kullanıcının seçtiği ay için gelir ve giderleri al
+        val (incomes, expenses) = when (selectedOption) {
+            "Incomes" -> {
+                val monthIndex = getMonthIndex(selectedMonth)
+                val totalIncomesForMonth =
+                    userId?.let { dbHelper.getAllIncomesForMonth(it, monthIndex+1) }
+                Pair(totalIncomesForMonth, emptyList())
+            }
+            "Expenses" -> {
+                val monthIndex = getMonthIndex(selectedMonth)
+                val totalExpensesForMonth =
+                    userId?.let { dbHelper.getAllExpensesForMonth(it, monthIndex+1) }
+                Pair(emptyList(), totalExpensesForMonth)
+            }
+            else -> {
+                val totalIncomes = userId?.let { dbHelper.getAllIncomesByUserId(it) }
+                val totalExpenses = userId?.let { dbHelper.getAllExpensesByUserId(it) }
+                Pair(totalIncomes, totalExpenses)
+            }
         }
 
-        // Dosyayı oluştur
-        val file = File(requireContext().externalCacheDir?.absolutePath + "/veriler.xlsx")
-        val fileOutputStream = FileOutputStream(file)
+        // Excel dosyasını oluştur
+        val workbook = XSSFWorkbook()
+        val sheet = workbook.createSheet("Transactions")
+
+        // Başlık satırını oluştur
+        val headerRow = sheet.createRow(0)
+        headerRow.createCell(0).setCellValue("Amount")
+        headerRow.createCell(1).setCellValue("Currency")
+        headerRow.createCell(2).setCellValue("Category Name")
+        headerRow.createCell(3).setCellValue("Date")
+        headerRow.createCell(4).setCellValue("Note")
+
+        // Verileri yazdır
+        var rowIndex = 1
+        if (incomes != null) {
+            for (income in incomes) {
+                val row = sheet.createRow(rowIndex++)
+                row.createCell(0).setCellValue(income.amount)
+                row.createCell(1).setCellValue(income.currency)
+                row.createCell(2).setCellValue(income.categoryName)
+                row.createCell(3).setCellValue(income.date)
+                row.createCell(4).setCellValue(income.note)
+            }
+        }
+
+        // Boş bir satır ekle
+        val emptyRow = sheet.createRow(rowIndex++)
+        for (i in 0 until 5) {
+            emptyRow.createCell(i).setCellValue("")
+        }
+
+        if (expenses != null) {
+            // Giderlerin başına "Expenses" yaz
+            val expensesRow = sheet.createRow(rowIndex++)
+            expensesRow.createCell(0).setCellValue("Expenses")
+            expensesRow.createCell(1).setCellValue("")
+            expensesRow.createCell(2).setCellValue("")
+            expensesRow.createCell(3).setCellValue("")
+            expensesRow.createCell(4).setCellValue("")
+            for (expense in expenses) {
+                val row = sheet.createRow(rowIndex++)
+                row.createCell(0).setCellValue(expense.amount)
+                row.createCell(1).setCellValue(expense.currency)
+                row.createCell(2).setCellValue(expense.categoryName)
+                row.createCell(3).setCellValue(expense.date)
+                row.createCell(4).setCellValue(expense.note)
+            }
+        }
+
+        // Dosyayı kaydet
+        // Dosya adını belirle
+        val fileName = "transactions_${selectedOption.toLowerCase(Locale.ROOT)}_${selectedMonth.toLowerCase(Locale.ROOT)}.xlsx"
+
+        val fileOutputStream = FileOutputStream(requireContext().externalCacheDir?.absolutePath + "/$fileName")
         workbook.write(fileOutputStream)
         fileOutputStream.close()
         workbook.close()
 
-
-
-        Toast.makeText(requireContext(), "XML Dosya Olusturuldu ", Toast.LENGTH_SHORT).show()
+        Toast.makeText(requireContext(), "Excel file created: $fileName", Toast.LENGTH_SHORT).show()
     }
 
+
+    private fun getMonthIndex(selectedMonth: String): Int {
+        val months = arrayOf(
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        )
+        return months.indexOf(selectedMonth)
+    }
 
 
 

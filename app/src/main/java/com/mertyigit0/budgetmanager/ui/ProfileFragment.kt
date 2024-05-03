@@ -1,14 +1,24 @@
 package com.mertyigit0.budgetmanager.ui
 
 import android.app.Activity
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.content.FileProvider
 import androidx.navigation.Navigation
 import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
@@ -17,7 +27,10 @@ import com.mertyigit0.budgetmanager.R
 import com.mertyigit0.budgetmanager.data.DatabaseHelper
 import com.mertyigit0.budgetmanager.databinding.FragmentProfileBinding
 import com.mertyigit0.budgetmanager.databinding.FragmentSettingsBinding
+import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
 
 
 class ProfileFragment : Fragment() {
@@ -37,6 +50,7 @@ class ProfileFragment : Fragment() {
 
         // FirebaseAuth örneğini al
         auth = FirebaseAuth.getInstance()
+
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -49,6 +63,10 @@ class ProfileFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
 
+
+        binding.itemExportData.setOnClickListener {
+            createExcelFile()
+        }
 
 
         binding.itemSettings.setOnClickListener{
@@ -144,6 +162,38 @@ class ProfileFragment : Fragment() {
                 }
             }
         }
+    }
+
+
+
+    private fun createExcelFile() {
+        val workbook = XSSFWorkbook()
+        val sheet = workbook.createSheet("Veriler")
+
+        // Örnek veri listesi
+        val data = listOf("Veri 1", "Veri 2", "Veri 3", "Veri 4")
+
+        // Başlık satırı oluştur
+        val headerRow = sheet.createRow(0)
+        headerRow.createCell(0).setCellValue("Sıra No")
+
+        // Veri satırlarını oluştur
+        for ((index, item) in data.withIndex()) {
+            val row = sheet.createRow(index + 1)
+            row.createCell(0).setCellValue((index + 1).toDouble())
+            row.createCell(1).setCellValue(item)
+        }
+
+        // Dosyayı oluştur
+        val file = File(requireContext().externalCacheDir?.absolutePath + "/veriler.xlsx")
+        val fileOutputStream = FileOutputStream(file)
+        workbook.write(fileOutputStream)
+        fileOutputStream.close()
+        workbook.close()
+
+
+
+        Toast.makeText(requireContext(), "XML Dosya Olusturuldu ", Toast.LENGTH_SHORT).show()
     }
 
 

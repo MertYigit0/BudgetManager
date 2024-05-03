@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "com.mertyigit0.budgetmanager"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -82,8 +82,15 @@ dependencies {
     implementation ("io.reactivex.rxjava2:rxjava:2.2.21")
     implementation("io.reactivex.rxjava2:rxandroid:2.1.1")
 
-
+    //Glide
     implementation ("com.github.bumptech.glide:glide:4.16.0")
+
+    //for excel
+    implementation ("org.apache.poi:poi:5.2.4")
+    implementation ("org.apache.poi:poi-ooxml:5.2.4")
+
+
+
 }
 
 

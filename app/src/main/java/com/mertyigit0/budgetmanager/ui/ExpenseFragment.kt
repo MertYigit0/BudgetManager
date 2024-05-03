@@ -500,12 +500,12 @@ class ExpenseFragment : Fragment() {
         val incomeDataSet = BarDataSet(monthlyIncomes.mapIndexed { index, value -> BarEntry(index.toFloat(), value.toFloat()) }, "Income")
         val expenseDataSet = BarDataSet(monthlyExpenses.mapIndexed { index, value -> BarEntry(index.toFloat(), value.toFloat()) }, "Expense")
 
-        // Gelir ve gider için farklı renkler belirleyebilirsiniz
+        // Gelir ve gider renkleri
         incomeDataSet.color = ContextCompat.getColor(requireContext(), R.color.chart_green)
         expenseDataSet.color = ContextCompat.getColor(requireContext(), R.color.chart_red)
 
         val barData = BarData(incomeDataSet, expenseDataSet)
-        barData.barWidth = 0.35f // Barların genişliğini ayarlayın (yan yana durmaları için)
+        barData.barWidth = 0.35f // Barların genişliği
         barChart.data = barData
 
         // Ay isimlerini ayarlayın

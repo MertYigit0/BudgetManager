@@ -116,6 +116,8 @@ class CurrencyFragment : Fragment() {
             val oldCurrency = userData?.currency
             if (oldCurrency != null) {
                 updateCurrencyForAllTransactions(oldCurrency, selectedCurrency)
+                updateCurrencyForAllFinancialGoals(oldCurrency, selectedCurrency)
+                updateCurrencyForAllBudgetAlerts(oldCurrency,selectedCurrency)
             }
         } else {
             Toast.makeText(requireContext(), "Failed to update currency", Toast.LENGTH_SHORT).show()
@@ -232,6 +234,57 @@ class CurrencyFragment : Fragment() {
             }
         }
     }
+
+
+    private fun updateCurrencyForAllFinancialGoals(oldCurrency: String, newCurrency: String) {
+        val dbHelper = DatabaseHelper(requireContext())
+        val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
+        var userData = currentUserEmail?.let { dbHelper.getUserData(it) }
+        val userId = userData?.id
+
+        // Tüm finansal hedefleri güncelle
+        val financialGoals = userId?.let { dbHelper.getAllFinancialGoalsByUserId(it) }
+        financialGoals?.forEach { financialGoal ->
+            if (financialGoal.currency == oldCurrency) {
+                // Eski para biriminden USD'ye ve ardından USD'den yeni para birimine dönüştürme işlemi
+                val amountInUSD = financialGoal.targetAmount / dbHelper.getExchangeRate(oldCurrency)
+                val convertedAmount = amountInUSD * dbHelper.getExchangeRate(newCurrency)
+
+                // Yeni dönüştürülmüş miktarı ata
+                financialGoal.targetAmount = convertedAmount
+                financialGoal.currency = newCurrency
+
+                // FinancialGoal'u güncelle
+                dbHelper.updateFinancialGoal(financialGoal)
+            }
+        }
+    }
+
+    private fun updateCurrencyForAllBudgetAlerts(oldCurrency: String, newCurrency: String) {
+        val dbHelper = DatabaseHelper(requireContext())
+        val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
+        var userData = currentUserEmail?.let { dbHelper.getUserData(it) }
+        val userId = userData?.id
+
+        // Tüm bütçe uyarılarını güncelle
+        val budgetAlerts = userId?.let { dbHelper.getAllBudgetAlertsByUserId(it) }
+        budgetAlerts?.forEach { budgetAlert ->
+            if (budgetAlert.currency == oldCurrency) {
+                // Eski para biriminden USD'ye ve ardından USD'den yeni para birimine dönüştürme işlemi
+                val amountInUSD = budgetAlert.targetAmount / dbHelper.getExchangeRate(oldCurrency)
+                val convertedAmount = amountInUSD * dbHelper.getExchangeRate(newCurrency)
+
+                // Yeni dönüştürülmüş miktarı ata
+                budgetAlert.targetAmount = convertedAmount
+                budgetAlert.currency = newCurrency
+
+                // Bütçe uyarısını güncelle
+                dbHelper.updateBudgetAlert(budgetAlert)
+            }
+        }
+    }
+
+
 
 
 

@@ -76,7 +76,8 @@ class EditFinancialGoalFragment : Fragment() {
                 createdAt = financialGoal?.createdAt ?: "",
                 currentAmount = financialGoal?.currentAmount ?: 0.0,
                 photo = financialGoal?.photo ?: byteArrayOf(),
-                userId = financialGoal?.userId ?: 0
+                userId = financialGoal?.userId ?: 0,
+                currency = financialGoal?.currency ?:"USD"
             )
 
             // Veritabanında güncelleme işlemi yap

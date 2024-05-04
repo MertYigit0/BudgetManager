@@ -13,7 +13,7 @@ import java.util.Locale
 class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
     companion object {
         private const val DATABASE_NAME = "budget_manager.db"
-        private const val DATABASE_VERSION = 12
+        private const val DATABASE_VERSION = 13
 
 
         //users
@@ -76,6 +76,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         private const val COLUMN_CATEGORY_ID_FINANCIAL_GOAL = "category_id"
         private const val COLUMN_PERCENTAGE_FINANCIAL_GOAL = "percentage"
         private const val COLUMN_PHOTO_FINANCIAL_GOAL = "photo"
+        private const val COLUMN_CURRENCY_FINANCIAL_GOAL = "currency"
 
         //Recurring Payments
         private const val TABLE_RECURRING_PAYMENTS = "recurring_payments"
@@ -127,6 +128,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         private const val COLUMN_TARGET_AMOUNT_BUDGET_ALERT = "target_amount"
         private const val COLUMN_CURRENT_AMOUNT_BUDGET_ALERT = "current_amount"
         private const val COLUMN_CATEGORY_ID_BUDGET_ALERT = "category_id"
+        private const val COLUMN_CURRENCY_BUDGET_ALERT = "currency"
 
         //Regular Incomes
         private const val TABLE_REGULAR_INCOMES = "regular_incomes"
@@ -180,6 +182,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 "$COLUMN_CATEGORY_ID_BUDGET_ALERT INTEGER," +
                 "$COLUMN_TARGET_AMOUNT_BUDGET_ALERT REAL," +
                 "$COLUMN_CURRENT_AMOUNT_BUDGET_ALERT REAL," +
+                "$COLUMN_CURRENCY_BUDGET_ALERT TEXT NOT NULL," +
                 "FOREIGN KEY($COLUMN_USER_ID_BUDGET_ALERT) REFERENCES $TABLE_USERS($COLUMN_USER_ID)," +
                 "FOREIGN KEY($COLUMN_CATEGORY_ID_BUDGET_ALERT) REFERENCES $TABLE_EXPENSE_CATEGORIES($COLUMN_CATEGORY_ID_EXPENSE))")
         db?.execSQL(CREATE_BUDGET_ALERTS_TABLE)
@@ -220,6 +223,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 "$COLUMN_CATEGORY_ID_FINANCIAL_GOAL INTEGER NOT NULL," +
                 "$COLUMN_PERCENTAGE_FINANCIAL_GOAL INTEGER NOT NULL," +
                 "$COLUMN_PHOTO_FINANCIAL_GOAL  BLOB," +
+                "$COLUMN_CURRENCY_FINANCIAL_GOAL TEXT NOT NULL," +
                 "FOREIGN KEY($COLUMN_USER_ID_FINANCIAL_GOAL) REFERENCES $TABLE_USERS($COLUMN_USER_ID)," +
                 "FOREIGN KEY($COLUMN_CATEGORY_ID_FINANCIAL_GOAL) REFERENCES $TABLE_INCOME_CATEGORIES($COLUMN_ID_INCOME_CATEGORY))")
 
@@ -588,6 +592,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             put(COLUMN_CATEGORY_ID_FINANCIAL_GOAL,goal.categoryId)
             put(COLUMN_PERCENTAGE_FINANCIAL_GOAL,goal.percentage)
             put(COLUMN_PHOTO_FINANCIAL_GOAL,goal.photo)
+            put(COLUMN_CURRENCY_FINANCIAL_GOAL,goal.currency)
             // Diğer sütunlar default değerleri alacakları için eklemeye gerek yok
         }
 
@@ -635,7 +640,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                     cursor.getString(cursor.getColumnIndex(COLUMN_CREATED_AT_FINANCIAL_GOAL)),
                     cursor.getInt(cursor.getColumnIndex(COLUMN_CATEGORY_ID_FINANCIAL_GOAL)),
                     cursor.getInt(cursor.getColumnIndex(COLUMN_PERCENTAGE_FINANCIAL_GOAL)),
-                    photoByteArray
+                    photoByteArray,
+                    cursor.getString(cursor.getColumnIndex(COLUMN_CURRENCY_FINANCIAL_GOAL))
 
                 )
                 financialGoalsList.add(financialGoal)
@@ -669,8 +675,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                     cursor.getString(cursor.getColumnIndex(COLUMN_CREATED_AT_FINANCIAL_GOAL)),
                     cursor.getInt(cursor.getColumnIndex(COLUMN_CATEGORY_ID_FINANCIAL_GOAL)),
                     cursor.getInt(cursor.getColumnIndex(COLUMN_PERCENTAGE_FINANCIAL_GOAL)),
-                    photoByteArray
-
+                    photoByteArray,
+                    cursor.getString(cursor.getColumnIndex(COLUMN_CURRENCY_FINANCIAL_GOAL))
                 )
                 financialGoalsList.add(financialGoal)
             } while (cursor.moveToNext())
@@ -700,7 +706,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 cursor.getString(cursor.getColumnIndex(COLUMN_CREATED_AT_FINANCIAL_GOAL)),
                 cursor.getInt(cursor.getColumnIndex(COLUMN_CATEGORY_ID_FINANCIAL_GOAL)),
                 cursor.getInt(cursor.getColumnIndex(COLUMN_PERCENTAGE_FINANCIAL_GOAL)),
-                photoByteArray
+                photoByteArray,
+                cursor.getString(cursor.getColumnIndex(COLUMN_CURRENCY_FINANCIAL_GOAL))
             )
         }
         cursor.close()
@@ -720,6 +727,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             put(COLUMN_CATEGORY_ID_BUDGET_ALERT, budgetAlert.categoryId) // categoryId kullanıldı
             put(COLUMN_TARGET_AMOUNT_BUDGET_ALERT, budgetAlert.targetAmount)
             put(COLUMN_CURRENT_AMOUNT_BUDGET_ALERT, budgetAlert.currentAmount)
+            put(COLUMN_CURRENCY_BUDGET_ALERT,budgetAlert.currency)
         }
         val success = db.insert(TABLE_BUDGET_ALERTS, null, values)
         db.close()
@@ -753,7 +761,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                     val targetAmount = cursor.getDouble(cursor.getColumnIndex(COLUMN_TARGET_AMOUNT_BUDGET_ALERT))
                     val currentAmount = cursor.getDouble(cursor.getColumnIndex(COLUMN_CURRENT_AMOUNT_BUDGET_ALERT))
                     val createdAt = cursor.getString(cursor.getColumnIndex(COLUMN_CREATED_AT_BUDGET_ALERT))
-                    val budgetAlert = BudgetAlert(id, userId, alertType, message,targetAmount, currentAmount ,createdAt, categoryId )
+                    val currency = cursor.getString(cursor.getColumnIndex(COLUMN_CURRENCY_BUDGET_ALERT))
+                    val budgetAlert = BudgetAlert(id, userId, alertType, message,targetAmount, currentAmount ,createdAt, categoryId,currency )
                     budgetAlerts.add(budgetAlert)
                 } while (cursor.moveToNext())
             }
@@ -1074,7 +1083,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 val targetAmount = it.getDouble(it.getColumnIndex(COLUMN_TARGET_AMOUNT_BUDGET_ALERT))
                 val currentAmount = it.getDouble(it.getColumnIndex(COLUMN_CURRENT_AMOUNT_BUDGET_ALERT))
                 val createdAt = it.getString(it.getColumnIndex(COLUMN_CREATED_AT_BUDGET_ALERT))
-                budgetAlert = BudgetAlert(id, userId, alertType, message, targetAmount, currentAmount, createdAt, categoryId)
+                val currency = it.getString(it.getColumnIndex(COLUMN_CURRENCY_BUDGET_ALERT))
+                budgetAlert = BudgetAlert(id, userId, alertType, message, targetAmount, currentAmount, createdAt, categoryId,currency)
             }
         }
         cursor.close()
@@ -1096,12 +1106,14 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 val targetAmount = it.getDouble(it.getColumnIndex(COLUMN_TARGET_AMOUNT_BUDGET_ALERT))
                 val currentAmount = it.getDouble(it.getColumnIndex(COLUMN_CURRENT_AMOUNT_BUDGET_ALERT))
                 val createdAt = it.getString(it.getColumnIndex(COLUMN_CREATED_AT_BUDGET_ALERT))
-                budgetAlert = BudgetAlert(alertId, userId, alertType, message, targetAmount, currentAmount, createdAt, categoryId)
+                val currency = it.getString(it.getColumnIndex(COLUMN_CURRENCY_BUDGET_ALERT))
+                budgetAlert = BudgetAlert(alertId, userId, alertType, message, targetAmount, currentAmount, createdAt, categoryId,currency)
             }
         }
         cursor.close()
         return budgetAlert
     }
+
 
 
 
@@ -1113,6 +1125,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             put(COLUMN_TARGET_AMOUNT_BUDGET_ALERT, budgetAlert.targetAmount)
             put(COLUMN_CURRENT_AMOUNT_BUDGET_ALERT, budgetAlert.currentAmount)
             put(COLUMN_CREATED_AT_BUDGET_ALERT, budgetAlert.createdAt)
+            put(COLUMN_CURRENCY_BUDGET_ALERT,budgetAlert.currency)
         }
         val whereClause = "$COLUMN_ID_BUDGET_ALERT = ?"
         val whereArgs = arrayOf(budgetAlert.id.toString())
@@ -1130,11 +1143,16 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         contentValues.put(COLUMN_DEADLINE_FINANCIAL_GOAL, goal.deadline)
         contentValues.put(COLUMN_CATEGORY_ID_FINANCIAL_GOAL, goal.categoryId)
         contentValues.put(COLUMN_PERCENTAGE_FINANCIAL_GOAL, goal.percentage)
+        contentValues.put(COLUMN_CURRENCY_FINANCIAL_GOAL,goal.currency)
 
         val success = db.update(TABLE_FINANCIAL_GOALS, contentValues, "$COLUMN_ID=?", arrayOf(goal.id.toString()))
         db.close()
         return success != -1
     }
+
+
+
+
 
     fun updateIncome(income: Income): Boolean {
         val db = this.writableDatabase

@@ -61,6 +61,18 @@ class AddFinancialGoalFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+
+        var dbHelper = DatabaseHelper(requireContext())
+        val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
+        var userData = currentUserEmail?.let { dbHelper.getUserData(it) }
+        var userCurrency = userData?.currency
+        userCurrency?.let { currency ->
+            val currencyIndex = getIndexOfCurrencyInSpinner(currency)
+            binding.currencySpinner.setSelection(currencyIndex)
+        }
+
+
         createToggleButtonsForIncomeCategories()
 
         binding.selectDateButton.setOnClickListener {
@@ -83,48 +95,57 @@ class AddFinancialGoalFragment : Fragment() {
     fun addFinancialGoal() {
         val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
         val userId = currentUserEmail?.let { dbHelper.getUserData(it) }?.id ?: -1
-        val title = binding.titleEditText.text.toString() // Düzeltme: text özelliğini al
+        val title = binding.titleEditText.text.toString()
         val description = binding.editTextText.text.toString()
-        val targetAmount =  binding.amountEditText.text.toString().toDouble()
-        val currentAmount = 0.0
+        val amount = binding.amountEditText.text.toString().toDouble()
         val deadline = binding.dateTextView.text.toString()
-        val categoryId = getSelectedCategoryId() // Kategori kimliğini almak için bir metot
+        val categoryId = getSelectedCategoryId()
         val percentage = binding.percentageEditTextNumber.text.toString().toInt()
+        val currency = binding.currencySpinner.selectedItem.toString()
+        val userCurrency = getUserCurrency()
         val navController = Navigation.findNavController(requireView())
+
+        // Kullanıcının belirlediği para birimine dönüştürme işlemi
+        val targetAmountInUserCurrency = if (currency == userCurrency) {
+            amount // Eğer para birimi aynı ise dönüştürme işlemi yapma
+        } else {
+            // Para birimini USD'ye dönüştürme
+            val exchangeRateToUSD = dbHelper.getExchangeRate(currency)
+            val amountInUSD = amount / exchangeRateToUSD
+
+            // USD'yi kullanıcının belirlediği para birimine dönüştürme
+            val exchangeRateToUserCurrency = dbHelper.getExchangeRate(userCurrency)
+            amountInUSD * exchangeRateToUserCurrency
+        }
+
         // Yeni bir FinancialGoal nesnesi oluştur
         val newGoal = FinancialGoal(
-            id = 0, // ID veritabanında otomatik artan olduğu için sıfır geçiyoruz
+            id = 0,
             userId = userId,
             title = title,
             description = description,
-            targetAmount = targetAmount,
-            currentAmount = currentAmount,
+            targetAmount = targetAmountInUserCurrency, // Dönüştürülmüş hedef miktarını ata
+            currentAmount = 0.0,
             deadline = deadline,
             createdAt = "", // Bu alan veritabanında otomatik ayarlanacağı için boş geçilebilir
             categoryId = categoryId,
             percentage = percentage,
-            photo = imageByte
-
+            photo = imageByte,
+            currency = userCurrency // Kullanıcının belirlediği para birimini kullan
         )
 
         // Yeni finansal hedefi veritabanına ekleyin
-        val dbHelper = DatabaseHelper(requireContext()) // veya this.activity ifadesi kullanılabilir
+        val dbHelper = DatabaseHelper(requireContext())
         val success = dbHelper.addFinancialGoal(newGoal)
 
         if (success) {
-            // Başarılı bir şekilde eklendiğine dair kullanıcıya geri bildirim ver
             Toast.makeText(requireContext(), "Financial goal successfully added!", Toast.LENGTH_SHORT).show()
-
-            // Adapter oluşturulduktan sonra kullanılabilir
-                navController.navigate(R.id.action_addFinancialGoalFragment_to_financialGoalFragment)
-
-
-
+            navController.navigate(R.id.action_addFinancialGoalFragment_to_financialGoalFragment)
         } else {
-            // Ekleme başarısız olduysa kullanıcıya geri bildirim ver
             Toast.makeText(requireContext(), "Failed to add financial goal", Toast.LENGTH_SHORT).show()
         }
     }
+
 
 
     private fun getSelectedCategory(): String {
@@ -210,6 +231,20 @@ class AddFinancialGoalFragment : Fragment() {
             }
         }
     }
-
+    private fun getIndexOfCurrencyInSpinner(currency: String): Int {
+        val spinnerAdapter = binding.currencySpinner.adapter
+        val count = spinnerAdapter.count
+        for (i in 0 until count) {
+            if (spinnerAdapter.getItem(i).toString() == currency) {
+                return i
+            }
+        }
+        return 0 // Varsayılan olarak 0. indeksi döndür
+    }
+    private fun getUserCurrency(): String {
+        val dbHelper = DatabaseHelper(requireContext())
+        val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
+        return currentUserEmail?.let { dbHelper.getUserData(it)?.currency } ?: "USD" // Varsayılan olarak USD kullan
+    }
 
 }

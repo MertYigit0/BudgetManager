@@ -33,6 +33,12 @@
             android:ems="10"
             android:hint="Amount"
             android:inputType="number" />
+        <Spinner
+            android:id="@+id/currencySpinner"
+            android:layout_width="120dp"
+            android:layout_height="46dp"
+            android:entries="@array/currency_list"
+            android:padding="10dp" />
 
     </LinearLayout>
 

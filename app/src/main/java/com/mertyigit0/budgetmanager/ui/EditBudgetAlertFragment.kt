@@ -58,6 +58,7 @@ class EditBudgetAlertFragment : Fragment() {
                 val updatedTargetAmount = binding.targetAmountEditText.text.toString().toDouble()
 
 
+
                 val updatedBudgetAlert = BudgetAlert(
                     id = budgetAlertId!!,
                     userId = budgetAlert.userId,
@@ -66,7 +67,8 @@ class EditBudgetAlertFragment : Fragment() {
                     message = updatedMessage,
                     targetAmount = updatedTargetAmount,
                     currentAmount = budgetAlert.currentAmount,
-                    createdAt = budgetAlert.createdAt
+                    createdAt = budgetAlert.createdAt,
+                    currency =  budgetAlert.currency
                 )
 
 

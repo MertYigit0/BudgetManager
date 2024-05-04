@@ -51,6 +51,17 @@ class AddBudgetAlertFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+
+
+        var dbHelper = DatabaseHelper(requireContext())
+        val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
+        var userData = currentUserEmail?.let { dbHelper.getUserData(it) }
+        var userCurrency = userData?.currency
+        userCurrency?.let { currency ->
+            val currencyIndex = getIndexOfCurrencyInSpinner(currency)
+            binding.currencySpinner.setSelection(currencyIndex)
+        }
+
         toggleButtonGroup = view.findViewById(R.id.toggleButtonGroup)
 
         setupToggleButtonGroup()
@@ -81,18 +92,35 @@ class AddBudgetAlertFragment : Fragment() {
     }
 
 
-    private fun addBudgetAlertToDatabase(alertType: String, message: String, targetAmount: Double, currentAmount: Double,createdAt : String ,categoryId : Int): Boolean {
+    private fun addBudgetAlertToDatabase(alertType: String, message: String, targetAmount: Double, currentAmount: Double, createdAt: String, categoryId: Int, currency: String, userCurrency: String): Boolean {
         val dbHelper = DatabaseHelper(requireContext())
         val userId = currentUserEmail?.let { dbHelper.getUserData(it) }?.id ?: -1
+
+        // Kullanıcının belirlediği para birimine dönüşüm yap
+        val convertedTargetAmount = if (currency == userCurrency) {
+            targetAmount // Eğer para birimleri aynı ise dönüşüm yapma
+        } else {
+            val exchangeRateToUserCurrency = dbHelper.getExchangeRate(userCurrency)
+            targetAmount * exchangeRateToUserCurrency
+        }
+
+        val convertedCurrentAmount = if (currency == userCurrency) {
+            currentAmount // Eğer para birimleri aynı ise dönüşüm yapma
+        } else {
+            val exchangeRateToUserCurrency = dbHelper.getExchangeRate(userCurrency)
+            currentAmount * exchangeRateToUserCurrency
+        }
+
         val budgetAlert = BudgetAlert(
             id = 0,
             userId = userId,
             alertType = alertType,
             message = message,
-            targetAmount = targetAmount,
-            currentAmount = currentAmount,
-            createdAt = createdAt, // Burası için geçici olarak boş bir değer atıyorum, bu değeri veritabanında otomatik olarak oluşturulabilirsiniz.
-            categoryId = categoryId
+            targetAmount = convertedTargetAmount,
+            currentAmount = convertedCurrentAmount,
+            createdAt = createdAt,
+            categoryId = categoryId,
+            currency = userCurrency // Kullanıcının belirlediği para birimini kullan
         )
 
         val databaseHelper = DatabaseHelper(requireContext())
@@ -107,6 +135,8 @@ class AddBudgetAlertFragment : Fragment() {
             val categoryId = getSelectedCategoryId()
             val currentAmount = getCurrentTotalExpenseForCategory(categoryId)
             val createdAt= getCurrentDate()
+            val currency = binding.currencySpinner.selectedItem.toString()
+            val userCurrency = getUserCurrency()
 
 
             if (categoryId.equals(-1)) {
@@ -120,7 +150,7 @@ class AddBudgetAlertFragment : Fragment() {
 
 
 
-            if (addBudgetAlertToDatabase(alertType, message, targetAmount, currentAmount,createdAt,categoryId)) {
+            if (addBudgetAlertToDatabase(alertType, message, targetAmount, currentAmount,createdAt,categoryId,currency,userCurrency)) {
                 showSnackbar("Budget alert added: $message")
                 findNavController().navigate(R.id.action_addBudgetAlertFragment_to_budgetAlertFragment)
             } else {
@@ -178,7 +208,22 @@ class AddBudgetAlertFragment : Fragment() {
     }
 
 
+    private fun getUserCurrency(): String {
+        val dbHelper = DatabaseHelper(requireContext())
+        val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
+        return currentUserEmail?.let { dbHelper.getUserData(it)?.currency } ?: "USD" // Varsayılan olarak USD kullan
+    }
 
+    private fun getIndexOfCurrencyInSpinner(currency: String): Int {
+        val spinnerAdapter = binding.currencySpinner.adapter
+        val count = spinnerAdapter.count
+        for (i in 0 until count) {
+            if (spinnerAdapter.getItem(i).toString() == currency) {
+                return i
+            }
+        }
+        return 0 // Varsayılan olarak 0. indeksi döndür
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()

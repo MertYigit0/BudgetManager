@@ -52,13 +52,14 @@ data class FinancialGoal(
     val userId: Int,
     val title: String,
     val description: String?,
-    val targetAmount: Double,
+    var targetAmount: Double,
     var currentAmount: Double,
     val deadline: String,
     val createdAt: String,
     val categoryId: Int,
     val percentage: Int,
-    val photo: ByteArray? // Byte dizisi olarak fotoğraf
+    val photo: ByteArray?, // Byte dizisi olarak fotoğraf
+    var currency: String,
 )
 
 data class RecurringPayment(
@@ -117,10 +118,12 @@ data class BudgetAlert(
     val userId: Int,
     val alertType: String,
     val message: String,
-    val targetAmount: Double,
+    var targetAmount: Double,
     val currentAmount: Double,
     val createdAt: String,
-    val categoryId: Int?
+    val categoryId: Int?,
+    var currency: String
+
 
 )
 

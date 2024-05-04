@@ -52,8 +52,9 @@ class BudgetAlertAdapter(private val context: Context, private val budgetAlertLi
         }
 
         holder.categoryTextView.text = categoryName
-        holder.limitAmountTextView.text = "Target Amount: ${budgetAlert.targetAmount}"
-        holder.currentAmountTextView.text = "Current Amount: ${budgetAlert.currentAmount}"
+        holder.limitAmountTextView.text = "Target Amount: ${"%.2f".format(budgetAlert.targetAmount)}"
+        holder.currentAmountTextView.text = "Current Amount: ${"%.2f".format(budgetAlert.currentAmount)}"
+
         // Kalan limitin gösterilmesi ve drawable eklenmesi
         val remainingAmount = budgetAlert.targetAmount - budgetAlert.currentAmount
         val drawable = when {

@@ -81,9 +81,9 @@ class FinancialGoalAdapter(private val context: Context, private val financialGo
         @SuppressLint("SetTextI18n")
         fun bind(financialGoal: FinancialGoal) {
             titleTextView.text = financialGoal.title
-            targetAmountTextView.text = "Target Amount: ${financialGoal.targetAmount}"
+            targetAmountTextView.text = "Target Amount: ${"%.2f".format(financialGoal.targetAmount)}"
+            currentAmountTextView.text = "Current Amount: ${"%.2f".format(financialGoal.currentAmount)}"
             deadlineTextView.text = "Deadline: ${financialGoal.deadline}"
-            currentAmountTextView.text ="Current Amouint : ${financialGoal.currentAmount}"
             // ProgressBar'ı güncelle
             val progress = (financialGoal.currentAmount / financialGoal.targetAmount * 100).toInt()
             progressBar.progress = progress

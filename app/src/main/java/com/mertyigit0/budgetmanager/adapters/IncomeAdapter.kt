@@ -34,7 +34,8 @@ class IncomeAdapter(val context: Context, private val incomeList: ArrayList<Inco
     override fun onBindViewHolder(holder: IncomeViewHolder, position: Int) {
         val income = incomeList[position]
 
-        holder.itemView.findViewById<TextView>(R.id.textViewAmount).text = income.amount.toString()+" "
+        val formattedAmount = String.format("%.2f", income.amount)
+        holder.itemView.findViewById<TextView>(R.id.textViewAmount).text = "$formattedAmount "
         holder.itemView.findViewById<TextView>(R.id.textViewCurrency).text = income.currency
         holder.itemView.findViewById<TextView>(R.id.textViewDate).text = income.date
         holder.itemView.findViewById<TextView>(R.id.textViewCategory).text = income.categoryName

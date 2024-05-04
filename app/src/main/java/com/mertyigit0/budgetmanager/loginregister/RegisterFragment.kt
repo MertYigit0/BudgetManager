@@ -101,7 +101,7 @@ class RegisterFragment : Fragment() {
     private fun saveUserToSQLite(user: FirebaseUser) {
         val email = user.email
         val createdAt = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
-        val currency = "$"
+        val currency = "USD"
         val notificationEnabled = false
        // val photo = null
 

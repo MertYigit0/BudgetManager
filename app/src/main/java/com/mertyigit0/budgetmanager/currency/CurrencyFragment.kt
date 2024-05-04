@@ -5,13 +5,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.FirebaseAuth
 import com.google.gson.Gson
 import com.mertyigit0.budgetmanager.R
 import com.mertyigit0.budgetmanager.data.DatabaseHelper
+import com.mertyigit0.budgetmanager.databinding.FragmentCurrencyBinding
+import com.mertyigit0.budgetmanager.databinding.FragmentProfileBinding
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
@@ -21,6 +27,9 @@ class CurrencyFragment : Fragment() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: CurrencyListAdapter
+    private var _binding: FragmentCurrencyBinding? = null
+    private val binding get() = _binding!!
+
 
 
     override fun onCreateView(
@@ -28,18 +37,91 @@ class CurrencyFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_currency, container, false)
-        recyclerView = view.findViewById(R.id.currencyList_recyclerView)
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        adapter = CurrencyListAdapter(emptyMap())
-        recyclerView.adapter = adapter
+        _binding = FragmentCurrencyBinding.inflate(inflater, container, false)
+        val view = binding.root
+
+        // Spinner'ı ayarla
+        val spinner = binding.spinner2
+        spinner.adapter = ArrayAdapter.createFromResource(requireContext(), R.array.currency_list, android.R.layout.simple_spinner_dropdown_item)
+
+        // Varsayılan seçimi kaldır
+        spinner.setSelection(0, false) // 0: Varsayılan olarak seçilecek öğenin pozisyonu
+
+        // RecyclerView'ı bağlayın ve ayarlayın
+        binding.currencyListRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.currencyListRecyclerView.adapter = CurrencyListAdapter(emptyMap())
+
         return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         fetchData()
+
+
+        var dbHelper = DatabaseHelper(requireContext())
+        val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
+        var userData = currentUserEmail?.let { dbHelper.getUserData(it) }
+        var userCurrency = userData?.currency
+        userCurrency?.let { currency ->
+            val currencyIndex = getIndexOfCurrencyInSpinner(currency)
+            binding.spinner2.setSelection(currencyIndex)
+        }
+
+
+
+        binding.spinner2.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                val selectedCurrency = parent?.getItemAtPosition(position).toString()
+
+                 userCurrency = userData?.currency
+                    if (selectedCurrency !=userCurrency) {
+                        updateCurrency(selectedCurrency)
+                    }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // Bir şey seçilmediğinde yapılacak işlemi tanımlayabilirsiniz (opsiyonel)
+            }
+
+
+        }
+
     }
+
+    // Kullanıcı para birimini güncellemek için bu fonksiyonu kullanabilirsiniz
+    fun updateCurrency(selectedCurrency: String) {
+        // Mevcut kullanıcının e-posta adresini alın
+        val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
+        val dbHelper = DatabaseHelper(requireContext())
+        var userData = currentUserEmail?.let { dbHelper.getUserData(it) }
+        // Eğer mevcut kullanıcı e-posta adresi yoksa veya seçilen para birimi boşsa işlemi yapmayın
+        if (currentUserEmail.isNullOrEmpty() || selectedCurrency.isNullOrEmpty()) {
+            return
+        }
+
+        // Veritabanında kullanıcının para birimini güncellemek için updateCurrencyUser fonksiyonunu çağırın
+
+        val isSuccess = dbHelper.updateCurrencyUser(currentUserEmail, selectedCurrency)
+
+        // Başarılı bir şekilde güncellendiğini kontrol edin ve kullanıcıya bir geri bildirim gösterin
+        if (isSuccess) {
+            Toast.makeText(requireContext(), "Currency updated successfully", Toast.LENGTH_SHORT).show()
+            // Tüm işlemleri yeni para birimine dönüştür
+            val oldCurrency = userData?.currency
+            if (oldCurrency != null) {
+                updateCurrencyForAllTransactions(oldCurrency, selectedCurrency)
+            }
+        } else {
+            Toast.makeText(requireContext(), "Failed to update currency", Toast.LENGTH_SHORT).show()
+        }
+    }
+
 
     private fun fetchData() {
         val sharedPreferences = requireContext().getSharedPreferences("CurrencyPrefs", Context.MODE_PRIVATE)
@@ -103,8 +185,55 @@ class CurrencyFragment : Fragment() {
 
     private fun updateUI(currencyRates: Map<String, Double>) {
         adapter = CurrencyListAdapter(currencyRates)
-        recyclerView.adapter = adapter
+        binding.currencyListRecyclerView.adapter = adapter
     }
+    private fun getIndexOfCurrencyInSpinner(currency: String): Int {
+        val spinnerAdapter = binding.spinner2.adapter
+        val count = spinnerAdapter.count
+        for (i in 0 until count) {
+            if (spinnerAdapter.getItem(i).toString() == currency) {
+                return i
+            }
+        }
+        return 0 // Varsayılan olarak 0. indeksi döndür
+    }
+
+
+    private fun updateCurrencyForAllTransactions(oldCurrency: String, newCurrency: String) {
+        val dbHelper = DatabaseHelper(requireContext())
+        val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
+        var userData = currentUserEmail?.let { dbHelper.getUserData(it) }
+        val userId = userData?.id
+        // Gelirleri güncelle
+        val incomes = userId?.let { dbHelper.getAllIncomesByUserId(it) }
+        if (incomes != null) {
+            for (income in incomes) {
+                if (income.currency == oldCurrency) {
+                    val amountInUSD = income.amount / dbHelper.getExchangeRate(oldCurrency)
+                    val convertedAmount = amountInUSD * dbHelper.getExchangeRate(newCurrency)
+                    income.amount = convertedAmount
+                    income.currency = newCurrency
+                    dbHelper.updateIncome(income)
+                }
+            }
+        }
+
+        // Giderleri güncelle
+        val expenses = userId?.let { dbHelper.getAllExpensesByUserId(it) }
+        if (expenses != null) {
+            for (expense in expenses) {
+                if (expense.currency == oldCurrency) {
+                    val amountInUSD = expense.amount / dbHelper.getExchangeRate(oldCurrency)
+                    val convertedAmount = amountInUSD * dbHelper.getExchangeRate(newCurrency)
+                    expense.amount = convertedAmount
+                    expense.currency = newCurrency
+                    dbHelper.updateExpense(expense)
+                }
+            }
+        }
+    }
+
+
 
     private fun showSnackbar(message: String) {
         view?.let {

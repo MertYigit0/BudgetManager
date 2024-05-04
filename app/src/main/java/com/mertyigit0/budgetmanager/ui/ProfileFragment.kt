@@ -10,6 +10,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -301,12 +302,17 @@ class ProfileFragment : Fragment() {
         // Dosya adını belirle
         val fileName = "transactions_${selectedOption.toLowerCase(Locale.ROOT)}_${selectedMonth.toLowerCase(Locale.ROOT)}.xlsx"
 
-        val fileOutputStream = FileOutputStream(requireContext().externalCacheDir?.absolutePath + "/$fileName")
+        val storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
+        val file = File(storageDir, fileName)
+
+        val fileOutputStream = FileOutputStream(file)
         workbook.write(fileOutputStream)
         fileOutputStream.close()
         workbook.close()
 
-        Toast.makeText(requireContext(), "Excel file created: $fileName", Toast.LENGTH_SHORT).show()
+// Kullanıcıya dosyanın oluşturulduğunu bildir
+        Toast.makeText(requireContext(), "Excel file created: ${file.absolutePath}", Toast.LENGTH_SHORT).show()
+
     }
 
 

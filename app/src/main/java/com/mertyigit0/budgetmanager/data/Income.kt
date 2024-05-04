@@ -3,8 +3,8 @@ package com.mertyigit0.budgetmanager.data
 data class Income(
     val id: Int,
     val userId: Int,
-    val amount: Double,
-    val currency: String,
+    var amount: Double,
+    var currency: String,
     val categoryId: Int,
     val categoryName: String,
     val date: String,
@@ -25,8 +25,8 @@ data class User(
 data class Expense(
     val id: Int,
     val userId: Int,
-    val amount: Double,
-    val currency: String,
+    var amount: Double,
+    var currency: String,
     val categoryId: Int,
     val categoryName: String,
     val date: String,

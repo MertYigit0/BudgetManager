@@ -57,6 +57,16 @@ class AddExpenseFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+
+        var dbHelper = DatabaseHelper(requireContext())
+        val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
+        var userData = currentUserEmail?.let { dbHelper.getUserData(it) }
+        var userCurrency = userData?.currency
+        userCurrency?.let { currency ->
+            val currencyIndex = getIndexOfCurrencyInSpinner(currency)
+            binding.currencySpinner.setSelection(currencyIndex)
+        }
+
         toggleButtonGroup = view.findViewById(R.id.toggleButtonGroup)
 
         setupToggleButtonGroup()
@@ -102,39 +112,51 @@ class AddExpenseFragment : Fragment() {
 
 
 
-    private fun addExpenseToDatabase(amount: Double, category: String, categoryId: Int, date: String, description: String?, currency: String): Boolean {
+    private fun addExpenseToDatabase(amount: Double, category: String, categoryId: Int, date: String, description: String?, currency: String, userCurrency: String): Boolean {
         val dbHelper = DatabaseHelper(requireContext())
         val userId = currentUserEmail?.let { dbHelper.getUserData(it) }?.id ?: -1
 
-        // Döviz kuru veritabanından al
-        val exchangeRate = dbHelper.getExchangeRate(currency)
+        // İlk olarak, gelen miktarı dolar cinsine dönüştür
+        val amountInUSD = if (currency == "USD") {
+            amount // Eğer para birimi zaten USD ise dönüştürme işlemi yapma
+        } else {
+            val exchangeRateToUSD = dbHelper.getExchangeRate(currency)
+            amount / exchangeRateToUSD
+        }
 
-        // Dönüştürülmüş miktarı hesapla ve en fazla 2 basamakla sınırla
-        val convertedAmount = (amount / exchangeRate).toBigDecimal().setScale(2, RoundingMode.HALF_UP).toDouble()
+        // Şimdi, dönüştürülen miktarı kullanıcının seçtiği para birimine dönüştür
+        val convertedAmount = if (userCurrency == "USD") {
+            amountInUSD // Eğer kullanıcı para birimi USD ise dönüştürme işlemi yapma
+        } else {
+            val exchangeRateToUserCurrency = dbHelper.getExchangeRate(userCurrency)
+            amountInUSD * exchangeRateToUserCurrency
+        }
 
-        // Dönüştürülmüş miktarı, para birimiyle birlikte ekranda göstermek için string oluştur
-        val equivalentAmountText = "%.2f".format(convertedAmount) + " USD"
+        // Dönüştürülen miktarı en fazla iki basamaklı bir string olarak biçimlendir
+        val formattedAmount = "%.2f".format(convertedAmount.toDouble())
 
-        // Expense nesnesini oluştur
-        val expense = Expense(id = 0, userId = userId, amount = convertedAmount, currency = "USD", categoryId = categoryId, categoryName = category, date = date, note = description ?: "", createdAt = "")
+        // Dönüştürülen miktar ve para birimini ekranda göstermek için string oluştur
+        val equivalentAmountText = "$formattedAmount $userCurrency"
 
-        // Expense'ı veritabanına ekle
+        val expense = Expense(id = 0, userId = userId, amount = formattedAmount.toDouble(), currency = userCurrency, categoryId = categoryId, categoryName = category, date = date, note = description ?: "", createdAt = "")
+
         val databaseHelper = DatabaseHelper(requireContext())
+
         val isSuccess = databaseHelper.addExpense(expense)
 
         // Eğer eklenme başarılı ise
         if (isSuccess) {
-            // Snackbar'da dönüştürülmüş miktarı ve para birimini göster
+            // Snackbar'da dönüştürülmüş miktarı ve kullanıcı para birimini göster
             showSnackbar("Expense added: $amount $currency (Equivalent: $equivalentAmountText)")
             // Bütçe uyarısını güncelle
             updateBudgetAlertForCategory(categoryId)
-
         } else {
             // Ekleme başarısız olduysa Snackbar göster
             showSnackbar("Failed to add expense.")
         }
         return isSuccess
     }
+
 
 
     private fun addExpense() {
@@ -145,7 +167,7 @@ class AddExpenseFragment : Fragment() {
             val categoryId = getSelectedCategoryId()
             val description = binding.editTextText.text.toString()
             val currency = binding.currencySpinner.selectedItem.toString()
-
+            val userCurrency = getUserCurrency()
 
             if (categoryId.equals(-1)) {
                 showSnackbar("Please select a category.")
@@ -156,7 +178,7 @@ class AddExpenseFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            if (addExpenseToDatabase(amount, category,categoryId, date, description, currency )) {
+            if (addExpenseToDatabase(amount, category,categoryId, date, description, currency,userCurrency )) {
                 findNavController().navigate(R.id.action_addExpenseFragment_to_expenseFragment)
                 showSnackbar("Expense added: $amount  $currency")
                 updateBudgetAlertForCategory(categoryId)
@@ -308,6 +330,22 @@ class AddExpenseFragment : Fragment() {
     }
 
 
+    private fun getIndexOfCurrencyInSpinner(currency: String): Int {
+        val spinnerAdapter = binding.currencySpinner.adapter
+        val count = spinnerAdapter.count
+        for (i in 0 until count) {
+            if (spinnerAdapter.getItem(i).toString() == currency) {
+                return i
+            }
+        }
+        return 0 // Varsayılan olarak 0. indeksi döndür
+    }
+
+    private fun getUserCurrency(): String {
+        val dbHelper = DatabaseHelper(requireContext())
+        val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
+        return currentUserEmail?.let { dbHelper.getUserData(it)?.currency } ?: "USD" // Varsayılan olarak USD kullan
+    }
 
 
 

@@ -353,6 +353,29 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         return success != -1L
     }
 
+    fun updateCurrencyUser(email: String, newCurrency: String): Boolean {
+        val db = this.writableDatabase
+        val values = ContentValues().apply {
+            put(COLUMN_CURRENCY, newCurrency)
+        }
+        val whereClause = "$COLUMN_EMAIL = ?"
+        val whereArgs = arrayOf(email)
+
+        val success = try {
+            db.update(TABLE_USERS, values, whereClause, whereArgs)
+        } catch (e: SQLException) {
+            // Hata durumunda burada işlem yapılabilir
+            // Örneğin: Loglama veya hata mesajı gösterme
+            e.printStackTrace()
+            -1
+        } finally {
+            db.close()
+        }
+
+        return success != -1
+    }
+
+
     fun addPhotoToUser(userEmail: String, photoData: ByteArray): Boolean {
         val db = this.writableDatabase
         val values = ContentValues().apply {
@@ -1112,6 +1135,49 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db.close()
         return success != -1
     }
+
+    fun updateIncome(income: Income): Boolean {
+        val db = this.writableDatabase
+        val values = ContentValues().apply {
+            put(COLUMN_AMOUNT_INCOME, income.amount)
+            put(COLUMN_CURRENCY_INCOME, income.currency)
+            put(COLUMN_DATE_INCOME, income.date)
+            put(COLUMN_CATEGORY_ID_INCOME, income.categoryId)
+            put(COLUMN_CATEGORY_NAME_INCOME, income.categoryName)
+            put(COLUMN_NOTE_INCOME, income.note)
+            // Diğer sütunları da buraya ekleyin, gerektiği şekilde
+        }
+
+        val whereClause = "$COLUMN_ID_INCOME = ?"
+        val whereArgs = arrayOf(income.id.toString())
+
+        val rowsAffected = db.update(TABLE_INCOMES, values, whereClause, whereArgs)
+        db.close()
+
+        return rowsAffected > 0
+    }
+
+    fun updateExpense(expense: Expense): Boolean {
+        val db = this.writableDatabase
+        val values = ContentValues().apply {
+            put(COLUMN_AMOUNT_EXPENSE, expense.amount)
+            put(COLUMN_CURRENCY_EXPENSE, expense.currency)
+            put(COLUMN_DATE_EXPENSE, expense.date)
+            put(COLUMN_CATEGORY_ID_EXPENSE, expense.categoryId)
+            put(COLUMN_CATEGORY_NAME_EXPENSE, expense.categoryName)
+            put(COLUMN_NOTE_EXPENSE, expense.note)
+            // Diğer sütunları da buraya ekleyin, gerektiği şekilde
+        }
+
+        val whereClause = "$COLUMN_ID_EXPENSE = ?"
+        val whereArgs = arrayOf(expense.id.toString())
+
+        val rowsAffected = db.update(TABLE_EXPENSES, values, whereClause, whereArgs)
+        db.close()
+
+        return rowsAffected > 0
+    }
+
 
 
 

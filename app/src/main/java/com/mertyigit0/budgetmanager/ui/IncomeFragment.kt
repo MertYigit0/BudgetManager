@@ -222,7 +222,9 @@ class IncomeFragment : Fragment() {
 
         // Centertext
         val totalIncome = monthYearTotals.values.sum()
-        val centerText = "Total Income:\n${totalIncome} USD"
+        val formattedTotalIncome = String.format("%.2f", totalIncome)
+        val userCurrency = getUserCurrency()
+        val centerText = "Total Income:\n$formattedTotalIncome $userCurrency"
         pieChart.centerText = centerText
 
         val pieData = PieData(dataSet)
@@ -230,6 +232,12 @@ class IncomeFragment : Fragment() {
         pieChart.invalidate()
     }
 
+
+    private fun getUserCurrency(): String {
+        val dbHelper = DatabaseHelper(requireContext())
+        val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
+        return currentUserEmail?.let { dbHelper.getUserData(it)?.currency } ?: "USD" // Varsayılan olarak USD kullan
+    }
     // Tarih formatından ayı almak için yardımcı bir fonksiyon
     private fun getMonthFromDate(date: String): Int {
         val parts = date.split("-")

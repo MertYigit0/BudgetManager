@@ -50,7 +50,8 @@ class EditBudgetAlertFragment : Fragment() {
         if (budgetAlert != null) {
             // BudgetAlert verilerini görüntüleme
             binding.editTextText.setText(budgetAlert.message.toString())
-            binding.targetAmountEditText.setText(budgetAlert.targetAmount.toString())
+            binding.targetAmountEditText.setText(String.format("%.2f", budgetAlert.targetAmount))
+
 
 
             binding.addButton.setOnClickListener {

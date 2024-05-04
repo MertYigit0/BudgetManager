@@ -5,21 +5,27 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.navigation.NavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.mertyigit0.budgetmanager.R
 import com.mertyigit0.budgetmanager.data.DatabaseHelper
 import com.mertyigit0.budgetmanager.data.Income
 
-class IncomeAdapter(val context: Context, private val incomeList: ArrayList<Income>) :
+class IncomeAdapter(val context: Context, private val incomeList: ArrayList<Income>, private val navController: NavController) :
     RecyclerView.Adapter<IncomeAdapter.IncomeViewHolder>() {
 
-    class IncomeViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+    class IncomeViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val menuIcon: ImageView = itemView.findViewById(R.id.menuIconIncome) // Menu iconunu tanımla
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): IncomeViewHolder {
         val inflater = LayoutInflater.from(parent.context)
@@ -39,7 +45,44 @@ class IncomeAdapter(val context: Context, private val incomeList: ArrayList<Inco
         holder.itemView.findViewById<TextView>(R.id.textViewCurrency).text = income.currency
         holder.itemView.findViewById<TextView>(R.id.textViewDate).text = income.date
         holder.itemView.findViewById<TextView>(R.id.textViewCategory).text = income.categoryName
+        holder.itemView.findViewById<ImageView>(R.id.menuIconIncome)
        // holder.itemView.findViewById<TextView>(R.id.textViewDescription).text = income.note
+
+
+
+        // Menü düğmesine tıklama dinleyicisi ekleme
+        holder.itemView.findViewById<ImageView>(R.id.menuIconIncome).setOnClickListener {
+            // PopupMenu oluşturma
+            val popupMenu = PopupMenu(context, holder.itemView.findViewById(R.id.menuIconIncome))
+            popupMenu.inflate(R.menu.item_income_menu)
+
+            // Menü öğelerine tıklama dinleyicisi ekleme
+            popupMenu.setOnMenuItemClickListener { menuItem ->
+                when (menuItem.itemId) {
+                    R.id.action_edit -> {
+                        // Düzenleme işlemi
+                        val incomeId = income.id
+                        val bundle = Bundle().apply {
+                            putInt("incomeId", incomeId)
+                        }
+                        navController.navigate(R.id.action_incomeFragment_to_editIncomeFragment, bundle)
+                        true
+                    }
+                    else -> false
+                }
+            }
+
+            // Popup menüyü gösterme
+            popupMenu.show()
+        }
+
+
+
+
+
+
+
+
     }
 
     fun updateIncomeList(newIncomeList: List<Income>) {

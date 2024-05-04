@@ -5,11 +5,15 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.navigation.NavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.mertyigit0.budgetmanager.R
@@ -18,7 +22,7 @@ import com.mertyigit0.budgetmanager.data.Expense
 
 
 
-class ExpenseAdapter(val context: Context, private val expenseList: ArrayList<Expense>) :
+class ExpenseAdapter(val context: Context, private val expenseList: ArrayList<Expense>, private val navController: NavController) :
     RecyclerView.Adapter<ExpenseAdapter.ExpenseViewHolder>() {
 
     class ExpenseViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
@@ -42,6 +46,44 @@ class ExpenseAdapter(val context: Context, private val expenseList: ArrayList<Ex
         holder.itemView.findViewById<TextView>(R.id.textViewDate).text = expense.date
         holder.itemView.findViewById<TextView>(R.id.textViewCategory).text = expense.categoryName
         holder.itemView.findViewById<TextView>(R.id.textViewDescription).text =expense.note
+        holder.itemView.findViewById<ImageView>(R.id.menuIconExpense)
+
+
+
+
+
+
+
+        // Menü düğmesine tıklama dinleyicisi ekleme
+        holder.itemView.findViewById<ImageView>(R.id.menuIconExpense).setOnClickListener {
+            // PopupMenu oluşturma
+            val popupMenu = PopupMenu(context, holder.itemView.findViewById(R.id.menuIconExpense))
+            popupMenu.inflate(R.menu.item_expense_menu)
+
+            // Menü öğelerine tıklama dinleyicisi ekleme
+            popupMenu.setOnMenuItemClickListener { menuItem ->
+                when (menuItem.itemId) {
+                    R.id.action_edit -> {
+                        // Düzenleme işlemi
+                        val expenseId = expense.id
+                        val bundle = Bundle().apply {
+                            putInt("expenseId", expenseId)
+                        }
+                        navController.navigate(R.id.action_expenseFragment_to_editExpenseFragment, bundle)
+                        true
+                    }
+                    else -> false
+                }
+            }
+
+            // Popup menüyü gösterme
+            popupMenu.show()
+        }
+
+
+
+
+
     }
 
     fun updateExpenseList(newExpenseList: List<Expense>) {

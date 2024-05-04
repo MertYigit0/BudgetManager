@@ -409,6 +409,60 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         return success != -1L
     }
 
+    @SuppressLint("Range")
+    fun getIncomeById(incomeId: Int): Income? {
+        val db = this.readableDatabase
+        var income: Income? = null
+        val query = "SELECT * FROM $TABLE_INCOMES WHERE $COLUMN_ID_INCOME = ?"
+        val selectionArgs = arrayOf(incomeId.toString())
+
+        val cursor = db.rawQuery(query, selectionArgs)
+        if (cursor.moveToFirst()) {
+            val id = cursor.getInt(cursor.getColumnIndex(COLUMN_ID_INCOME))
+            val userId = cursor.getInt(cursor.getColumnIndex(COLUMN_USER_ID_INCOME))
+            val amount = cursor.getDouble(cursor.getColumnIndex(COLUMN_AMOUNT_INCOME))
+            val currency = cursor.getString(cursor.getColumnIndex(COLUMN_CURRENCY_INCOME))
+            val date = cursor.getString(cursor.getColumnIndex(COLUMN_DATE_INCOME))
+            val categoryId = cursor.getInt(cursor.getColumnIndex(COLUMN_CATEGORY_ID_INCOME))
+            val categoryName = cursor.getString(cursor.getColumnIndex(COLUMN_CATEGORY_NAME_INCOME))
+            val note = cursor.getString(cursor.getColumnIndex(COLUMN_NOTE_INCOME))
+            val createdAt = cursor.getString(cursor.getColumnIndex(COLUMN_CREATED_AT_INCOME))
+
+            income = Income(id, userId, amount, currency, categoryId ,  categoryName,date, note, createdAt)
+        }
+        cursor.close()
+        return income
+    }
+
+    @SuppressLint("Range")
+    fun getExpenseById(expenseId: Int): Expense? {
+        val db = this.readableDatabase
+        var expense: Expense? = null
+        val query = "SELECT * FROM $TABLE_EXPENSES WHERE $COLUMN_ID_EXPENSE = ?"
+        val selectionArgs = arrayOf(expenseId.toString())
+
+        val cursor = db.rawQuery(query, selectionArgs)
+        if (cursor.moveToFirst()) {
+            val id = cursor.getInt(cursor.getColumnIndex(COLUMN_ID_EXPENSE))
+            val userId = cursor.getInt(cursor.getColumnIndex(COLUMN_USER_ID_EXPENSE))
+            val amount = cursor.getDouble(cursor.getColumnIndex(COLUMN_AMOUNT_EXPENSE))
+            val currency = cursor.getString(cursor.getColumnIndex(COLUMN_CURRENCY_EXPENSE))
+            val date = cursor.getString(cursor.getColumnIndex(COLUMN_DATE_EXPENSE))
+            val categoryId = cursor.getInt(cursor.getColumnIndex(COLUMN_CATEGORY_ID_EXPENSE))
+            val categoryName = cursor.getString(cursor.getColumnIndex(COLUMN_CATEGORY_NAME_EXPENSE))
+            val note = cursor.getString(cursor.getColumnIndex(COLUMN_NOTE_EXPENSE))
+            val createdAt = cursor.getString(cursor.getColumnIndex(COLUMN_CREATED_AT_EXPENSE))
+
+            expense = Expense(id, userId, amount, currency, categoryId, categoryName, date, note, createdAt)
+        }
+        cursor.close()
+        return expense
+    }
+
+
+
+
+
     fun deleteIncome(incomeId: Long): Boolean {
         val db = this.writableDatabase
         val success = db.delete(TABLE_INCOMES, "$COLUMN_ID_INCOME=?", arrayOf(incomeId.toString()))

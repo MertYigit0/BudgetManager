@@ -57,8 +57,8 @@ class IncomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        incomeAdapter = IncomeAdapter(requireContext(), ArrayList()) // Boş bir ArrayList ile IncomeAdapter oluştur
+        val navController = Navigation.findNavController(requireView())
+        incomeAdapter = IncomeAdapter(requireContext(), ArrayList(),navController) // Boş bir ArrayList ile IncomeAdapter oluştur
 
         val recyclerView = binding.incomeRecyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
@@ -92,7 +92,7 @@ class IncomeFragment : Fragment() {
 
 
 
-        val navController = Navigation.findNavController(requireView())
+
         binding.toggleButtonGroup.check(R.id.incomesButton)
 
         binding.expensesButton.setOnClickListener {

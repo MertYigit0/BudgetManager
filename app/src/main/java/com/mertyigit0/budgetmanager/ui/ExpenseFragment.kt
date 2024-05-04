@@ -70,11 +70,13 @@ class ExpenseFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
+        val navController = Navigation.findNavController(requireView())
 
         expenseAdapter = ExpenseAdapter(
             requireContext(),
-            ArrayList()
+            ArrayList(),
+            navController
+
         ) // Boş bir ArrayList ile ExpenseAdapter oluştur
 
         val recyclerView = binding.expenseRecyclerView
@@ -99,7 +101,7 @@ class ExpenseFragment : Fragment() {
         expenses?.let { expenseAdapter.updateExpenseList(it) }
         // Gelir verileri listesini oluştur
 
-        val navController = Navigation.findNavController(requireView())
+
         binding.toggleButtonGroup.check(R.id.expensesButton)
         binding.incomesButton.setOnClickListener {
             navController.navigate(R.id.action_expenseFragment_to_incomeFragment)

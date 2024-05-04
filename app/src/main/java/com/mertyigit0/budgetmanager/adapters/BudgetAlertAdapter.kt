@@ -64,10 +64,11 @@ class BudgetAlertAdapter(private val context: Context, private val budgetAlertLi
         }
 
         val text = if (remainingAmount < 0) {
-            "Limit Exceeded: ${-remainingAmount}" // Eğer limit aşıldıysa, negatif kısmını al
+            "Limit Exceeded: ${"%.2f".format(-remainingAmount)}" // Eğer limit aşıldıysa, negatif kısmını al ve formatla
         } else {
-            "Remaining Limit: $remainingAmount"
+            "Remaining Limit: ${"%.2f".format(remainingAmount)}" // Kalan limiti al ve formatla
         }
+
 
         holder.limitText.text = text
         holder.limitText.setCompoundDrawablesRelativeWithIntrinsicBounds(drawable, null, null, null)

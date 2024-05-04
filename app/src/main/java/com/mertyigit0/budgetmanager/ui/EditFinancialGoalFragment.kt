@@ -47,7 +47,7 @@ class EditFinancialGoalFragment : Fragment() {
 
 
         if (financialGoal != null) {
-            binding.amountEditText.setText(financialGoal.targetAmount.toString())
+            binding.amountEditText.setText(String.format("%.2f", financialGoal.targetAmount))
             binding.dateTextView.setText(financialGoal.deadline.toString())
             binding.editTextText.setText(financialGoal.description)
             binding.titleEditText.setText(financialGoal.title)

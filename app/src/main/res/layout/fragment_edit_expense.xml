@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".ui.EditExpenseFragment">
+
+    <LinearLayout
+        android:id="@+id/linearLayout7"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:orientation="horizontal"
+        android:gravity="center"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView11">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:text="Amount:"
+            android:layout_marginRight="10dp"
+            android:textSize="20dp" />
+
+        <EditText
+            android:id="@+id/amountEditText"
+            android:layout_width="172dp"
+            android:layout_height="50dp"
+            android:background="@drawable/shape"
+            android:ems="10"
+            android:hint="Amount"
+            android:inputType="number"
+            android:textAlignment="center" />
+
+
+
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/editTextText"
+        android:layout_width="214dp"
+        android:layout_height="40dp"
+        android:layout_marginBottom="156dp"
+        android:background="@drawable/shape"
+        android:ems="10"
+        android:hint="Description"
+        android:inputType="text"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent" />
+
+
+    <Button
+        android:id="@+id/addButton"
+        android:layout_width="195dp"
+        android:layout_height="48dp"
+        android:background="@drawable/button_shape"
+        android:text="Add New Expense"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextText"
+        app:layout_constraintVertical_bias="0.33" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout6"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout7">
+
+        <TextView
+            android:id="@+id/dateTextView"
+            android:layout_width="272dp"
+            android:layout_height="36dp"
+            android:gravity="center"
+            android:layout_marginTop="80dp"
+            android:background="@drawable/shape"
+            android:padding="6dp"
+            android:text="Date"
+            android:layout_marginRight="10dp"
+            android:textAlignment="center" />
+
+        <Button
+            android:id="@+id/selectDateButton"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="84dp"
+            android:background="@drawable/baseline_calendar_month_24"
+            android:text="Button" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/textView11"
+        android:layout_width="271dp"
+        android:layout_height="45dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/rounded_corner_background"
+        android:gravity="center"
+        android:text="ADD NEW EXPENSE"
+        android:textColor="@color/blue"
+        android:textSize="22dp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <HorizontalScrollView
+        android:layout_width="387dp"
+        android:layout_height="74dp"
+        android:layout_marginTop="44dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.727"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout6">
+
+        <com.google.android.material.button.MaterialButtonToggleGroup
+
+            android:id="@+id/toggleButtonGroup"
+            android:layout_width="350dp"
+            android:layout_height="135dp"
+            android:layout_marginTop="20dp"
+            app:singleSelection="true">
+
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+
+
+    </HorizontalScrollView>
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

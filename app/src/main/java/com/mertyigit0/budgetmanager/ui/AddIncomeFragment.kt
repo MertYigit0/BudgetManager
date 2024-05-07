@@ -24,6 +24,7 @@ import com.mertyigit0.budgetmanager.data.DatabaseHelper
 import com.mertyigit0.budgetmanager.data.Income
 import com.mertyigit0.budgetmanager.data.RegularIncome
 import com.mertyigit0.budgetmanager.databinding.FragmentAddIncomeBinding
+import com.mertyigit0.budgetmanager.util.AlarmScheduler
 import java.math.RoundingMode
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -38,7 +39,7 @@ class AddIncomeFragment : Fragment() {
     private val binding get() = _binding!!;
 
     private lateinit var toggleButtonGroup: MaterialButtonToggleGroup
-
+    private lateinit var auth: FirebaseAuth
 
     private var selectedDate: String? = null
 
@@ -46,7 +47,7 @@ class AddIncomeFragment : Fragment() {
         super.onCreate(savedInstanceState)
         arguments?.let {
 
-
+            auth = FirebaseAuth.getInstance()
             val dbHelper = DatabaseHelper(requireContext())
             val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
             val userId = currentUserEmail?.let { it1 -> dbHelper.getUserData(it1) }
@@ -58,6 +59,8 @@ class AddIncomeFragment : Fragment() {
         _binding = FragmentAddIncomeBinding.inflate(inflater,container,false)
         val view = binding.root;
         createToggleButtonsForIncomeCategories()
+        // FirebaseAuth nesnesini başlat
+        auth = FirebaseAuth.getInstance()
         return view
 
     }
@@ -65,7 +68,7 @@ class AddIncomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
+        scheduleAutomaticIncomes()
 
         var dbHelper = DatabaseHelper(requireContext())
         val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
@@ -219,11 +222,11 @@ class AddIncomeFragment : Fragment() {
         val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
         return currentUserEmail?.let { dbHelper.getUserData(it)?.currency } ?: "USD" // Varsayılan olarak USD kullan
     }
-    private fun addRegularIncomeToDatabase(title: String, amount: Double, currency: String, recurrence: String, date: String, categoryId: Int): Boolean {
+    private fun addRegularIncomeToDatabase(title: String, amount: Double, currency: String, recurrence: String, date: String, categoryId: Int,category : String): Boolean {
         val dbHelper = DatabaseHelper(requireContext())
         val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
         val userId = currentUserEmail?.let { dbHelper.getUserData(it) }?.id ?: -1
-        val regularIncome = RegularIncome(id = 0, userId = userId, title = title, amount = amount, currency = currency, recurrence = recurrence, date = date, categoryId = categoryId)
+        val regularIncome = RegularIncome(id = 0, userId = userId, title = title, amount = amount, currency = currency, recurrence = recurrence, date = date, categoryId = categoryId, categoryName = category)
 
         return dbHelper.addRegularIncome(regularIncome)
     }
@@ -235,6 +238,7 @@ class AddIncomeFragment : Fragment() {
             val currency = binding.currencySpinner.selectedItem.toString()
             val recurrence = binding.regularIncomeSpinner.selectedItem.toString()
             val date = getCurrentDate()
+            val category = getSelectedCategory()
             val categoryId = getSelectedCategoryId()
 
             if (categoryId.equals(-1)) {
@@ -246,7 +250,7 @@ class AddIncomeFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            if (addRegularIncomeToDatabase(title, amount, currency, recurrence, date, categoryId)) {
+            if (addRegularIncomeToDatabase(title, amount, currency, recurrence, date, categoryId,category)) {
                 showSnackbar("Regular income added: $amount $currency")
                 findNavController().navigate(R.id.action_addIncomeFragment_to_incomeFragment)
             } else {
@@ -372,6 +376,57 @@ class AddIncomeFragment : Fragment() {
         }
         return 0 // Varsayılan olarak 0. indeksi döndür
     }
+
+
+    private fun scheduleAutomaticIncomes() {
+        val dbHelper = DatabaseHelper(requireContext())
+        val currentUserEmail = auth.currentUser?.email
+        val userData = currentUserEmail?.let { dbHelper.getUserData(it) }
+
+        // Kullanıcının regular gelirlerini al
+        val regularIncomes = userData?.let { dbHelper.getAllRegularIncomesByUserId(it.id) }
+
+        // Regular gelirleri işleyerek, otomatik gelir eklemesi yap
+        regularIncomes?.forEach { regularIncome ->
+            // Gelirin tekrarlanma sıklığına göre zamanlayıcıyı ayarla
+            when (regularIncome.recurrence) {
+                "Once a week" -> {
+                    // Haftalık gelir, her hafta ekle
+                    scheduleWeeklyIncome(regularIncome)
+                }
+                "Once a month" -> {
+                    // Aylık gelir, her ay ekle
+                    scheduleMonthlyIncome(regularIncome)
+                }
+                // Diğer tekrarlanma sıklıklarına göre işlem yapılabilir
+            }
+        }
+    }
+
+    private fun scheduleWeeklyIncome(regularIncome: RegularIncome) {
+        // Haftalık gelirin eklenmesi için bir zamanlayıcı kur
+        // Başlangıç zamanını belirle
+        val startTime = System.currentTimeMillis()
+
+        // AlarmScheduler objesini kullanarak zamanlayıcıyı ayarla
+        AlarmScheduler.scheduleRepeatingIncome(requireContext(), regularIncome.id, startTime, AlarmScheduler.ONCE_A_WEEK)
+    }
+
+    private fun scheduleMonthlyIncome(regularIncome: RegularIncome) {
+        // Aylık gelirin eklenmesi için bir zamanlayıcı kur
+        // Başlangıç zamanını belirle
+        val startTime = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 0) // Saat 00:00 olarak ayarla
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.DAY_OF_MONTH, 1) // Ayın ilk günü
+        }.timeInMillis
+
+        // AlarmScheduler objesini kullanarak zamanlayıcıyı ayarla
+        AlarmScheduler.scheduleRepeatingIncome(requireContext(), regularIncome.id, startTime, AlarmScheduler.ONCE_A_MONTH)
+    }
+
+
 
     override fun onDestroyView() {
         super.onDestroyView()

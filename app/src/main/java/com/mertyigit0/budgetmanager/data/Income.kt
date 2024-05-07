@@ -81,7 +81,8 @@ data class RegularIncome(
     val currency: String,
     val recurrence: String,
     val date: String,
-    val categoryId: Int
+    val categoryId: Int,
+    val categoryName: String
 )
 
 
@@ -126,4 +127,20 @@ data class BudgetAlert(
 
 
 )
+
+
+data class CombinedIncome(
+    val id: Int,
+    val userId: Int,
+    val title: String?,  // RegularIncome için alan
+    val amount: Double,
+    val currency: String,
+    val recurrence: String?,  // RegularIncome için alan
+    val date: String,
+    val categoryId: Int,
+    val categoryName: String,
+    val note: String?,
+    val createdAt: String
+)
+
 

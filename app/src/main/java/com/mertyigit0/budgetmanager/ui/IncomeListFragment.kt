@@ -64,7 +64,7 @@ class IncomeListFragment : Fragment() {
         // Veritabanından tüm gelirleri al
         val incomes = userData?.let { dbHelper.getAllIncomesByUserId(it.id) }
         // Gelir verilerini RecyclerView'a aktar
-        incomes?.let { incomeAdapter.updateIncomeList(it) }
+      //  incomes?.let { incomeAdapter.updateIncomeList(it) }
 
 
 
@@ -77,7 +77,7 @@ class IncomeListFragment : Fragment() {
 
                 // Gelirleri seçilen tipe göre yeniden düzenle ve güncelle
                 val sortedIncomes = sortIncomesByType(selectedType, incomes ?: listOf())
-                incomeAdapter.updateIncomeList(sortedIncomes)
+              //  incomeAdapter.updateIncomeList(sortedIncomes)
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {

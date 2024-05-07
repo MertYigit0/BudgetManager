@@ -18,8 +18,12 @@ import com.github.mikephil.charting.data.PieEntry
 import com.google.firebase.auth.FirebaseAuth
 import com.mertyigit0.budgetmanager.adapters.IncomeAdapter
 import com.mertyigit0.budgetmanager.adapters.IncomeSwipeToDeleteCallback
+import com.mertyigit0.budgetmanager.data.CombinedIncome
 import com.mertyigit0.budgetmanager.data.DatabaseHelper
+import com.mertyigit0.budgetmanager.data.Income
+import com.mertyigit0.budgetmanager.data.RegularIncome
 import com.mertyigit0.budgetmanager.databinding.FragmentIncomeBinding
+import com.mertyigit0.budgetmanager.util.AlarmScheduler
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -37,6 +41,8 @@ class IncomeFragment : Fragment() {
     private var currentYear: Int = 0 // Mevcut yılı saklamak için değişken
     private var currentMonth: Int = 0 // Mevcut ayı saklamak için değişken
     private var currentWeek: Int = 0 // Mevcut haftanın numarasını saklamak için değişken
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,9 +89,11 @@ class IncomeFragment : Fragment() {
         val userData = currentUserEmail?.let { dbHelper.getUserData(it) }
         // Veritabanından tüm gelirleri al
         val incomes = userData?.let { dbHelper.getAllIncomesByUserId(it.id) }
+        val regularIncomes = userData?.let { dbHelper.getAllRegularIncomesByUserId(it.id) }
+        val combinedIncomes = regularIncomes?.let { combineIncomesAndRegularIncomes(incomes ?: listOf(), it) }
 
         // Gelir verilerini RecyclerView'a aktar
-       incomes?.let { incomeAdapter.updateIncomeList(it) }
+       combinedIncomes?.let { incomeAdapter.updateIncomeList(it) }
 
         calculateAndDisplayMonthlyIncomes(incomePieChart)
         updateMonthYearText()
@@ -183,14 +191,14 @@ class IncomeFragment : Fragment() {
         val userData = currentUserEmail?.let { dbHelper.getUserData(it) }
 
         val incomes = userData?.let { dbHelper.getAllIncomesByUserId(it.id) }
+        val regularIncomes = userData?.let { dbHelper.getAllRegularIncomesByUserId(it.id) }
+        val combinedIncomes = regularIncomes?.let { combineIncomesAndRegularIncomes(incomes ?: listOf(), it) }
 
-        incomes?.let { incomeAdapter.updateIncomeList(it) }
+        combinedIncomes?.let { incomeAdapter.updateIncomeList(it) }
 
         val monthYearTotals = mutableMapOf<String, Float>()
 
-        // currentMonth = Calendar.getInstance().get(Calendar.MONTH) + 1 // Months are 0-based in Calendar class
-
-        incomes?.forEach { income ->
+        combinedIncomes?.forEach { income ->
             val incomeMonth = getMonthFromDate(income.date)
 
             if (incomeMonth == currentMonth) {
@@ -202,18 +210,15 @@ class IncomeFragment : Fragment() {
 
         val entries = mutableListOf<PieEntry>()
 
-
-
-    // Belirli bir ay için toplam miktarı pie chart'a ekle
+        // Belirli bir ay için toplam miktarı pie chart'a ekle
         for ((categoryName, totalAmount) in monthYearTotals) {
             val categoryID = dbHelper.getIncomeCategoryIdByCategoryName(categoryName) // Kategori adından ID'yi alabilirsiniz, kendi projenize göre uyarlayın
             val entryLabel = "$categoryName ($categoryID)" // Kategori adı ve ID'sini birleştirin
             entries.add(PieEntry(totalAmount, entryLabel))
         }
 
-    // Veri setini oluştur
+        // Veri setini oluştur
         val dataSet = PieDataSet(entries, "Income")
-
 
         // Kategori renklerini dataSet'e ekle
         dataSet.colors = entries.map { entry ->
@@ -233,6 +238,7 @@ class IncomeFragment : Fragment() {
     }
 
 
+
     private fun getUserCurrency(): String {
         val dbHelper = DatabaseHelper(requireContext())
         val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
@@ -243,6 +249,55 @@ class IncomeFragment : Fragment() {
         val parts = date.split("-")
         return parts[1].toInt()
     }
+
+    fun combineIncomesAndRegularIncomes(incomes: List<Income>, regularIncomes: List<RegularIncome>): List<CombinedIncome> {
+        val combinedList = mutableListOf<CombinedIncome>()
+
+        // Gelirleri CombinedIncome türüne dönüştür ve birleştir
+        incomes.forEach { income ->
+            combinedList.add(
+                CombinedIncome(
+                    id = income.id,
+                    userId = income.userId,
+                    title = null,  // RegularIncome alanları null olacak
+                    amount = income.amount,
+                    currency = income.currency,
+                    recurrence = null,  // RegularIncome alanları null olacak
+                    date = income.date,
+                    categoryId = income.categoryId,
+                    categoryName = income.categoryName,
+                    note = income.note,
+                    createdAt = income.createdAt
+                )
+            )
+        }
+
+        // Regular gelirleri CombinedIncome türüne dönüştür ve birleştir
+        regularIncomes.forEach { regularIncome ->
+            combinedList.add(
+                CombinedIncome(
+                    id = regularIncome.id,
+                    userId = regularIncome.userId,
+                    title = regularIncome.title,
+                    amount = regularIncome.amount,
+                    currency = regularIncome.currency,
+                    recurrence = regularIncome.recurrence,
+                    date = regularIncome.date,
+                    categoryId = regularIncome.categoryId,
+                    categoryName = regularIncome.categoryName,  // RegularIncome'ı diğerlerinden ayırmak için kategori adını belirleyin
+                    note = null,  // RegularIncome alanları null olacak
+                    createdAt = ""
+                )
+            )
+        }
+
+        return combinedList
+    }
+
+
+
+
+
 
 
 }

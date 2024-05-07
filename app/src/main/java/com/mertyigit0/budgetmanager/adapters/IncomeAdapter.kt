@@ -17,10 +17,11 @@ import androidx.navigation.NavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.mertyigit0.budgetmanager.R
+import com.mertyigit0.budgetmanager.data.CombinedIncome
 import com.mertyigit0.budgetmanager.data.DatabaseHelper
 import com.mertyigit0.budgetmanager.data.Income
 
-class IncomeAdapter(val context: Context, private val incomeList: ArrayList<Income>, private val navController: NavController) :
+class IncomeAdapter(val context: Context, private val incomeList: ArrayList<CombinedIncome>, private val navController: NavController) :
     RecyclerView.Adapter<IncomeAdapter.IncomeViewHolder>() {
 
     class IncomeViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -85,13 +86,13 @@ class IncomeAdapter(val context: Context, private val incomeList: ArrayList<Inco
 
     }
 
-    fun updateIncomeList(newIncomeList: List<Income>) {
+    fun updateIncomeList(newIncomeList: List<CombinedIncome>) {
         incomeList.clear()
         incomeList.addAll(newIncomeList)
         notifyDataSetChanged()
     }
 
-    fun deleteItem(position: Int): Income {
+    fun deleteItem(position: Int):CombinedIncome {
         val deletedIncome = incomeList.removeAt(position)
         notifyItemRemoved(position)
         return deletedIncome

@@ -13,7 +13,7 @@ import java.util.Locale
 class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
     companion object {
         private const val DATABASE_NAME = "budget_manager.db"
-        private const val DATABASE_VERSION = 13
+        private const val DATABASE_VERSION = 14
 
 
         //users
@@ -140,6 +140,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         private const val COLUMN_RECURRENCE_REGULAR_INCOME = "recurrence"
         private const val COLUMN_DATE_REGULAR_INCOME = "date"
         private const val COLUMN_CATEGORY_ID_REGULAR_INCOME = "category_id"
+        private const val COLUMN_CATEGORY_NAME_REGULAR_INCOME = "category_name"
 
         //excgange rates
         private const val TABLE_EXCHANGE_RATES = "exchange_rates"
@@ -265,6 +266,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 "$COLUMN_RECURRENCE_REGULAR_INCOME TEXT," +
                 "$COLUMN_DATE_REGULAR_INCOME TEXT," +
                 "$COLUMN_CATEGORY_ID_REGULAR_INCOME INTEGER," +
+                "$COLUMN_CATEGORY_NAME_REGULAR_INCOME TEXT NOT NULL," +
+                "FOREIGN KEY($COLUMN_CATEGORY_NAME_REGULAR_INCOME) REFERENCES $TABLE_INCOME_CATEGORIES($COLUMN_NAME_INCOME_CATEGORY)," +
                 "FOREIGN KEY($COLUMN_USER_ID_REGULAR_INCOME) REFERENCES $TABLE_USERS($COLUMN_USER_ID)," +
                 "FOREIGN KEY($COLUMN_CATEGORY_ID_REGULAR_INCOME) REFERENCES $TABLE_INCOME_CATEGORIES($COLUMN_ID_INCOME_CATEGORY)" +
                 ")")
@@ -498,6 +501,62 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db.close()
         return incomesList
     }
+
+    @SuppressLint("Range")
+    fun getAllRegularIncomesByUserId(userId: Int): List<RegularIncome> {
+        val regularIncomesList = ArrayList<RegularIncome>()
+        val db = this.readableDatabase
+        val selectQuery = "SELECT * FROM $TABLE_REGULAR_INCOMES WHERE $COLUMN_USER_ID_REGULAR_INCOME = ?"
+        val cursor = db.rawQuery(selectQuery, arrayOf(userId.toString()))
+
+        if (cursor.moveToFirst()) {
+            do {
+                val regularIncome = RegularIncome(
+                    cursor.getInt(cursor.getColumnIndex(COLUMN_ID_REGULAR_INCOME)),
+                    cursor.getInt(cursor.getColumnIndex(COLUMN_USER_ID_REGULAR_INCOME)),
+                    cursor.getString(cursor.getColumnIndex(COLUMN_TITLE_REGULAR_INCOME)),
+                    cursor.getDouble(cursor.getColumnIndex(COLUMN_AMOUNT_REGULAR_INCOME)),
+                    cursor.getString(cursor.getColumnIndex(COLUMN_CURRENCY_REGULAR_INCOME)),
+                    cursor.getString(cursor.getColumnIndex(COLUMN_RECURRENCE_REGULAR_INCOME)),
+                    cursor.getString(cursor.getColumnIndex(COLUMN_DATE_REGULAR_INCOME)),
+                    cursor.getInt(cursor.getColumnIndex(COLUMN_CATEGORY_ID_REGULAR_INCOME)),
+                    cursor.getString(cursor.getColumnIndex(COLUMN_CATEGORY_NAME_REGULAR_INCOME))
+                )
+                regularIncomesList.add(regularIncome)
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        db.close()
+        return regularIncomesList
+    }
+
+    @SuppressLint("Range")
+    fun getRegularIncomeById(incomeId: Int): RegularIncome? {
+        val db = this.readableDatabase
+        var regularIncome: RegularIncome? = null
+        val query = "SELECT * FROM $TABLE_REGULAR_INCOMES WHERE $COLUMN_ID_REGULAR_INCOME = ?"
+        val selectionArgs = arrayOf(incomeId.toString())
+
+        val cursor = db.rawQuery(query, selectionArgs)
+        if (cursor.moveToFirst()) {
+            val id = cursor.getInt(cursor.getColumnIndex(COLUMN_ID_REGULAR_INCOME))
+            val userId = cursor.getInt(cursor.getColumnIndex(COLUMN_USER_ID_REGULAR_INCOME))
+            val title = cursor.getString(cursor.getColumnIndex(COLUMN_TITLE_REGULAR_INCOME))
+            val amount = cursor.getDouble(cursor.getColumnIndex(COLUMN_AMOUNT_REGULAR_INCOME))
+            val currency = cursor.getString(cursor.getColumnIndex(COLUMN_CURRENCY_REGULAR_INCOME))
+            val recurrence = cursor.getString(cursor.getColumnIndex(COLUMN_RECURRENCE_REGULAR_INCOME))
+            val date = cursor.getString(cursor.getColumnIndex(COLUMN_DATE_REGULAR_INCOME))
+            val categoryId = cursor.getInt(cursor.getColumnIndex(COLUMN_CATEGORY_ID_REGULAR_INCOME))
+            val categoryName = cursor.getString(cursor.getColumnIndex(COLUMN_CATEGORY_NAME_REGULAR_INCOME))
+
+            regularIncome = RegularIncome(id, userId, title, amount, currency, recurrence, date, categoryId, categoryName)
+        }
+        cursor.close()
+        return regularIncome
+    }
+
+
+
     @SuppressLint("Range")
     fun getAllExpensesByUserId(userId: Int): List<Expense> {
         val expensesList = ArrayList<Expense>()
@@ -1274,6 +1333,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             put(COLUMN_RECURRENCE_REGULAR_INCOME, regularIncome.recurrence)
             put(COLUMN_DATE_REGULAR_INCOME, regularIncome.date)
             put(COLUMN_CATEGORY_ID_REGULAR_INCOME, regularIncome.categoryId)
+            put(COLUMN_CATEGORY_NAME_REGULAR_INCOME, regularIncome.categoryName)
         }
 
         val db = this.writableDatabase

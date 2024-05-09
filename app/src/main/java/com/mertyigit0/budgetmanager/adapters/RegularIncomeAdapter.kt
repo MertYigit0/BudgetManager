@@ -32,13 +32,13 @@ class RegularIncomeAdapter(val context: Context, private val regularIncomeList: 
     }
 
     override fun onBindViewHolder(holder: RegularIncomeViewHolder, position: Int) {
-        val income = regularIncomeList[position]
+        val regularIncome = regularIncomeList[position]
 
-        val formattedAmount = String.format("%.2f", income.amount)
+        val formattedAmount = String.format("%.2f", regularIncome.amount)
         holder.itemView.findViewById<TextView>(R.id.textViewAmount).text = "$formattedAmount "
-        holder.itemView.findViewById<TextView>(R.id.textViewCurrency).text = income.currency
-        holder.itemView.findViewById<TextView>(R.id.textViewDate).text = income.date
-        holder.itemView.findViewById<TextView>(R.id.textViewCategory).text = income.title
+        holder.itemView.findViewById<TextView>(R.id.textViewCurrency).text = regularIncome.currency
+        holder.itemView.findViewById<TextView>(R.id.textViewDate).text = regularIncome.date
+        holder.itemView.findViewById<TextView>(R.id.textViewCategory).text = regularIncome.title
         holder.itemView.findViewById<ImageView>(R.id.menuIconIncome)
         // holder.itemView.findViewById<TextView>(R.id.textViewDescription).text = income.note
 
@@ -55,11 +55,11 @@ class RegularIncomeAdapter(val context: Context, private val regularIncomeList: 
                 when (menuItem.itemId) {
                     R.id.action_edit -> {
                         // Düzenleme işlemi
-                        val incomeId = income.id
+                        val regularIncomeId = regularIncome.id
                         val bundle = Bundle().apply {
-                            putInt("incomeId", incomeId)
+                            putInt("regularIncomeId", regularIncomeId)
                         }
-                        navController.navigate(R.id.action_incomeFragment_to_editIncomeFragment, bundle)
+                        navController.navigate(R.id.action_regularTransactionsFragment_to_editIncomeFragment, bundle)
                         true
                     }
                     else -> false

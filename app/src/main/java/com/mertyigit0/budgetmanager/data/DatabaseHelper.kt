@@ -486,6 +486,65 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         // Ekleme işlemi başarılı olduysa true döndür, aksi halde false döndür
         return result != -1L
     }
+
+
+    @SuppressLint("Range")
+    fun getRecurringPaymentById(paymentId: Int): RecurringPayment? {
+        val db = this.readableDatabase
+        var recurringPayment: RecurringPayment? = null
+        val query = "SELECT * FROM $TABLE_RECURRING_PAYMENTS WHERE $COLUMN_ID_RECURRING_PAYMENT = ?"
+        val selectionArgs = arrayOf(paymentId.toString())
+
+        val cursor = db.rawQuery(query, selectionArgs)
+        if (cursor.moveToFirst()) {
+            val id = cursor.getInt(cursor.getColumnIndex(COLUMN_ID_RECURRING_PAYMENT))
+            val userId = cursor.getInt(cursor.getColumnIndex(COLUMN_USER_ID_RECURRING_PAYMENT))
+            val title = cursor.getString(cursor.getColumnIndex(COLUMN_TITLE_RECURRING_PAYMENT))
+            val amount = cursor.getDouble(cursor.getColumnIndex(COLUMN_AMOUNT_RECURRING_PAYMENT))
+            val currency = cursor.getString(cursor.getColumnIndex(COLUMN_CURRENCY_RECURRING_PAYMENT))
+            val recurrence = cursor.getString(cursor.getColumnIndex(COLUMN_RECURRENCE_RECURRING_PAYMENT))
+            val nextPaymentDate = cursor.getString(cursor.getColumnIndex(COLUMN_NEXT_PAYMENT_DATE_RECURRING_PAYMENT))
+            val categoryId = cursor.getInt(cursor.getColumnIndex(COLUMN_CATEGORY_ID_RECURRING_PAYMENT))
+            val categoryName = cursor.getString(cursor.getColumnIndex(COLUMN_CATEGORY_NAME_RECURRING_PAYMENT))
+
+            recurringPayment = RecurringPayment(
+                id = id,
+                userId = userId,
+                title = title,
+                amount = amount,
+                currency = currency,
+                recurrence = recurrence,
+                nextPaymentDate = nextPaymentDate,
+                categoryId = categoryId,
+                categoryName = categoryName
+            )
+        }
+        cursor.close()
+        return recurringPayment
+    }
+    fun updateRecurringPayment(recurringPayment: RecurringPayment): Boolean {
+        val db = this.writableDatabase
+        val contentValues = ContentValues().apply {
+            put(COLUMN_TITLE_RECURRING_PAYMENT, recurringPayment.title)
+            put(COLUMN_AMOUNT_RECURRING_PAYMENT, recurringPayment.amount)
+            put(COLUMN_CURRENCY_RECURRING_PAYMENT, recurringPayment.currency)
+            put(COLUMN_RECURRENCE_RECURRING_PAYMENT, recurringPayment.recurrence)
+            put(COLUMN_NEXT_PAYMENT_DATE_RECURRING_PAYMENT, recurringPayment.nextPaymentDate)
+            put(COLUMN_CATEGORY_ID_RECURRING_PAYMENT, recurringPayment.categoryId)
+            put(COLUMN_CATEGORY_NAME_RECURRING_PAYMENT, recurringPayment.categoryName)
+        }
+
+        val result = db.update(
+            TABLE_RECURRING_PAYMENTS,
+            contentValues,
+            "$COLUMN_ID_RECURRING_PAYMENT = ?",
+            arrayOf(recurringPayment.id.toString())
+        )
+
+        return result != -1
+    }
+
+
     fun deleteRecurringPayment(recurringPaymentId: Long): Boolean {
         val db = this.writableDatabase
         val whereClause = "$COLUMN_ID_RECURRING_PAYMENT = ?"
@@ -605,6 +664,28 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db.close()
         return regularIncomesList
     }
+
+    fun updateRegularIncome(regularIncome: RegularIncome) {
+        val db = this.writableDatabase
+        val values = ContentValues().apply {
+            put(COLUMN_TITLE_REGULAR_INCOME, regularIncome.title)
+            put(COLUMN_AMOUNT_REGULAR_INCOME, regularIncome.amount)
+            put(COLUMN_CURRENCY_REGULAR_INCOME, regularIncome.currency)
+            put(COLUMN_RECURRENCE_REGULAR_INCOME, regularIncome.recurrence)
+            put(COLUMN_DATE_REGULAR_INCOME, regularIncome.date)
+            put(COLUMN_CATEGORY_ID_REGULAR_INCOME, regularIncome.categoryId)
+            put(COLUMN_CATEGORY_NAME_REGULAR_INCOME, regularIncome.categoryName)
+        }
+        // Güncelleme işlemi yapılır
+        db.update(
+            TABLE_REGULAR_INCOMES,
+            values,
+            "$COLUMN_ID_REGULAR_INCOME = ?",
+            arrayOf(regularIncome.id.toString())
+        )
+        db.close()
+    }
+
 
     @SuppressLint("Range")
     fun getRegularIncomeById(incomeId: Int): RegularIncome? {

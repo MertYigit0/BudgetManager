@@ -54,11 +54,11 @@ class RegularExpenseAdapter(val context: Context, private val regularExpenseList
                 when (menuItem.itemId) {
                     R.id.action_edit -> {
                         // Düzenleme işlemi
-                        val expenseId = expense.id
+                        val regularExpenseId = expense.id
                         val bundle = Bundle().apply {
-                            putInt("incomeId", expenseId)
+                            putInt("regularExpenseId", regularExpenseId)
                         }
-                        navController.navigate(R.id.action_incomeFragment_to_editIncomeFragment, bundle)
+                        navController.navigate(R.id.action_regularTransactionsFragment_to_editExpenseFragment, bundle)
                         true
                     }
                     else -> false

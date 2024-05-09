@@ -202,6 +202,9 @@
         <action
             android:id="@+id/action_editIncomeFragment_to_incomeFragment"
             app:destination="@id/incomeFragment" />
+        <action
+            android:id="@+id/action_editIncomeFragment_to_regularTransactionsFragment"
+            app:destination="@id/regularTransactionsFragment" />
     </fragment>
     <fragment
         android:id="@+id/editExpenseFragment"
@@ -211,6 +214,9 @@
         <action
             android:id="@+id/action_editExpenseFragment_to_expenseFragment"
             app:destination="@id/expenseFragment" />
+        <action
+            android:id="@+id/action_editExpenseFragment_to_regularTransactionsFragment"
+            app:destination="@id/regularTransactionsFragment" />
     </fragment>
     <fragment
         android:id="@+id/regularTransactionsFragment"
@@ -220,5 +226,11 @@
         <action
             android:id="@+id/action_regularTransactionsFragment_to_profileFragment"
             app:destination="@id/profileFragment" />
+        <action
+            android:id="@+id/action_regularTransactionsFragment_to_editExpenseFragment"
+            app:destination="@id/editExpenseFragment" />
+        <action
+            android:id="@+id/action_regularTransactionsFragment_to_editIncomeFragment"
+            app:destination="@id/editIncomeFragment" />
     </fragment>
 </navigation>

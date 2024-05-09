@@ -9,6 +9,7 @@ import androidx.navigation.Navigation
 import com.mertyigit0.budgetmanager.R
 import com.mertyigit0.budgetmanager.data.DatabaseHelper
 import com.mertyigit0.budgetmanager.data.Expense
+import com.mertyigit0.budgetmanager.data.RecurringPayment
 import com.mertyigit0.budgetmanager.databinding.FragmentEditExpenseBinding
 import com.mertyigit0.budgetmanager.databinding.FragmentEditFinancialGoalBinding
 import com.mertyigit0.budgetmanager.databinding.FragmentExpenseBinding
@@ -25,9 +26,11 @@ class EditExpenseFragment : Fragment() {
 
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-        _binding = FragmentEditExpenseBinding.inflate(inflater,container,false)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        _binding = FragmentEditExpenseBinding.inflate(inflater, container, false)
         val view = binding.root;
         return view
 
@@ -37,14 +40,21 @@ class EditExpenseFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val expenseId = arguments?.getInt("expenseId", -1)
+        val regularExpenseId = arguments?.getInt("regularExpenseId", -1)
         val dbHelper = DatabaseHelper(requireContext())
         val navController = Navigation.findNavController(requireView())
 
         var expense: Expense? = null
+        var regularExpense: RecurringPayment? = null
 
         if (expenseId != null && expenseId != -1) {
             expense = dbHelper.getExpenseById(expenseId)
         }
+
+        if (regularExpenseId != null && regularExpenseId != -1) {
+            regularExpense = dbHelper.getRecurringPaymentById(regularExpenseId)
+        }
+
 
         if (expense != null) {
             binding.amountEditText.setText(String.format("%.2f", expense.amount))
@@ -75,8 +85,37 @@ class EditExpenseFragment : Fragment() {
                 // Giderleri gösteren fragmenta geri dön
                 navController.navigate(R.id.action_editExpenseFragment_to_expenseFragment)
             }
+        } else if (regularExpense != null) {
+            binding.amountEditText.setText(String.format("%.2f", regularExpense.amount))
+            binding.editTextText.setText(regularExpense.title) // Burada düzenli ödemenin başlığını kullandım, not kısmına ne eklemek istediğinize bağlı olarak düzenleyebilirsiniz
+            binding.dateTextView.text = regularExpense.nextPaymentDate
+
+            binding.addButton.setOnClickListener {
+                val updatedAmount = binding.amountEditText.text.toString().toDouble()
+                val updatedTitle = binding.editTextText.text.toString()
+                val updatedDate = binding.dateTextView.text.toString()
+
+                // Güncellenmiş düzenli ödemeyi oluştur
+                val updatedRegularExpense = RecurringPayment(
+                    id = regularExpenseId!!, // Güncellenen düzenli ödemenin kimliği
+                    userId = regularExpense.userId,
+                    title = updatedTitle,
+                    amount = updatedAmount,
+                    currency = regularExpense.currency ?: "USD",
+                    recurrence = regularExpense.recurrence ?: "",
+                    nextPaymentDate = updatedDate,
+                    categoryId = regularExpense.categoryId,
+                    categoryName = regularExpense.categoryName ?: ""
+                )
+
+                // Veritabanında güncelleme işlemi yap
+                dbHelper.updateRecurringPayment(updatedRegularExpense)
+
+                // Giderleri gösteren fragmenta geri dön
+                navController.navigate(R.id.action_editExpenseFragment_to_expenseFragment)
+            }
         }
+
     }
-
-
 }
+

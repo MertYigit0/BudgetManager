@@ -630,6 +630,42 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         cursor.close()
         return regularIncome
     }
+    @SuppressLint("Range")
+    fun getTotalRegularIncomeByUserId(userId: Int): Double {
+        val db = this.readableDatabase
+        var totalRegularIncome = 0.0
+        val query = "SELECT $COLUMN_AMOUNT_REGULAR_INCOME FROM $TABLE_REGULAR_INCOMES WHERE $COLUMN_USER_ID_REGULAR_INCOME = ?"
+        val selectionArgs = arrayOf(userId.toString())
+
+        val cursor = db.rawQuery(query, selectionArgs)
+        if (cursor.moveToFirst()) {
+            do {
+                val amount = cursor.getDouble(cursor.getColumnIndex(COLUMN_AMOUNT_REGULAR_INCOME))
+                totalRegularIncome += amount
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return totalRegularIncome
+    }
+    @SuppressLint("Range")
+    fun getTotalRecurringPaymentByUserId(userId: Int): Double {
+        val db = this.readableDatabase
+        var totalRecurringPayment = 0.0
+        val query = "SELECT $COLUMN_AMOUNT_RECURRING_PAYMENT FROM $TABLE_RECURRING_PAYMENTS WHERE $COLUMN_USER_ID_RECURRING_PAYMENT = ?"
+        val selectionArgs = arrayOf(userId.toString())
+
+        val cursor = db.rawQuery(query, selectionArgs)
+        if (cursor.moveToFirst()) {
+            do {
+                val amount = cursor.getDouble(cursor.getColumnIndex(COLUMN_AMOUNT_RECURRING_PAYMENT))
+                totalRecurringPayment += amount
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return totalRecurringPayment
+    }
+
+
 
 
 

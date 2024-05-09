@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
 import androidx.core.view.children
+import androidx.core.view.isVisible
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.button.MaterialButtonToggleGroup
@@ -75,6 +76,12 @@ class AddExpenseFragment : Fragment() {
         binding.regularExpenseCheckBox.setOnCheckedChangeListener { buttonView, isChecked ->
             if (isChecked) {
                 addRecurringPayment()
+                binding.regularExpenseSpinner.visibility = View.VISIBLE
+                binding.titleRegularExpenseEditText.visibility = View.VISIBLE
+
+            }else{
+                binding.regularExpenseSpinner.visibility = View.GONE
+                binding.titleRegularExpenseEditText.visibility = View.GONE
             }
         }
 
@@ -254,7 +261,7 @@ class AddExpenseFragment : Fragment() {
 
     private fun addRecurringPayment() {
         binding.addButton.setOnClickListener {
-            val title = getSelectedCategory()
+            val title = binding.titleRegularExpenseEditText.text.toString()
             val amount = binding.amountEditText.text.toString().toDoubleOrNull() ?: 0.0
             val currency = binding.currencySpinner.selectedItem.toString()
             val recurrence = binding.regularExpenseSpinner.selectedItem.toString()

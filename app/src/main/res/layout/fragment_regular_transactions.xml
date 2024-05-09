@@ -7,20 +7,52 @@
     tools:context=".ui.RegularTransactionsFragment">
 
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/regularIncomeRecyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        tools:listitem="@layout/item_regular_income"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/regularExpenseRecyclerView" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/regularExpenseRecyclerView"
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/regularIncomeRecyclerView"
-        app:layout_constraintBottom_toBottomOf="parent"
-        tools:listitem="@layout/item_regular_expense"/>
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/totalRegularIncomes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Total Regular Incomes"
+            android:textSize="18sp"
+            android:gravity="center"
+            android:padding="8dp" />
+
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/regularIncomeRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            tools:listitem="@layout/item_regular_income" />
+
+
+        <TextView
+            android:id="@+id/totalRegularExpenses"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Total Recurring Payments"
+            android:textSize="18sp"
+            android:gravity="center"
+            android:padding="8dp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/regularExpenseRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            tools:listitem="@layout/item_regular_expense"/>
+
+
+
+    </LinearLayout>
+
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

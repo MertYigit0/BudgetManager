@@ -38,7 +38,7 @@ class RegularIncomeAdapter(val context: Context, private val regularIncomeList: 
         holder.itemView.findViewById<TextView>(R.id.textViewAmount).text = "$formattedAmount "
         holder.itemView.findViewById<TextView>(R.id.textViewCurrency).text = income.currency
         holder.itemView.findViewById<TextView>(R.id.textViewDate).text = income.date
-        holder.itemView.findViewById<TextView>(R.id.textViewCategory).text = income.categoryName
+        holder.itemView.findViewById<TextView>(R.id.textViewCategory).text = income.title
         holder.itemView.findViewById<ImageView>(R.id.menuIconIncome)
         // holder.itemView.findViewById<TextView>(R.id.textViewDescription).text = income.note
 

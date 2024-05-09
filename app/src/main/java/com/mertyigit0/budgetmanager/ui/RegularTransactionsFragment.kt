@@ -69,6 +69,14 @@ class RegularTransactionsFragment : Fragment() {
         val regularIncomes = userData?.let { dbHelper.getAllRegularIncomesByUserId(it.id) }
         regularIncomes?.let { regularIncomeAdapter.updateIncomeList(it) }
 
+        if (userData != null) {
+            val totalIncome = dbHelper.getTotalRegularIncomeByUserId(userData.id)
+            val formattedTotalIncome = String.format("%.2f", totalIncome) // İki ondalık haneyle biçimlendirilmiş bir string oluşturur
+            val totalIncomeText = "Total Regular Income: $formattedTotalIncome"
+            binding.totalRegularIncomes.text = totalIncomeText
+        }
+
+
 
 
 
@@ -78,6 +86,13 @@ class RegularTransactionsFragment : Fragment() {
 
         val regularExpenses = userData?.let { dbHelper.getAllRecurringPaymentsByUserId(it.id) }
         regularExpenses?.let { regularExpenseAdapter.updateExpenseList(it) }
+
+        if (userData != null) {
+            val totalRecurringPayment = dbHelper.getTotalRecurringPaymentByUserId(userData.id)
+            val formattedTotalRecurringPayment = String.format("%.2f", totalRecurringPayment)
+            val totalRecurringPaymentText = "Total Recurring Payments: $formattedTotalRecurringPayment"
+            binding.totalRegularExpenses.text = totalRecurringPaymentText
+        }
 
 
     }

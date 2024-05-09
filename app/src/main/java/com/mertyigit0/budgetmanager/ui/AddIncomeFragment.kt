@@ -92,6 +92,11 @@ class AddIncomeFragment : Fragment() {
         binding.regularIncomeCheckBox.setOnCheckedChangeListener { buttonView, isChecked ->
             if (isChecked) {
                 addRegularIncome()
+                binding.regularIncomeSpinner.visibility = View.VISIBLE
+                binding.titleRegularIncomeEditText.visibility = View.VISIBLE
+            }else{
+                binding.regularIncomeSpinner.visibility = View.GONE
+                binding.titleRegularIncomeEditText.visibility = View.GONE
             }
         }
         binding.selectDateButton.setOnClickListener {
@@ -267,7 +272,7 @@ class AddIncomeFragment : Fragment() {
 
     private fun addRegularIncome() {
         binding.addButton.setOnClickListener {
-            val title = getSelectedCategory()
+            val title = binding.titleRegularIncomeEditText.text.toString()
             val amount = binding.amountEditText.text.toString().toDoubleOrNull() ?: 0.0
             val currency = binding.currencySpinner.selectedItem.toString()
             val recurrence = binding.regularIncomeSpinner.selectedItem.toString()

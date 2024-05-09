@@ -37,7 +37,7 @@ class RegularExpenseAdapter(val context: Context, private val regularExpenseList
         holder.itemView.findViewById<TextView>(R.id.textViewAmount).text = "$formattedAmount "
         holder.itemView.findViewById<TextView>(R.id.textViewCurrency).text = expense.currency
         holder.itemView.findViewById<TextView>(R.id.textViewDate).text = expense.nextPaymentDate
-        holder.itemView.findViewById<TextView>(R.id.textViewCategory).text = expense.categoryName
+        holder.itemView.findViewById<TextView>(R.id.textViewCategory).text = expense.title
         holder.itemView.findViewById<ImageView>(R.id.menuIconIncome)
         // holder.itemView.findViewById<TextView>(R.id.textViewDescription).text = income.note
 

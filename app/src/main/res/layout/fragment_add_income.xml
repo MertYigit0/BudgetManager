@@ -120,29 +120,37 @@
         app:layout_constraintStart_toEndOf="@+id/dateTextView"
         app:layout_constraintTop_toBottomOf="@+id/currencySpinner" />
 
-    <CheckBox
-        android:id="@+id/regularIncomeCheckBox"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Is regular ?"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@+id/amountEditText">
 
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.374"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/amountEditText"
-        app:layout_constraintVertical_bias="0.076" />
+        <!-- CheckBox -->
+        <CheckBox
+            android:id="@+id/regularIncomeCheckBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Is regular ?" />
 
-    <Spinner
-        android:id="@+id/regularIncomeSpinner"
-        android:layout_width="194dp"
-        android:layout_height="59dp"
-        android:entries="@array/regular_income_options"
+        <!-- Spinner -->
+        <Spinner
+            android:id="@+id/regularIncomeSpinner"
+            android:layout_width="194dp"
+            android:layout_height="59dp"
+            android:visibility="gone"
+            android:entries="@array/regular_income_options" />
 
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.397"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/regularIncomeCheckBox"
-        app:layout_constraintVertical_bias="0.0" />
+        <!-- EditText -->
+        <EditText
+            android:id="@+id/titleRegularIncomeEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:hint="Title"/>
+
+    </LinearLayout>
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -17,12 +17,13 @@ import androidx.navigation.NavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.mertyigit0.budgetmanager.R
+import com.mertyigit0.budgetmanager.data.CombinedExpense
 import com.mertyigit0.budgetmanager.data.DatabaseHelper
 import com.mertyigit0.budgetmanager.data.Expense
 
 
 
-class ExpenseAdapter(val context: Context, private val expenseList: ArrayList<Expense>, private val navController: NavController) :
+class ExpenseAdapter(val context: Context, private val expenseList: ArrayList<CombinedExpense>, private val navController: NavController) :
     RecyclerView.Adapter<ExpenseAdapter.ExpenseViewHolder>() {
 
     class ExpenseViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
@@ -86,12 +87,12 @@ class ExpenseAdapter(val context: Context, private val expenseList: ArrayList<Ex
 
     }
 
-    fun updateExpenseList(newExpenseList: List<Expense>) {
+    fun updateExpenseList(newExpenseList: List<CombinedExpense>) {
         expenseList.clear()
         expenseList.addAll(newExpenseList)
         notifyDataSetChanged()
     }
-    fun deleteItem(position: Int): Expense {
+    fun deleteItem(position: Int): CombinedExpense {
         val deletedExpense = expenseList.removeAt(position)
         notifyItemRemoved(position)
         return deletedExpense
@@ -118,7 +119,17 @@ class ExpenseSwipeToDeleteCallback(private val adapter: ExpenseAdapter) :
         val position = viewHolder.adapterPosition
         val deletedExpense = adapter.deleteItem(position) // Adapter ile ilişkilendirilmiş ExpenseAdapter sınıfından deleteItem fonksiyonunu çağırın
         val dbHelper = DatabaseHelper(adapter.context) // Veritabanı işlemleri için gerekli olan context adapter'dan alınmalıdır.
-        val isDeletedFromDatabase = dbHelper.deleteExpense(deletedExpense.id.toLong())
+
+
+        val isDeletedFromDatabase = if (deletedExpense.recurrence == null) {
+            // Eğer recurrence değeri null ise, deleteRegularIncome fonksiyonunu çağır
+            dbHelper.deleteExpense(deletedExpense.id.toLong())
+        } else {
+            // Eğer recurrence değeri null değilse, deleteIncome fonksiyonunu çağır
+            dbHelper.deleteRecurringPayment(deletedExpense.id.toLong())
+        }
+
+
         if (!isDeletedFromDatabase) {
             // SQLite'dan silme işlemi başarısız oldu, geri almayı düşünebilirsiniz
         }else {

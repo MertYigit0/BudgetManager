@@ -13,7 +13,7 @@ import java.util.Locale
 class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
     companion object {
         private const val DATABASE_NAME = "budget_manager.db"
-        private const val DATABASE_VERSION = 14
+        private const val DATABASE_VERSION = 15
 
 
         //users
@@ -88,6 +88,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         private const val COLUMN_RECURRENCE_RECURRING_PAYMENT = "recurrence"
         private const val COLUMN_NEXT_PAYMENT_DATE_RECURRING_PAYMENT = "next_payment_date"
         private const val COLUMN_CATEGORY_ID_RECURRING_PAYMENT = "category_id"
+        private const val COLUMN_CATEGORY_NAME_RECURRING_PAYMENT = "category_name"
 
         //Debts
         private const val TABLE_DEBTS = "debts"
@@ -240,7 +241,11 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 "$COLUMN_RECURRENCE_RECURRING_PAYMENT TEXT," +
                 "$COLUMN_NEXT_PAYMENT_DATE_RECURRING_PAYMENT TEXT," +
                 "$COLUMN_CATEGORY_ID_RECURRING_PAYMENT INTEGER," +
-                "FOREIGN KEY($COLUMN_USER_ID_RECURRING_PAYMENT) REFERENCES $TABLE_USERS($COLUMN_USER_ID))")
+                "$COLUMN_CATEGORY_NAME_RECURRING_PAYMENT TEXT NOT NULL," +
+                "FOREIGN KEY($COLUMN_CATEGORY_NAME_RECURRING_PAYMENT) REFERENCES $TABLE_INCOME_CATEGORIES($COLUMN_NAME_INCOME_CATEGORY)," +
+                "FOREIGN KEY($COLUMN_USER_ID_RECURRING_PAYMENT) REFERENCES $TABLE_USERS($COLUMN_USER_ID)," +
+                "FOREIGN KEY($COLUMN_CATEGORY_ID_RECURRING_PAYMENT) REFERENCES $TABLE_INCOME_CATEGORIES($COLUMN_ID_INCOME_CATEGORY))")
+
         db?.execSQL(CREATE_RECURRING_PAYMENTS_TABLE)
 
         val CREATE_DEBTS_TABLE = ("CREATE TABLE $TABLE_DEBTS (" +
@@ -462,6 +467,37 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         return expense
     }
 
+    fun addRecurringPayment(recurringPayment: RecurringPayment): Boolean {
+        val db = this.writableDatabase
+        val contentValues = ContentValues()
+
+        contentValues.put(COLUMN_USER_ID_RECURRING_PAYMENT, recurringPayment.userId)
+        contentValues.put(COLUMN_TITLE_RECURRING_PAYMENT, recurringPayment.title)
+        contentValues.put(COLUMN_AMOUNT_RECURRING_PAYMENT, recurringPayment.amount)
+        contentValues.put(COLUMN_CURRENCY_RECURRING_PAYMENT, recurringPayment.currency)
+        contentValues.put(COLUMN_RECURRENCE_RECURRING_PAYMENT, recurringPayment.recurrence)
+        contentValues.put(COLUMN_NEXT_PAYMENT_DATE_RECURRING_PAYMENT, recurringPayment.nextPaymentDate)
+        contentValues.put(COLUMN_CATEGORY_ID_RECURRING_PAYMENT, recurringPayment.categoryId)
+        contentValues.put(COLUMN_CATEGORY_NAME_RECURRING_PAYMENT, recurringPayment.categoryName)
+
+        // Tabloya veriyi ekle
+        val result = db.insert(TABLE_RECURRING_PAYMENTS, null, contentValues)
+
+        // Ekleme işlemi başarılı olduysa true döndür, aksi halde false döndür
+        return result != -1L
+    }
+    fun deleteRecurringPayment(recurringPaymentId: Long): Boolean {
+        val db = this.writableDatabase
+        val whereClause = "$COLUMN_ID_RECURRING_PAYMENT = ?"
+        val whereArgs = arrayOf(recurringPaymentId.toString())
+
+        // Tablodan veriyi sil
+        val result = db.delete(TABLE_RECURRING_PAYMENTS, whereClause, whereArgs)
+
+        // Silme işlemi başarılı olduysa true döndür, aksi halde false döndür
+        return result > 0
+    }
+
 
 
 
@@ -472,6 +508,46 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db.close()
         return success > 0
     }
+
+
+
+    fun deleteRegularIncome(regularIncomeId: Long): Boolean {
+        val db = this.writableDatabase
+        val success = db.delete(TABLE_REGULAR_INCOMES, "$COLUMN_ID_REGULAR_INCOME=?", arrayOf(regularIncomeId.toString()))
+        db.close()
+        return success > 0
+    }
+
+
+    @SuppressLint("Range")
+    fun getAllRecurringPaymentsByUserId(userId: Int): List<RecurringPayment> {
+        val recurringPayments = mutableListOf<RecurringPayment>()
+        val db = this.readableDatabase
+        val selectQuery = "SELECT * FROM $TABLE_RECURRING_PAYMENTS WHERE $COLUMN_USER_ID_RECURRING_PAYMENT = ?"
+        val cursor = db.rawQuery(selectQuery, arrayOf(userId.toString()))
+
+        cursor.use { cursor ->
+            // Cursor üzerinde dönerek verileri al
+            while (cursor.moveToNext()) {
+                val id = cursor.getInt(cursor.getColumnIndex(COLUMN_ID_RECURRING_PAYMENT))
+                val title = cursor.getString(cursor.getColumnIndex(COLUMN_TITLE_RECURRING_PAYMENT))
+                val amount = cursor.getDouble(cursor.getColumnIndex(COLUMN_AMOUNT_RECURRING_PAYMENT))
+                val currency = cursor.getString(cursor.getColumnIndex(COLUMN_CURRENCY_RECURRING_PAYMENT))
+                val recurrence = cursor.getString(cursor.getColumnIndex(COLUMN_RECURRENCE_RECURRING_PAYMENT))
+                val nextPaymentDate = cursor.getString(cursor.getColumnIndex(COLUMN_NEXT_PAYMENT_DATE_RECURRING_PAYMENT))
+                val categoryId = cursor.getInt(cursor.getColumnIndex(COLUMN_CATEGORY_ID_RECURRING_PAYMENT))
+                val categoryName = cursor.getString(cursor.getColumnIndex(COLUMN_CATEGORY_NAME_RECURRING_PAYMENT))
+
+                // Tekrarlayan ödeme nesnesini oluştur ve listeye ekle
+                val recurringPayment = RecurringPayment(id, userId, title, amount, currency, recurrence, nextPaymentDate, categoryId, categoryName )
+                recurringPayments.add(recurringPayment)
+            }
+        }
+
+        return recurringPayments
+    }
+
+
 
 
     @SuppressLint("Range")

@@ -123,6 +123,9 @@
         <action
             android:id="@+id/action_profileFragment_to_settingsFragment"
             app:destination="@id/settingsFragment" />
+        <action
+            android:id="@+id/action_profileFragment_to_regularTransactionsFragment"
+            app:destination="@id/regularTransactionsFragment" />
     </fragment>
     <fragment
         android:id="@+id/currencyFragment"
@@ -208,5 +211,14 @@
         <action
             android:id="@+id/action_editExpenseFragment_to_expenseFragment"
             app:destination="@id/expenseFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/regularTransactionsFragment"
+        android:name="com.mertyigit0.budgetmanager.ui.RegularTransactionsFragment"
+        android:label="fragment_regular_transactions"
+        tools:layout="@layout/fragment_regular_transactions" >
+        <action
+            android:id="@+id/action_regularTransactionsFragment_to_profileFragment"
+            app:destination="@id/profileFragment" />
     </fragment>
 </navigation>

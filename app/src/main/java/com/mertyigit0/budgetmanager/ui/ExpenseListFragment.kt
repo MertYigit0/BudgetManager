@@ -11,8 +11,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import com.mertyigit0.budgetmanager.R
 import com.mertyigit0.budgetmanager.adapters.ExpenseAdapter
+import com.mertyigit0.budgetmanager.data.CombinedExpense
 import com.mertyigit0.budgetmanager.data.DatabaseHelper
 import com.mertyigit0.budgetmanager.data.Expense
+import com.mertyigit0.budgetmanager.data.RecurringPayment
 import com.mertyigit0.budgetmanager.databinding.FragmentExpenseListBinding
 
 class ExpenseListFragment : Fragment() {
@@ -55,8 +57,10 @@ class ExpenseListFragment : Fragment() {
         val userData = currentUserEmail?.let { dbHelper.getUserData(it) }
         // Veritabanından tüm gelirleri al
         val expenses = userData?.let { dbHelper.getAllExpensesByUserId(it.id) }
+        val regularExpenses = userData?.let { dbHelper.getAllRecurringPaymentsByUserId(it.id) }
+        val combinedExpenses =  regularExpenses?.let { combineExpensesAndRecurringPayments(expenses ?: listOf(), it) }
         // Gelir verilerini RecyclerView'a aktar
-        expenses?.let { expenseAdapter.updateExpenseList(it) }
+        combinedExpenses?.let { expenseAdapter.updateExpenseList(it) }
 
 
 
@@ -68,7 +72,7 @@ class ExpenseListFragment : Fragment() {
                 val selectedType = parent?.getItemAtPosition(position).toString()
 
                 // Gelirleri seçilen tipe göre yeniden düzenle ve güncelle
-                val sortedExpenses = sortExpensesByType(selectedType, expenses ?: listOf())
+                val sortedExpenses = sortExpensesByType(selectedType, combinedExpenses ?: listOf())
                expenseAdapter.updateExpenseList(sortedExpenses)
             }
 
@@ -81,7 +85,7 @@ class ExpenseListFragment : Fragment() {
 
     }
 
-    private fun sortExpensesByType(type: String, expenses: List<Expense>): List<Expense> {
+    private fun sortExpensesByType(type: String, expenses: List<CombinedExpense>): List<CombinedExpense> {
         return when (type) {
             "By Date" -> expenses.sortedBy { it.date }
             "By Amount" -> expenses.sortedByDescending { it.amount }
@@ -90,4 +94,51 @@ class ExpenseListFragment : Fragment() {
             else -> expenses // Herhangi bir geçerli sıralama türü yoksa, orijinal listeyi döndür
         }
     }
+
+
+
+    fun combineExpensesAndRecurringPayments(expenses: List<Expense>, recurringPayments: List<RecurringPayment>): List<CombinedExpense> {
+        val combinedList = mutableListOf<CombinedExpense>()
+
+        // Giderleri CombinedExpense türüne dönüştür ve birleştir
+        expenses.forEach { expense ->
+            combinedList.add(
+                CombinedExpense(
+                    id = expense.id,
+                    userId = expense.userId,
+                    title = null,  // RecurringPayment alanları null olacak
+                    amount = expense.amount,
+                    currency = expense.currency,
+                    recurrence = null,  // RecurringPayment alanları null olacak
+                    date = expense.date,
+                    categoryId = expense.categoryId,
+                    categoryName = expense.categoryName,
+                    note = expense.note,
+                    createdAt = expense.createdAt
+                )
+            )
+        }
+
+        // Tekrarlayan ödemeleri CombinedExpense türüne dönüştür ve birleştir
+        recurringPayments.forEach { recurringPayment ->
+            combinedList.add(
+                CombinedExpense(
+                    id = recurringPayment.id,
+                    userId = recurringPayment.userId,
+                    title = recurringPayment.title,
+                    amount = recurringPayment.amount,
+                    currency = recurringPayment.currency,
+                    recurrence = recurringPayment.recurrence,
+                    date = recurringPayment.nextPaymentDate,  // Tekrarlayan ödemenin sonraki ödeme tarihini alın
+                    categoryId = recurringPayment.categoryId,
+                    categoryName = recurringPayment.categoryName,  // Tekrarlayan ödemeleri diğerlerinden ayırmak için boş bir kategori adı belirleyin
+                    note = null,  // Tekrarlayan ödeme alanları null olacak
+                    createdAt = ""
+                )
+            )
+        }
+
+        return combinedList
+    }
+
 }

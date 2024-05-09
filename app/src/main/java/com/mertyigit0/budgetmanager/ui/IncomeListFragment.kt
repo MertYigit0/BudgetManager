@@ -11,8 +11,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import com.mertyigit0.budgetmanager.R
 import com.mertyigit0.budgetmanager.adapters.IncomeAdapter
+import com.mertyigit0.budgetmanager.data.CombinedIncome
 import com.mertyigit0.budgetmanager.data.DatabaseHelper
 import com.mertyigit0.budgetmanager.data.Income
+import com.mertyigit0.budgetmanager.data.RegularIncome
 import com.mertyigit0.budgetmanager.databinding.FragmentIncomeBinding
 import com.mertyigit0.budgetmanager.databinding.FragmentIncomeListBinding
 
@@ -63,8 +65,11 @@ class IncomeListFragment : Fragment() {
         val userData = currentUserEmail?.let { dbHelper.getUserData(it) }
         // Veritabanından tüm gelirleri al
         val incomes = userData?.let { dbHelper.getAllIncomesByUserId(it.id) }
+        val regularIncomes = userData?.let { dbHelper.getAllRegularIncomesByUserId(it.id) }
+        val combinedIncomes = regularIncomes?.let { combineIncomesAndRegularIncomes(incomes ?: listOf(), it) }
+
         // Gelir verilerini RecyclerView'a aktar
-      //  incomes?.let { incomeAdapter.updateIncomeList(it) }
+        combinedIncomes?.let { incomeAdapter.updateIncomeList(it) }
 
 
 
@@ -76,8 +81,8 @@ class IncomeListFragment : Fragment() {
                 val selectedType = parent?.getItemAtPosition(position).toString()
 
                 // Gelirleri seçilen tipe göre yeniden düzenle ve güncelle
-                val sortedIncomes = sortIncomesByType(selectedType, incomes ?: listOf())
-              //  incomeAdapter.updateIncomeList(sortedIncomes)
+                val sortedIncomes = sortIncomesByType(selectedType, combinedIncomes ?: listOf())
+               incomeAdapter.updateIncomeList(sortedIncomes)
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -89,7 +94,7 @@ class IncomeListFragment : Fragment() {
 
     }
 
-    private fun sortIncomesByType(type: String, incomes: List<Income>): List<Income> {
+    private fun sortIncomesByType(type: String, incomes: List<CombinedIncome>): List<CombinedIncome> {
         return when (type) {
             "By Date" -> incomes.sortedBy { it.date }
             "By Amount" -> incomes.sortedByDescending { it.amount }
@@ -98,6 +103,52 @@ class IncomeListFragment : Fragment() {
             else -> incomes // Herhangi bir geçerli sıralama türü yoksa, orijinal listeyi döndür
         }
     }
+
+
+    fun combineIncomesAndRegularIncomes(incomes: List<Income>, regularIncomes: List<RegularIncome>): List<CombinedIncome> {
+        val combinedList = mutableListOf<CombinedIncome>()
+
+        // Gelirleri CombinedIncome türüne dönüştür ve birleştir
+        incomes.forEach { income ->
+            combinedList.add(
+                CombinedIncome(
+                    id = income.id,
+                    userId = income.userId,
+                    title = null,  // RegularIncome alanları null olacak
+                    amount = income.amount,
+                    currency = income.currency,
+                    recurrence = null,  // RegularIncome alanları null olacak
+                    date = income.date,
+                    categoryId = income.categoryId,
+                    categoryName = income.categoryName,
+                    note = income.note,
+                    createdAt = income.createdAt
+                )
+            )
+        }
+
+        // Regular gelirleri CombinedIncome türüne dönüştür ve birleştir
+        regularIncomes.forEach { regularIncome ->
+            combinedList.add(
+                CombinedIncome(
+                    id = regularIncome.id,
+                    userId = regularIncome.userId,
+                    title = regularIncome.title,
+                    amount = regularIncome.amount,
+                    currency = regularIncome.currency,
+                    recurrence = regularIncome.recurrence,
+                    date = regularIncome.date,
+                    categoryId = regularIncome.categoryId,
+                    categoryName = regularIncome.categoryName,  // RegularIncome'ı diğerlerinden ayırmak için kategori adını belirleyin
+                    note = null,  // RegularIncome alanları null olacak
+                    createdAt = ""
+                )
+            )
+        }
+
+        return combinedList
+    }
+
 }
 
 

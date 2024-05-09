@@ -222,14 +222,48 @@ class AddIncomeFragment : Fragment() {
         val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
         return currentUserEmail?.let { dbHelper.getUserData(it)?.currency } ?: "USD" // Varsayılan olarak USD kullan
     }
-    private fun addRegularIncomeToDatabase(title: String, amount: Double, currency: String, recurrence: String, date: String, categoryId: Int,category : String): Boolean {
+    private fun addRegularIncomeToDatabase(title: String, amount: Double, currency: String, recurrence: String, date: String, categoryId: Int, category: String, userCurrency: String): Boolean {
         val dbHelper = DatabaseHelper(requireContext())
         val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
         val userId = currentUserEmail?.let { dbHelper.getUserData(it) }?.id ?: -1
-        val regularIncome = RegularIncome(id = 0, userId = userId, title = title, amount = amount, currency = currency, recurrence = recurrence, date = date, categoryId = categoryId, categoryName = category)
+
+        // İlk olarak, gelen miktarı dolar cinsine dönüştür
+        val amountInUSD = if (currency == "USD") {
+            amount // Eğer para birimi zaten USD ise dönüştürme işlemi yapma
+        } else {
+            val exchangeRateToUSD = dbHelper.getExchangeRate(currency)
+            amount / exchangeRateToUSD
+        }
+
+        // Şimdi, dönüştürülen miktarı kullanıcının seçtiği para birimine dönüştür
+        val convertedAmount = if (userCurrency == "USD") {
+            amountInUSD // Eğer kullanıcı para birimi USD ise dönüştürme işlemi yapma
+        } else {
+            val exchangeRateToUserCurrency = dbHelper.getExchangeRate(userCurrency)
+            amountInUSD * exchangeRateToUserCurrency
+        }
+
+        // Dönüştürülen miktarı en fazla iki basamaklı bir string olarak biçimlendir
+        val formattedAmount = "%.2f".format(convertedAmount.toDouble())
+
+        // Dönüştürülen miktar ve para birimini ekranda göstermek için string oluştur
+        val equivalentAmountText = "$formattedAmount $userCurrency"
+
+        val regularIncome = RegularIncome(
+            id = 0,
+            userId = userId,
+            title = title,
+            amount = formattedAmount.toDouble(),
+            currency = userCurrency,
+            recurrence = recurrence,
+            date = date,
+            categoryId = categoryId,
+            categoryName = category
+        )
 
         return dbHelper.addRegularIncome(regularIncome)
     }
+
 
     private fun addRegularIncome() {
         binding.addButton.setOnClickListener {
@@ -240,6 +274,7 @@ class AddIncomeFragment : Fragment() {
             val date = getCurrentDate()
             val category = getSelectedCategory()
             val categoryId = getSelectedCategoryId()
+            val userCurrency = getUserCurrency()
 
             if (categoryId.equals(-1)) {
                 showSnackbar("Please select a category.")
@@ -250,7 +285,7 @@ class AddIncomeFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            if (addRegularIncomeToDatabase(title, amount, currency, recurrence, date, categoryId,category)) {
+            if (addRegularIncomeToDatabase(title, amount, currency, recurrence, date, categoryId,category,userCurrency)) {
                 showSnackbar("Regular income added: $amount $currency")
                 findNavController().navigate(R.id.action_addIncomeFragment_to_incomeFragment)
             } else {

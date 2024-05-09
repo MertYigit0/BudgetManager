@@ -119,16 +119,23 @@ class IncomeSwipeToDeleteCallback(private val adapter: IncomeAdapter) :
         val position = viewHolder.adapterPosition
         val deletedIncome = adapter.deleteItem(position) // Adapter ile ilişkilendirilmiş IncomeAdapter sınıfından deleteItem fonksiyonunu çağırın
         val dbHelper = DatabaseHelper(adapter.context) // Veritabanı işlemleri için gerekli olan context adapter'dan alınmalıdır.
-        val isDeletedFromDatabase = dbHelper.deleteIncome(deletedIncome.id.toLong())
-        if (!isDeletedFromDatabase) {
-            // SQLite'dan silme işlemi başarısız oldu, geri almayı düşünebilirsiniz
-        }else {
-            // Silme işlemi başarılı oldu, PieChart'ı güncelle
 
+        val isDeletedFromDatabase = if (deletedIncome.recurrence == null) {
+            // Eğer recurrence değeri null ise, deleteRegularIncome fonksiyonunu çağır
+            dbHelper.deleteIncome(deletedIncome.id.toLong())
+        } else {
+            // Eğer recurrence değeri null değilse, deleteIncome fonksiyonunu çağır
+            dbHelper.deleteRegularIncome(deletedIncome.id.toLong())
         }
 
+        if (!isDeletedFromDatabase) {
 
+        } else {
+            // Silme işlemi başarılı oldu, PieChart'ı güncelle
+        }
     }
+
+
     override fun onChildDraw(
         c: Canvas,
         recyclerView: RecyclerView,

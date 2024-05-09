@@ -113,7 +113,9 @@ class ProfileFragment : Fragment() {
             dialog.show()
         }
 
-
+        binding.itemAccount.setOnClickListener{
+            navController.navigate(R.id.action_profileFragment_to_regularTransactionsFragment)
+        }
         binding.itemSettings.setOnClickListener{
             navController.navigate(R.id.action_profileFragment_to_settingsFragment)
         }

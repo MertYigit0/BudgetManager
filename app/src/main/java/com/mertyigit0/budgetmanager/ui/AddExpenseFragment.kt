@@ -20,6 +20,7 @@ import com.mertyigit0.budgetmanager.R
 import com.mertyigit0.budgetmanager.data.BudgetAlert
 import com.mertyigit0.budgetmanager.data.DatabaseHelper
 import com.mertyigit0.budgetmanager.data.Expense
+import com.mertyigit0.budgetmanager.data.RecurringPayment
 import com.mertyigit0.budgetmanager.databinding.FragmentAddExpenseBinding
 import java.math.RoundingMode
 import java.text.SimpleDateFormat
@@ -70,6 +71,14 @@ class AddExpenseFragment : Fragment() {
         toggleButtonGroup = view.findViewById(R.id.toggleButtonGroup)
 
         setupToggleButtonGroup()
+
+        binding.regularExpenseCheckBox.setOnCheckedChangeListener { buttonView, isChecked ->
+            if (isChecked) {
+                addRecurringPayment()
+            }
+        }
+
+
         addExpense()
 
 
@@ -188,6 +197,90 @@ class AddExpenseFragment : Fragment() {
             }
         }
     }
+
+
+    private fun addRecurringPaymentToDatabase(title: String, amount: Double, currency: String, recurrence: String, nextPaymentDate: String, categoryId: Int, category: String, userCurrency: String): Boolean {
+        val dbHelper = DatabaseHelper(requireContext())
+        val userId = currentUserEmail?.let { dbHelper.getUserData(it) }?.id ?: -1
+
+        // İlk olarak, gelen miktarı dolar cinsine dönüştür
+        val amountInUSD = if (currency == "USD") {
+            amount // Eğer para birimi zaten USD ise dönüştürme işlemi yapma
+        } else {
+            val exchangeRateToUSD = dbHelper.getExchangeRate(currency)
+            amount / exchangeRateToUSD
+        }
+
+        // Şimdi, dönüştürülen miktarı kullanıcının seçtiği para birimine dönüştür
+        val convertedAmount = if (userCurrency == "USD") {
+            amountInUSD // Eğer kullanıcı para birimi USD ise dönüştürme işlemi yapma
+        } else {
+            val exchangeRateToUserCurrency = dbHelper.getExchangeRate(userCurrency)
+            amountInUSD * exchangeRateToUserCurrency
+        }
+
+        // Dönüştürülen miktarı en fazla iki basamaklı bir string olarak biçimlendir
+        val formattedAmount = "%.2f".format(convertedAmount.toDouble())
+
+        // Dönüştürülen miktar ve para birimini ekranda göstermek için string oluştur
+        val equivalentAmountText = "$formattedAmount $userCurrency"
+
+        val recurringPayment = RecurringPayment(
+            id = 0,
+            userId = userId,
+            title = title,
+            amount = formattedAmount.toDouble(),
+            currency = userCurrency,
+            recurrence = recurrence,
+            nextPaymentDate = nextPaymentDate,
+            categoryId = categoryId,
+            categoryName = category
+        )
+
+        val databaseHelper = DatabaseHelper(requireContext())
+
+        val isSuccess = databaseHelper.addRecurringPayment(recurringPayment)
+
+        // Eğer eklenme başarılı ise
+        if (isSuccess) {
+            // Snackbar'da dönüştürülmüş miktarı ve kullanıcı para birimini göster
+            showSnackbar("Recurring payment added: $amount $currency (Equivalent: $equivalentAmountText)")
+        } else {
+            // Ekleme başarısız olduysa Snackbar göster
+            showSnackbar("Failed to add recurring payment.")
+        }
+        return isSuccess
+    }
+
+    private fun addRecurringPayment() {
+        binding.addButton.setOnClickListener {
+            val title = getSelectedCategory()
+            val amount = binding.amountEditText.text.toString().toDoubleOrNull() ?: 0.0
+            val currency = binding.currencySpinner.selectedItem.toString()
+            val recurrence = binding.regularExpenseSpinner.selectedItem.toString()
+            val nextPaymentDate = selectedDate ?: getCurrentDate()
+            val categoryId = getSelectedCategoryId()
+            val userCurrency = getUserCurrency()
+            val category = getSelectedCategory()
+            if (categoryId.equals(-1)) {
+                showSnackbar("Please select a category.")
+                return@setOnClickListener
+            }
+            if (amount.equals(0.0)) {
+                showSnackbar("Please enter an amount.")
+                return@setOnClickListener
+            }
+
+            if (addRecurringPaymentToDatabase(title, amount, currency, recurrence, nextPaymentDate, categoryId,category,userCurrency)) {
+                findNavController().navigate(R.id.action_addExpenseFragment_to_expenseFragment)
+                showSnackbar("Recurring payment added: $amount $currency")
+            } else {
+                showSnackbar("Failed to add recurring payment.")
+            }
+        }
+    }
+
+
 
 
 

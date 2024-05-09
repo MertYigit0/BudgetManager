@@ -70,7 +70,8 @@ data class RecurringPayment(
     val currency: String,
     val recurrence: String,
     val nextPaymentDate: String,
-    val categoryId: Int
+    val categoryId: Int,
+    val categoryName: String
 )
 
 data class RegularIncome(
@@ -142,5 +143,20 @@ data class CombinedIncome(
     val note: String?,
     val createdAt: String
 )
+
+data class CombinedExpense(
+    val id: Int,
+    val userId: Int,
+    val title: String?,  // Expense veya RecurringPayment için alan
+    val amount: Double,
+    val currency: String,
+    val recurrence: String?,  // RecurringPayment için alan
+    val date: String,
+    val categoryId: Int,
+    val categoryName: String,
+    val note: String?,
+    val createdAt: String
+)
+
 
 

@@ -89,6 +89,8 @@ dependencies {
     implementation ("org.apache.poi:poi:5.2.4")
     implementation ("org.apache.poi:poi-ooxml:5.2.4")
 
+    implementation ("org.apache.commons:commons-math3:3.6.1")
+
 
 
 }

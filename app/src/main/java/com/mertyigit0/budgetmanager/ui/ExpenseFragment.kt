@@ -30,8 +30,11 @@ import com.mertyigit0.budgetmanager.R
 import com.mertyigit0.budgetmanager.adapters.ExpenseAdapter
 import com.mertyigit0.budgetmanager.adapters.ExpenseSwipeToDeleteCallback
 import com.mertyigit0.budgetmanager.adapters.IncomeSwipeToDeleteCallback
+import com.mertyigit0.budgetmanager.data.CombinedExpense
 
 import com.mertyigit0.budgetmanager.data.DatabaseHelper
+import com.mertyigit0.budgetmanager.data.Expense
+import com.mertyigit0.budgetmanager.data.RecurringPayment
 import com.mertyigit0.budgetmanager.databinding.FragmentExpenseBinding
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -97,8 +100,12 @@ class ExpenseFragment : Fragment() {
         val userData = currentUserEmail?.let { dbHelper.getUserData(it) }
         // Veritabanından tüm gelirleri al
         val expenses = userData?.let { dbHelper.getAllExpensesByUserId(it.id) }
+        val regularExpenses = userData?.let { dbHelper.getAllRecurringPaymentsByUserId(it.id) }
+        val combinedExpenses =  regularExpenses?.let { combineExpensesAndRecurringPayments(expenses ?: listOf(), it) }
+
+
         // Gelir verilerini RecyclerView'a aktar
-        expenses?.let { expenseAdapter.updateExpenseList(it) }
+        combinedExpenses?.let { expenseAdapter.updateExpenseList(it) }
         // Gelir verileri listesini oluştur
 
 
@@ -219,8 +226,9 @@ class ExpenseFragment : Fragment() {
         val userData = currentUserEmail?.let { dbHelper.getUserData(it) }
 
         val expenses = userData?.let { dbHelper.getAllExpensesByUserId(it.id) }
-
-        expenses?.let { expenseAdapter.updateExpenseList(it) }
+        val regularExpenses = userData?.let { dbHelper.getAllRecurringPaymentsByUserId(it.id) }
+        val combinedExpenses =  regularExpenses?.let { combineExpensesAndRecurringPayments(expenses ?: listOf(), it) }
+        combinedExpenses?.let { expenseAdapter.updateExpenseList(it) }
 
         val categoryTotals = mutableMapOf<String, Float>()
 
@@ -266,8 +274,9 @@ class ExpenseFragment : Fragment() {
         val userData = currentUserEmail?.let { dbHelper.getUserData(it) }
 
         val expenses = userData?.let { dbHelper.getAllExpensesByUserId(it.id) }
-
-        expenses?.let { expenseAdapter.updateExpenseList(it) }
+        val regularExpenses = userData?.let { dbHelper.getAllRecurringPaymentsByUserId(it.id) }
+        val combinedExpenses =  regularExpenses?.let { combineExpensesAndRecurringPayments(expenses ?: listOf(), it) }
+        combinedExpenses?.let { expenseAdapter.updateExpenseList(it) }
 
         val monthYearTotals = mutableMapOf<String, Float>()
 
@@ -528,6 +537,52 @@ class ExpenseFragment : Fragment() {
 
         barChart.invalidate()
     }
+
+
+    fun combineExpensesAndRecurringPayments(expenses: List<Expense>, recurringPayments: List<RecurringPayment>): List<CombinedExpense> {
+        val combinedList = mutableListOf<CombinedExpense>()
+
+        // Giderleri CombinedExpense türüne dönüştür ve birleştir
+        expenses.forEach { expense ->
+            combinedList.add(
+                CombinedExpense(
+                    id = expense.id,
+                    userId = expense.userId,
+                    title = null,  // RecurringPayment alanları null olacak
+                    amount = expense.amount,
+                    currency = expense.currency,
+                    recurrence = null,  // RecurringPayment alanları null olacak
+                    date = expense.date,
+                    categoryId = expense.categoryId,
+                    categoryName = expense.categoryName,
+                    note = expense.note,
+                    createdAt = expense.createdAt
+                )
+            )
+        }
+
+        // Tekrarlayan ödemeleri CombinedExpense türüne dönüştür ve birleştir
+        recurringPayments.forEach { recurringPayment ->
+            combinedList.add(
+                CombinedExpense(
+                    id = recurringPayment.id,
+                    userId = recurringPayment.userId,
+                    title = recurringPayment.title,
+                    amount = recurringPayment.amount,
+                    currency = recurringPayment.currency,
+                    recurrence = recurringPayment.recurrence,
+                    date = recurringPayment.nextPaymentDate,  // Tekrarlayan ödemenin sonraki ödeme tarihini alın
+                    categoryId = recurringPayment.categoryId,
+                    categoryName = recurringPayment.categoryName,  // Tekrarlayan ödemeleri diğerlerinden ayırmak için boş bir kategori adı belirleyin
+                    note = null,  // Tekrarlayan ödeme alanları null olacak
+                    createdAt = ""
+                )
+            )
+        }
+
+        return combinedList
+    }
+
 
 
 

@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper
 import java.sql.SQLException
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
 import java.util.Locale
 
 class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
@@ -1605,6 +1606,171 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db.close()
         return id
     }
+
+
+
+
+
+
+
+    @SuppressLint("Range")
+    fun getIncomesAndRegularIncomesToList(userId: Int): List<Double> {
+        val incomesAndRegularIncomesList = ArrayList<Double>()
+
+        // Get current date
+        val currentDate = Calendar.getInstance().time
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val currentDateStr = dateFormat.format(currentDate)
+
+        // Get the first income date for the user
+        val db = this.readableDatabase
+        val firstIncomeDateQuery = "SELECT MIN($COLUMN_DATE_INCOME) FROM $TABLE_INCOMES WHERE $COLUMN_USER_ID_INCOME = ?"
+        val firstIncomeCursor = db.rawQuery(firstIncomeDateQuery, arrayOf(userId.toString()))
+        var firstIncomeDate: Date? = null
+        if (firstIncomeCursor.moveToFirst()) {
+            val dateStr = firstIncomeCursor.getString(0)
+            firstIncomeDate = dateFormat.parse(dateStr)
+        }
+        firstIncomeCursor.close()
+
+        // Calculate the number of days between the first income date and the current date
+        val calendar = Calendar.getInstance()
+        calendar.time = firstIncomeDate ?: currentDate
+        val firstIncomeMonth = calendar.get(Calendar.MONTH)
+        var currentMonth = calendar.get(Calendar.MONTH)
+        val totalDays = if (currentMonth != Calendar.getInstance().get(Calendar.MONTH)) {
+            // If the current month is different from the first income month, calculate the days until the end of the month
+            calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH))
+            calendar.get(Calendar.DAY_OF_MONTH)
+        } else {
+            // If the current month is the same as the first income month, calculate the days until today
+            calendar.time = currentDate
+            currentMonth = calendar.get(Calendar.MONTH)
+            calendar.get(Calendar.DAY_OF_MONTH)
+        }
+
+        // Get total regular income for the first income month
+        val totalRegularIncomeQuery =
+            "SELECT SUM($COLUMN_AMOUNT_REGULAR_INCOME) FROM $TABLE_REGULAR_INCOMES WHERE $COLUMN_USER_ID_REGULAR_INCOME = ?"
+        val regularIncomeCursor = db.rawQuery(totalRegularIncomeQuery, arrayOf(userId.toString()))
+        var totalRegularIncome = 0.0
+        if (regularIncomeCursor.moveToFirst()) {
+            totalRegularIncome = regularIncomeCursor.getDouble(0)
+        }
+        regularIncomeCursor.close()
+
+        // Calculate daily regular income for the first income month
+        var dailyRegularIncome = totalRegularIncome / calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+
+        // Fill the list with daily incomes and regular incomes
+        for (i in 0 until totalDays) {
+            val dailyIncome = getDailyIncome(userId, calendar.time)
+            incomesAndRegularIncomesList.add(dailyIncome + dailyRegularIncome)
+
+            // Get the next day
+            calendar.add(Calendar.DAY_OF_MONTH, 1)
+            if (calendar.get(Calendar.MONTH) != currentMonth) {
+                // If a new month is reached, recalculate daily regular income for the new month
+                currentMonth = calendar.get(Calendar.MONTH)
+                dailyRegularIncome = getMonthlyRegularIncome(userId, calendar.time)
+            }
+        }
+
+        db.close()
+        return incomesAndRegularIncomesList
+    }
+
+    @SuppressLint("Range")
+    private fun getDailyIncome(userId: Int, date: Date): Double {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val dateString = dateFormat.format(date)
+        val db = this.readableDatabase
+        val selectQuery =
+            "SELECT SUM($COLUMN_AMOUNT_INCOME) FROM $TABLE_INCOMES WHERE $COLUMN_USER_ID_INCOME = ? AND $COLUMN_DATE_INCOME = ?"
+        val cursor = db.rawQuery(selectQuery, arrayOf(userId.toString(), dateString))
+        var dailyIncome = 0.0
+        if (cursor.moveToFirst()) {
+            dailyIncome = cursor.getDouble(0)
+        }
+        cursor.close()
+        return dailyIncome
+    }
+
+    @SuppressLint("Range")
+    private fun getMonthlyRegularIncome(userId: Int, date: Date): Double {
+        val calendar = Calendar.getInstance()
+        calendar.time = date
+        val month = calendar.get(Calendar.MONTH) + 1
+        val year = calendar.get(Calendar.YEAR)
+        val db = this.readableDatabase
+        val selectQuery =
+            "SELECT SUM($COLUMN_AMOUNT_REGULAR_INCOME) FROM $TABLE_REGULAR_INCOMES WHERE $COLUMN_USER_ID_REGULAR_INCOME = ? AND strftime('%m', $COLUMN_DATE_REGULAR_INCOME) = ? AND strftime('%Y', $COLUMN_DATE_REGULAR_INCOME) = ?"
+        val cursor = db.rawQuery(selectQuery, arrayOf(userId.toString(), month.toString(), year.toString()))
+        var monthlyRegularIncome = 0.0
+        if (cursor.moveToFirst()) {
+            monthlyRegularIncome = cursor.getDouble(0)
+        }
+        cursor.close()
+        return monthlyRegularIncome
+    }
+
+
+/////////////////////////////deneme 2
+
+    @SuppressLint("Range")
+    fun getDailyIncomeForFinancialGoalById(userId: Int, goalId: Int): List<Pair<String, Double>> {
+        val financialGoal = getFinancialGoalById(goalId) ?: return emptyList()
+
+        val dailyIncomeList = ArrayList<Pair<String, Double>>()
+
+        // Get the financial goal's creation date
+        val goalCreationDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(financialGoal.createdAt)
+
+        // Get the current date
+        val currentDate = Calendar.getInstance().time
+
+        // Get the dates between the creation date of the financial goal and the current date
+        val calendar = Calendar.getInstance()
+        calendar.time = goalCreationDate
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+        while (calendar.time.before(currentDate) || calendar.time == currentDate) {
+            val dateString = dateFormat.format(calendar.time)
+
+            // Get the total income for the current date and the specified category ID
+            val dailyIncome = getTotalIncomeForDateAndCategory(userId, dateString, financialGoal.categoryId) /financialGoal.percentage
+
+            // Add the daily income to the list as a pair of date and income
+            dailyIncomeList.add(dateString to dailyIncome)
+
+
+            // Move to the next day
+            calendar.add(Calendar.DAY_OF_MONTH, 1)
+        }
+
+        return dailyIncomeList
+    }
+
+    @SuppressLint("Range")
+    private fun getTotalIncomeForDateAndCategory(userId: Int, date: String, categoryId: Int): Double {
+        val db = this.readableDatabase
+        val selectQuery =
+            "SELECT SUM($COLUMN_AMOUNT_INCOME) FROM $TABLE_INCOMES WHERE $COLUMN_USER_ID_INCOME = ? AND $COLUMN_DATE_INCOME = ? AND $COLUMN_CATEGORY_ID_INCOME = ?"
+        val cursor = db.rawQuery(selectQuery, arrayOf(userId.toString(), date, categoryId.toString()))
+        var totalIncome = 0.0
+        if (cursor.moveToFirst()) {
+            totalIncome = cursor.getDouble(0)
+        }
+        cursor.close()
+        db.close()
+        return totalIncome
+    }
+
+
+
+
+
+
 
 }
 

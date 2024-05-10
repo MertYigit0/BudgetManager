@@ -87,7 +87,7 @@ class EditExpenseFragment : Fragment() {
             }
         } else if (regularExpense != null) {
             binding.amountEditText.setText(String.format("%.2f", regularExpense.amount))
-            binding.editTextText.setText(regularExpense.title) // Burada düzenli ödemenin başlığını kullandım, not kısmına ne eklemek istediğinize bağlı olarak düzenleyebilirsiniz
+            binding.editTextText.setText(regularExpense.title)
             binding.dateTextView.text = regularExpense.nextPaymentDate
 
             binding.addButton.setOnClickListener {

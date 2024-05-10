@@ -21,11 +21,15 @@ import com.mertyigit0.budgetmanager.databinding.FragmentFinancialGoalBinding
 import com.mertyigit0.budgetmanager.util.LinearRegression
 import org.apache.commons.math3.analysis.polynomials.PolynomialFunction
 import org.apache.commons.math3.fitting.PolynomialCurveFitter
+import org.apache.commons.math3.fitting.SimpleCurveFitter
 import org.apache.commons.math3.fitting.WeightedObservedPoints
+import org.apache.commons.math3.stat.regression.OLSMultipleLinearRegression
 import org.apache.commons.math3.stat.regression.SimpleRegression
 import java.text.SimpleDateFormat
+import java.time.LocalDate
 import java.util.Date
 import java.util.Locale
+import kotlin.random.Random
 
 
 class FinancialGoalFragment : Fragment() {
@@ -92,60 +96,22 @@ class FinancialGoalFragment : Fragment() {
 
         val userData = currentUserEmail?.let { dbHelper.getUserData(it) }
 
-        if (userData != null) {
-            predictForMonths(userData.id)
+
+
+
+        userData?.let { user ->
+            val incomesAndRegularIncomesList = dbHelper.getIncomesAndRegularIncomesToList(user.id)
+            incomesAndRegularIncomesList.forEachIndexed { index, dailyIncome ->
+                println("Day ${index + 1}: $dailyIncome")
+            }
         }
-        //zart()
-        zo()
+
+     //   main()
     }
 
 
 
-    // Yeni FinancialGoal eklemek için AlertDialog gösteren fonksiyon
-    /*
-    private fun showAddFinancialGoalDialog() {
-        val builder = AlertDialog.Builder(requireContext())
-        val inflater = requireActivity().layoutInflater
-        val dialogView = inflater.inflate(R.layout.financial_goal_alert_dialog, null)
-        builder.setView(dialogView)
-            .setTitle("Add Financial Goal")
-            .setPositiveButton("Add") { dialog, which ->
-                val titleEditText: EditText = dialogView.findViewById(R.id.titleEditText)
-                val descriptionEditText: EditText = dialogView.findViewById(R.id.descriptionEditText)
-                val targetAmountEditText: EditText = dialogView.findViewById(R.id.targetAmountEditText)
-                val deadlineEditText: EditText = dialogView.findViewById(R.id.deadlineEditText)
 
-                // Kullanıcının girdiği bilgileri al
-                val title = titleEditText.text.toString()
-                val description = descriptionEditText.text.toString()
-                val targetAmount = targetAmountEditText.text.toString().toDouble()
-                val deadline = deadlineEditText.text.toString()
-                val userId = currentUserEmail?.let { dbHelper.getUserData(it) }?.id ?: -1
-                // Yeni bir FinancialGoal nesnesi oluştur
-                val newFinancialGoal = FinancialGoal(
-                    id = financialGoals.size + 1,
-                    userId = userId, // Kullanıcı kimliğini buraya ekleyin
-                    title = title,
-                    description = description,
-                    targetAmount = targetAmount,
-                    currentAmount = 0.0, // Başlangıçta 0 olarak ayarlanabilir
-                    deadline = deadline,
-                    createdAt = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-                    categoryId =
-                )
-
-                // Oluşturulan hedefi listeye ekle
-                financialGoals.add(newFinancialGoal)
-                adapter.notifyDataSetChanged()
-
-
-                addFinancialGoalToDatabase(newFinancialGoal)
-            }
-            .setNegativeButton("Cancel") { dialog, which ->
-                dialog.cancel()
-            }
-            .show()
-    }*/
 
 
     private fun addFinancialGoalToDatabase(financialGoal: FinancialGoal) {
@@ -203,85 +169,47 @@ class FinancialGoalFragment : Fragment() {
         return Pair(allIncomeData, allExpenseData)
     }
 
-    fun predictForMonths(userId: Int) {
-        val (allIncomeData, allExpenseData) = getAllIncomesAndExpensesForMonths(userId, 1, 6) // 1'den 6'ya kadar olan ayların verilerini al
 
-        val linearRegression = LinearRegression()
 
-        for (month in 7..9) {
-            // Tahmin yapılacak gün olarak ayın başlangıcı (1. gün) kullanılıyor
-            val targetDay = 1.0
-            val predictedValue = calculatePrediction(allIncomeData, allExpenseData, targetDay)
-            println("Tahminler $month. ay için: $predictedValue")
-        }
-    }
 
-    fun calculatePrediction(incomeAmounts: List<Double>, expenseAmounts: List<Double>, targetDay: Double): Double {
+
+
+
+
+
+    fun main() {
+        // Kullanıcıların günlere göre gelirlerini içeren bir liste
+        val dailyIncomes = listOf(500.0, 400.0, 70.0, 30.0, 10.0, 80.0, 50.0, 900.0)
+
+        // Toplam biriktirilmek istenen değer
+        val targetAmount = 10000.0
+
+        // Apache Common Maths kütüphanesini kullanarak basit lineer regresyon modeli oluştur
         val regression = SimpleRegression()
 
-        // Gelir verilerini modele ekle
-        incomeAmounts.forEachIndexed { index, amount ->
-            regression.addData(index.toDouble(), amount)
+        // Günlük gelir verilerini regresyon modeline ekle
+        for (i in dailyIncomes.indices) {
+            regression.addData(i.toDouble(), dailyIncomes[i])
         }
 
-        // Gider verilerini modele ekle
-        expenseAmounts.forEachIndexed { index, amount ->
-            regression.addData(index.toDouble(), -amount) // Giderler negatif olarak eklenir
+        // Regresyon modelini kullanarak gelecek günlerdeki gelirleri tahmin et
+        val nextDayIndex = dailyIncomes.size
+        val nextDayIncome = regression.predict(nextDayIndex.toDouble())
+
+        // Önceki günlerdeki gelirlerin toplamının 1000 TL'ye ulaşacağı tahmini gün sayısı
+        var totalIncome = 0.0
+        var days = 0
+        while (totalIncome < targetAmount) {
+            totalIncome += dailyIncomes.getOrElse(days) { nextDayIncome }
+            days++
         }
 
-        return regression.predict(targetDay)
+        // Tahmini gün sayısından mevcut gün sayısını çıkararak gelecekte kaç gün olduğunu bul
+        val futureDays =  days - dailyIncomes.size
+
+        println("Önceki günlerdeki gelirlerin toplamının 1000 TL'ye ulaşacağı tahmini gün sayısı: $days gün")
+        println("Gelecekteki gün sayısı: $futureDays gün")
     }
-
-
-
-    fun zart() {
-        val incomes = doubleArrayOf(1000.0, 900.0, 800.0, 700.0, 600.0, 500.0)
-        val expenses = doubleArrayOf(500.0, 600.0, 700.0, 800.0, 9100.0, 4000.0)
-
-        val regression = SimpleRegression()
-
-        // Gelir ve gider verilerini modele ekle
-        for (i in incomes.indices) {
-            regression.addData(i.toDouble() + 1, incomes[i])
-            regression.addData((i.toDouble() + 1) + 0.5, -expenses[i]) // Giderler negatif olarak eklenir ve ofset eklenir
-        }
-
-        // 7. ay için tahmin yap
-        val predictedIncome = regression.predict(7.0)
-        val predictedExpense = -regression.predict(7.0) // Giderler negatif olarak eklendiği için negatif olarak alınmalı
-
-        println("7. ay için tahmin edilen gelir: $predictedIncome")
-        println("7. ay için tahmin edilen gider: $predictedExpense")
-    }
-
-
-    fun zo() {
-        // Geçmiş gelir verileri (örnek olarak son 10 gün)
-        val gunler = doubleArrayOf(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0)
-        val gelirler = doubleArrayOf(100.0, 120.0, 130.0, 140.0, 150.0, 160.0, 170.0, 180.0, 190.0, 200.0)
-
-        // Veri noktalarını ağırlıklı olarak kaydedin
-        val veriNoktalari = WeightedObservedPoints()
-        for (i in gunler.indices) {
-            veriNoktalari.add(gunler[i], gelirler[i])
-        }
-
-        // Polinom eğrisi uyumlamak için bir eğri uyumlayıcı oluşturun
-        val egriliUyumlayici = PolynomialCurveFitter.create(2)
-
-        // Polinom eğrisini uyumla ve katsayıları al
-        val katsayilar = egriliUyumlayici.fit(veriNoktalari.toList())
-
-        // Son gününüze göre gelecek 5 günün gelir tahminini yapın
-        val sonGun = gunler.last()
-        val gelecekGunler = doubleArrayOf(sonGun + 1, sonGun + 2, sonGun + 3, sonGun + 4, sonGun + 5)
-        val tahminEdilenGelirler = PolynomialFunction(katsayilar).value(gelecekGunler[0]) // Sadece bir gün tahmini için
-
-        // Tahmin edilen gelecek günlerin gelirlerini yazdırın
-        println("Gelecek günün Tahmini Geliri: $tahminEdilenGelirler")
-    }
-
-
 
 
 }

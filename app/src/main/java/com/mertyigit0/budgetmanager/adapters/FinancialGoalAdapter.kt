@@ -15,9 +15,11 @@ import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.google.firebase.auth.FirebaseAuth
 import com.mertyigit0.budgetmanager.R
 import com.mertyigit0.budgetmanager.data.DatabaseHelper
 import com.mertyigit0.budgetmanager.data.FinancialGoal
+import org.apache.commons.math3.stat.regression.SimpleRegression
 
 class FinancialGoalAdapter(private val context: Context, private val financialGoals: MutableList<FinancialGoal>, private val navController: NavController) :
     RecyclerView.Adapter<FinancialGoalAdapter.FinancialGoalViewHolder>() {
@@ -49,6 +51,35 @@ class FinancialGoalAdapter(private val context: Context, private val financialGo
                         val bundle = Bundle().apply {
                             putInt("financialGoalId", financialGoalId)
                         }
+                        ///
+
+
+                        val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
+                        val userData = currentUserEmail?.let { dbHelper.getUserData(it) }
+                        if (userData != null) {
+                            val dailyIncomeList = dbHelper.getDailyIncomeForFinancialGoalById(userData.id, financialGoalId)
+                            for ((date, income) in dailyIncomeList) {
+                                println("Date: $date, Income: $income")
+                            }
+
+                            //
+                            val incomeList = mutableListOf<Double>()
+
+                            for ((_, income) in dailyIncomeList) {
+                                incomeList.add(income)
+                            }
+
+
+                            dbHelper.getFinancialGoalById(financialGoalId)?.targetAmount?.let { it1 ->
+                                main(incomeList,
+                                    it1
+                                )
+                            }
+
+                        }
+
+
+                        /////
                         navController.navigate(R.id.action_financialGoalFragment_to_editFinancialGoalFragment, bundle)
                         true
                     }
@@ -101,4 +132,42 @@ class FinancialGoalAdapter(private val context: Context, private val financialGo
         financialGoals.removeAt(position)
         notifyItemRemoved(position)
     }
+
+    fun main(dailyIncomes: List<Double>, targetAmount: Double) {
+
+
+        // Kullanıcıların günlere göre gelirlerini içeren bir liste
+        //val dailyIncomes = da
+
+        // Toplam biriktirilmek istenen değer
+        //val targetAmount = 10000.0
+
+        // Apache Common Maths kütüphanesini kullanarak basit lineer regresyon modeli oluştur
+        val regression = SimpleRegression()
+
+        // Günlük gelir verilerini regresyon modeline ekle
+        for (i in dailyIncomes.indices) {
+            regression.addData(i.toDouble(), dailyIncomes[i])
+        }
+
+        // Regresyon modelini kullanarak gelecek günlerdeki gelirleri tahmin et
+        val nextDayIndex = dailyIncomes.size
+        val nextDayIncome = regression.predict(nextDayIndex.toDouble())
+
+        // Önceki günlerdeki gelirlerin toplamının 1000 TL'ye ulaşacağı tahmini gün sayısı
+        var totalIncome = 0.0
+        var days = 0
+        while (totalIncome < targetAmount) {
+            totalIncome += dailyIncomes.getOrElse(days) { nextDayIncome }
+            days++
+        }
+
+        // Tahmini gün sayısından mevcut gün sayısını çıkararak gelecekte kaç gün olduğunu bul
+        val futureDays =  days - dailyIncomes.size
+
+        println("Önceki günlerdeki gelirlerin toplamının 1000 TL'ye ulaşacağı tahmini gün sayısı: $days gün")
+        println("Gelecekteki gün sayısı: $futureDays gün")
+    }
+
+
 }

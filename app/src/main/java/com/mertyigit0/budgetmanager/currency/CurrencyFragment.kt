@@ -1,5 +1,6 @@
 package com.mertyigit0.budgetmanager.currency
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -71,6 +72,7 @@ class CurrencyFragment : Fragment() {
 
 
         binding.spinner2.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            @SuppressLint("SuspiciousIndentation")
             override fun onItemSelected(
                 parent: AdapterView<*>?,
                 view: View?,
@@ -177,7 +179,7 @@ class CurrencyFragment : Fragment() {
         })
     }
 
-    // API'den alınan verileri SQLite veritabanına kaydeden kod parçası
+    // API'den alınan verileri SQLite veritabanına kaydet
     private fun saveExchangeRatesToDatabase(exchangeRates: Map<String, Double>) {
         val dbHelper = DatabaseHelper(requireContext())
         for ((currencyCode, rate) in exchangeRates) {
@@ -249,6 +251,8 @@ class CurrencyFragment : Fragment() {
                 // Eski para biriminden USD'ye ve ardından USD'den yeni para birimine dönüştürme işlemi
                 val amountInUSD = financialGoal.targetAmount / dbHelper.getExchangeRate(oldCurrency)
                 val convertedAmount = amountInUSD * dbHelper.getExchangeRate(newCurrency)
+                financialGoal.currentAmount = financialGoal.currentAmount / dbHelper.getExchangeRate(oldCurrency) * dbHelper.getExchangeRate(newCurrency)
+
 
                 // Yeni dönüştürülmüş miktarı ata
                 financialGoal.targetAmount = convertedAmount

@@ -20,9 +20,12 @@ import com.mertyigit0.budgetmanager.R
 import com.mertyigit0.budgetmanager.data.DatabaseHelper
 import com.mertyigit0.budgetmanager.data.FinancialGoal
 import org.apache.commons.math3.stat.regression.SimpleRegression
+import java.io.Serializable
 
 class FinancialGoalAdapter(private val context: Context, private val financialGoals: MutableList<FinancialGoal>, private val navController: NavController) :
     RecyclerView.Adapter<FinancialGoalAdapter.FinancialGoalViewHolder>() {
+
+    private val dbHelper = DatabaseHelper(context)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FinancialGoalViewHolder {
         val itemView = LayoutInflater.from(parent.context)
@@ -32,15 +35,13 @@ class FinancialGoalAdapter(private val context: Context, private val financialGo
 
     override fun onBindViewHolder(holder: FinancialGoalViewHolder, position: Int) {
         val currentFinancialGoal = financialGoals[position]
-        val dbHelper = DatabaseHelper(context)
         holder.bind(currentFinancialGoal)
-
 
         // Menü düğmesine tıklama dinleyicisi ekleme
         holder.menuButton.setOnClickListener {
             // PopupMenu oluşturma
             val popupMenu = PopupMenu(context, holder.menuButton)
-            popupMenu.menuInflater.inflate(R.menu.item_budget_alert_menu, popupMenu.menu)
+            popupMenu.menuInflater.inflate(R.menu.item_financial_goal_menu, popupMenu.menu)
 
             // Menü öğelerine tıklama dinleyicisi ekleme
             popupMenu.setOnMenuItemClickListener { menuItem ->
@@ -51,35 +52,7 @@ class FinancialGoalAdapter(private val context: Context, private val financialGo
                         val bundle = Bundle().apply {
                             putInt("financialGoalId", financialGoalId)
                         }
-                        ///
 
-
-                        val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
-                        val userData = currentUserEmail?.let { dbHelper.getUserData(it) }
-                        if (userData != null) {
-                            val dailyIncomeList = dbHelper.getDailyIncomeForFinancialGoalById(userData.id, financialGoalId)
-                            for ((date, income) in dailyIncomeList) {
-                                println("Date: $date, Income: $income")
-                            }
-
-                            //
-                            val incomeList = mutableListOf<Double>()
-
-                            for ((_, income) in dailyIncomeList) {
-                                incomeList.add(income)
-                            }
-
-
-                            dbHelper.getFinancialGoalById(financialGoalId)?.targetAmount?.let { it1 ->
-                                main(incomeList,
-                                    it1
-                                )
-                            }
-
-                        }
-
-
-                        /////
                         navController.navigate(R.id.action_financialGoalFragment_to_editFinancialGoalFragment, bundle)
                         true
                     }
@@ -89,6 +62,13 @@ class FinancialGoalAdapter(private val context: Context, private val financialGo
                         deleteItem(position)
                         true
                     }
+                    R.id.action_detail -> {
+                        val bundle1 = Bundle().apply {
+                            putInt("financialGoalId", currentFinancialGoal.id)
+                        }
+                        navController.navigate(R.id.action_financialGoalFragment_to_financialGoalDetailFragment, bundle1)
+                        true
+                    }
                     else -> false
                 }
             }
@@ -96,7 +76,6 @@ class FinancialGoalAdapter(private val context: Context, private val financialGo
             // Popup menüyü gösterme
             popupMenu.show()
         }
-
     }
 
     override fun getItemCount() = financialGoals.size
@@ -104,28 +83,56 @@ class FinancialGoalAdapter(private val context: Context, private val financialGo
     inner class FinancialGoalViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val titleTextView: TextView = itemView.findViewById(R.id.titleTextView)
         private val targetAmountTextView: TextView = itemView.findViewById(R.id.targetAmountTextView)
-        private val deadlineTextView: TextView = itemView.findViewById(R.id.deadlineTextView)
+        private val predictTextView: TextView = itemView.findViewById(R.id.predictTextView)
         private val currentAmountTextView: TextView = itemView.findViewById(R.id.currentAmountTextView)
         private val progressBar: ProgressBar = itemView.findViewById(R.id.progressBar)
-        private var image:ImageView = itemView.findViewById(R.id.imageFinancialGoal)
-        val menuButton: ImageButton = itemView.findViewById(R.id.menuButton) // Menü düğmesi
+        private var image: ImageView = itemView.findViewById(R.id.imageFinancialGoal)
+         val menuButton: ImageButton = itemView.findViewById(R.id.menuButton) // Menü düğmesi
+
+
         @SuppressLint("SetTextI18n")
         fun bind(financialGoal: FinancialGoal) {
             titleTextView.text = financialGoal.title
             targetAmountTextView.text = "Target Amount: ${"%.2f".format(financialGoal.targetAmount)}"
             currentAmountTextView.text = "Current Amount: ${"%.2f".format(financialGoal.currentAmount)}"
-            deadlineTextView.text = "Deadline: ${financialGoal.deadline}"
             // ProgressBar'ı güncelle
             val progress = (financialGoal.currentAmount / financialGoal.targetAmount * 100).toInt()
             progressBar.progress = progress
 
             // Glide kullanarak görüntü yükleme
             Glide.with(itemView)
-                .load(financialGoal.photo) // Görüntünün URI'sini yükle
-                .placeholder(R.drawable.baseline_add_24) // Yükleme sırasında görüntülenecek yer tutucu resim
-                .error(R.drawable.baseline_add_24) // Hata durumunda görüntülenecek yer tutucu resim
-                .into(image) // Görüntünün gösterileceği ImageView
+                .load(financialGoal.photo)
+                .placeholder(R.drawable.baseline_add_24)
+                .error(R.drawable.baseline_add_24)
+                .into(image)
+
+            // Tahmini gün sayısını güncelle
+            updatePredictedDays(financialGoal)
         }
+
+        private fun updatePredictedDays(financialGoal: FinancialGoal) {
+            val financialGoalId = financialGoal.id
+            val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
+            val userData = currentUserEmail?.let { dbHelper.getUserData(it) }
+            if (userData != null) {
+                val dailyIncomeList = dbHelper.getDailyIncomeForFinancialGoalById(userData.id, financialGoalId)
+
+                val incomeList = mutableListOf<Double>()
+                for ((_, income) in dailyIncomeList) {
+                    incomeList.add(income)
+                }
+
+                // Kontrol eklendi
+                if (incomeList.size < 10) {
+                    predictTextView.text = "Not enough data for prediction"
+                } else {
+                    val targetAmount = financialGoal.targetAmount
+                    val futureDays =linearRegressionForecast(incomeList, targetAmount)
+                    predictTextView.text = "Approximately Days: $futureDays"
+                }
+            }
+        }
+
     }
 
     fun deleteItem(position: Int) {
@@ -133,15 +140,7 @@ class FinancialGoalAdapter(private val context: Context, private val financialGo
         notifyItemRemoved(position)
     }
 
-    fun main(dailyIncomes: List<Double>, targetAmount: Double) {
-
-
-        // Kullanıcıların günlere göre gelirlerini içeren bir liste
-        //val dailyIncomes = da
-
-        // Toplam biriktirilmek istenen değer
-        //val targetAmount = 10000.0
-
+    private fun linearRegressionForecast(dailyIncomes: List<Double>, targetAmount: Double): Int {
         // Apache Common Maths kütüphanesini kullanarak basit lineer regresyon modeli oluştur
         val regression = SimpleRegression()
 
@@ -154,7 +153,7 @@ class FinancialGoalAdapter(private val context: Context, private val financialGo
         val nextDayIndex = dailyIncomes.size
         val nextDayIncome = regression.predict(nextDayIndex.toDouble())
 
-        // Önceki günlerdeki gelirlerin toplamının 1000 TL'ye ulaşacağı tahmini gün sayısı
+        // Önceki günlerdeki gelirlerin toplamının hedef tutarı ulaşacağı tahmini gün sayısı
         var totalIncome = 0.0
         var days = 0
         while (totalIncome < targetAmount) {
@@ -163,11 +162,6 @@ class FinancialGoalAdapter(private val context: Context, private val financialGo
         }
 
         // Tahmini gün sayısından mevcut gün sayısını çıkararak gelecekte kaç gün olduğunu bul
-        val futureDays =  days - dailyIncomes.size
-
-        println("Önceki günlerdeki gelirlerin toplamının 1000 TL'ye ulaşacağı tahmini gün sayısı: $days gün")
-        println("Gelecekteki gün sayısı: $futureDays gün")
+        return days - dailyIncomes.size
     }
-
-
 }

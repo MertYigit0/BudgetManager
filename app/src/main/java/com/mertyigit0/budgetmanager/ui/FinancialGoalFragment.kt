@@ -97,14 +97,14 @@ class FinancialGoalFragment : Fragment() {
         val userData = currentUserEmail?.let { dbHelper.getUserData(it) }
 
 
-
-
+        /*
         userData?.let { user ->
             val incomesAndRegularIncomesList = dbHelper.getIncomesAndRegularIncomesToList(user.id)
             incomesAndRegularIncomesList.forEachIndexed { index, dailyIncome ->
                 println("Day ${index + 1}: $dailyIncome")
             }
         }
+        */
 
      //   main()
     }

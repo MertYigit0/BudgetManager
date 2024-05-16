@@ -117,21 +117,44 @@ class FinancialGoalAdapter(private val context: Context, private val financialGo
             if (userData != null) {
                 val dailyIncomeList = dbHelper.getDailyIncomeForFinancialGoalById(userData.id, financialGoalId)
 
+                println("Daily Income List: $dailyIncomeList") // dailyIncomeList'i yazdır
+
+                if (dailyIncomeList.isEmpty()) {
+                    predictTextView.text = "No income data available" // Gelir verisi bulunamadı uyarısı
+                    return
+                }
+
                 val incomeList = mutableListOf<Double>()
+
                 for ((_, income) in dailyIncomeList) {
                     incomeList.add(income)
                 }
+
+                println("Income List: $incomeList") // incomeList'i yazdır
+                // Kontrol eklendi
+                if (incomeList.isEmpty() || incomeList.sum() == 0.0) {
+                    predictTextView.text = "No income available or total income is zero" // Gelir verisi bulunamadı uyarısı
+                    return
+                }
+
 
                 // Kontrol eklendi
                 if (incomeList.size < 10) {
                     predictTextView.text = "Not enough data for prediction"
                 } else {
                     val targetAmount = financialGoal.targetAmount
-                    val futureDays =linearRegressionForecast(incomeList, targetAmount)
-                    predictTextView.text = "Approximately Days: $futureDays"
+                    val futureDays = linearRegressionForecast(incomeList, targetAmount)
+                    if (futureDays == -1) {
+                        predictTextView.text = "Uncertain prediction due to decreasing income trend"
+                    } else if (futureDays == -2) {
+                        predictTextView.text = "Not enough data for prediction"
+                    } else {
+                        predictTextView.text = "Approximately Days: $futureDays"
+                    }
                 }
             }
         }
+
 
     }
 
@@ -144,14 +167,33 @@ class FinancialGoalAdapter(private val context: Context, private val financialGo
         // Apache Common Maths kütüphanesini kullanarak basit lineer regresyon modeli oluştur
         val regression = SimpleRegression()
 
+        // Gelir verileri yeterli mi kontrol et
+        if (dailyIncomes.size < 10) {
+            println("aaaaaaaaaaa"+regression.slope) // Eğim değerini yazdırın
+            return -2 // -2 kodu, yetersiz veri durumunu temsil eder
+        }
+
         // Günlük gelir verilerini regresyon modeline ekle
         for (i in dailyIncomes.indices) {
             regression.addData(i.toDouble(), dailyIncomes[i])
         }
 
+        if (regression.slope < 0) {
+            println("aaaaaaaaaaa"+regression.slope) // Eğim değerini yazdırın
+            return -1 // -1 kodu, negatif eğim durumunu temsil eder
+        }
+
         // Regresyon modelini kullanarak gelecek günlerdeki gelirleri tahmin et
         val nextDayIndex = dailyIncomes.size
         val nextDayIncome = regression.predict(nextDayIndex.toDouble())
+
+        /*
+        for (i in 1..100) { // İleriki
+            val nextDayIncome = regression.predict(nextDayIndex.toDouble() + i)
+            println("Gün ${nextDayIndex + i}: ${nextDayIncome}")
+        }
+
+         */
 
         // Önceki günlerdeki gelirlerin toplamının hedef tutarı ulaşacağı tahmini gün sayısı
         var totalIncome = 0.0
@@ -161,7 +203,10 @@ class FinancialGoalAdapter(private val context: Context, private val financialGo
             days++
         }
 
+        // Eğim negatif mi kontrol et
+
         // Tahmini gün sayısından mevcut gün sayısını çıkararak gelecekte kaç gün olduğunu bul
         return days - dailyIncomes.size
     }
+
 }

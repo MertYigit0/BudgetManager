@@ -130,7 +130,17 @@ class IncomeSwipeToDeleteCallback(private val adapter: IncomeAdapter) :
 
         if (!isDeletedFromDatabase) {
 
-        } else {
+        } else {  // Silme işlemi başarılı oldu, finansal hedefi güncelle
+            val categoryId = deletedIncome.categoryId
+            val userId = deletedIncome.userId
+            val financialGoals = dbHelper.getAllFinancialGoalsByUserIdByCategoryId(userId ,  categoryId)
+            financialGoals.forEach { goal ->
+                if (goal.categoryId == categoryId) {
+                    val updatedAmount = deletedIncome.amount * (goal.percentage.toDouble() / 100) // Silinen gelir miktarını yüzdeyle çarp
+                    goal.currentAmount -= updatedAmount // Finansal hedefin mevcut tutarından çıkar
+                    dbHelper.updateFinancialGoal(goal) // Güncellenmiş finansal hedefi veritabanına kaydet
+                }
+            }
             // Silme işlemi başarılı oldu, PieChart'ı güncelle
         }
     }

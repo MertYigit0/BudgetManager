@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/incomeFragment">
+    app:startDestination="@id/loginFragment">
 
     <fragment
         android:id="@+id/incomeFragment"
@@ -244,5 +244,14 @@
         <action
             android:id="@+id/action_financialGoalDetailFragment_to_financialGoalFragment"
             app:destination="@id/financialGoalFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/info2Fragment3"
+        android:name="com.mertyigit0.budgetmanager.ui.Info2Fragment"
+        android:label="fragment_info2"
+        tools:layout="@layout/fragment_info2" >
+        <action
+            android:id="@+id/action_info2Fragment3_to_loginFragment"
+            app:destination="@id/loginFragment" />
     </fragment>
 </navigation>

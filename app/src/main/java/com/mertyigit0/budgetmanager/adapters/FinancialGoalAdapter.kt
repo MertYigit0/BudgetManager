@@ -115,7 +115,7 @@ class FinancialGoalAdapter(private val context: Context, private val financialGo
             val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
             val userData = currentUserEmail?.let { dbHelper.getUserData(it) }
             if (userData != null) {
-                val dailyIncomeList = dbHelper.getDailyIncomeForFinancialGoalById(userData.id, financialGoalId)
+                val dailyIncomeList = dbHelper.getCombinedDailyAndRegularIncomeForFinancialGoalById(userData.id, financialGoalId)
 
                 println("Daily Income List: $dailyIncomeList") // dailyIncomeList'i yazdır
 
@@ -149,7 +149,15 @@ class FinancialGoalAdapter(private val context: Context, private val financialGo
                     } else if (futureDays == -2) {
                         predictTextView.text = "Not enough data for prediction"
                     } else {
-                        predictTextView.text = "Approximately Days: $futureDays"
+                        val targetAmount = financialGoal.targetAmount
+                        val currentAmount = financialGoal.currentAmount
+                        if (futureDays <= 0 || currentAmount >= targetAmount) {
+                            // Hedefe ulaşıldığını kullanıcıya bildir
+                            predictTextView.text = "Target amount reached!"
+                            // Burada gerekli bildirimi yapabilirsiniz, örneğin bir toast mesajı veya bir bildirim gösterimi
+                        } else {
+                            predictTextView.text= "Approximately Days: $futureDays"
+                        }
                     }
                 }
             }

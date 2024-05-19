@@ -8,6 +8,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
@@ -27,7 +28,9 @@ import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.content.FileProvider
 import androidx.navigation.Navigation
 import com.bumptech.glide.Glide
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.storage.storage
 import com.mertyigit0.budgetmanager.ImageHelper.Companion.PICK_IMAGE_REQUEST
 import com.mertyigit0.budgetmanager.R
 import com.mertyigit0.budgetmanager.data.DatabaseHelper
@@ -98,7 +101,9 @@ class ProfileFragment : Fragment() {
                 val selectedOption = radioButton.text.toString()
 
                 // createExcelFile() fonksiyonunu çağır
-                createExcelFile(selectedMonth, selectedOption)
+               // createExcelFile(selectedMonth, selectedOption)
+                //storeFirebase(selectedMonth, selectedOption )
+                createAndStoreExcelFile(selectedMonth,selectedOption)
 
                 dialog.dismiss() // Dialog'u kapat
             }
@@ -145,6 +150,9 @@ class ProfileFragment : Fragment() {
             .into(binding.userImage) // Resmin yükleneceği ImageView
 
         displayUserData()
+
+
+
 
     }
 
@@ -224,7 +232,7 @@ class ProfileFragment : Fragment() {
 
 
 
-    private fun createExcelFile(selectedMonth: String, selectedOption: String) {
+    private fun createAndStoreExcelFile(selectedMonth: String, selectedOption: String) {
         val dbHelper = DatabaseHelper(requireContext())
         val currentUserEmail = auth.currentUser?.email
         val userData = currentUserEmail?.let { dbHelper.getUserData(it) }
@@ -235,13 +243,13 @@ class ProfileFragment : Fragment() {
             "Incomes" -> {
                 val monthIndex = getMonthIndex(selectedMonth)
                 val totalIncomesForMonth =
-                    userId?.let { dbHelper.getAllIncomesForMonth(it, monthIndex+1) }
+                    userId?.let { dbHelper.getAllIncomesForMonth(it, monthIndex + 1) }
                 Pair(totalIncomesForMonth, emptyList())
             }
             "Expenses" -> {
                 val monthIndex = getMonthIndex(selectedMonth)
                 val totalExpensesForMonth =
-                    userId?.let { dbHelper.getAllExpensesForMonth(it, monthIndex+1) }
+                    userId?.let { dbHelper.getAllExpensesForMonth(it, monthIndex + 1) }
                 Pair(emptyList(), totalExpensesForMonth)
             }
             else -> {
@@ -300,9 +308,14 @@ class ProfileFragment : Fragment() {
             }
         }
 
-        // Dosyayı kaydet
-        // Dosya adını belirle
         val fileName = "transactions_${selectedOption.toLowerCase(Locale.ROOT)}_${selectedMonth.toLowerCase(Locale.ROOT)}.xlsx"
+
+        // Dosyayı cihaza ve Firebase Storage'a yükle
+        val storage = Firebase.storage
+        val storageRef = storage.reference
+        val currentUserUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val userFolderRef = storageRef.child("user_files/$currentUserUid")
+        val fileRef = userFolderRef.child(fileName)
 
         val storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
         val file = File(storageDir, fileName)
@@ -312,10 +325,29 @@ class ProfileFragment : Fragment() {
         fileOutputStream.close()
         workbook.close()
 
-// Kullanıcıya dosyanın oluşturulduğunu bildir
-        Toast.makeText(requireContext(), "Excel file created: ${file.absolutePath}", Toast.LENGTH_SHORT).show()
+        // Firebase Storage'a dosyayı yükle
+        val fileUri = Uri.fromFile(file)
+        val uploadTask = fileRef.putFile(fileUri)
 
+        // Yükleme işlemi tamamlandığında gerçekleştirilecek işlemler
+        uploadTask.addOnSuccessListener { taskSnapshot ->
+            // Dosyanın yüklendiği URL'yi alabilirsiniz
+            fileRef.downloadUrl.addOnSuccessListener { uri ->
+                val downloadUrl = uri.toString()
+                // Firebase Storage'da dosyanın indirme URL'sini alarak gerektiğinde kullanabilirsiniz
+                // Örneğin, bu URL'yi veritabanına kaydedebilirsiniz
+                Toast.makeText(requireContext(), "Excel file uploaded to Firebase Storage. Download URL: $downloadUrl", Toast.LENGTH_SHORT).show()
+            }.addOnFailureListener { exception ->
+                // URL alınırken bir hata oluşursa burada işlemler yapılabilir
+            }
+        }.addOnFailureListener { exception ->
+            // Yükleme işlemi başarısız olduğunda burada işlemler yapılabilir
+        }
     }
+
+
+
+
 
 
     private fun getMonthIndex(selectedMonth: String): Int {

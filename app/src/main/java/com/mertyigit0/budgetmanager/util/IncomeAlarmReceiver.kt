@@ -8,6 +8,7 @@ import com.mertyigit0.budgetmanager.data.Income
 
 class IncomeAlarmReceiver : BroadcastReceiver() {
 
+    /*
     override fun onReceive(context: Context, intent: Intent) {
         // Otomatik gelir ekleme işlemi burada gerçekleştirilebilir
         val regularIncomeId = intent.getIntExtra("regularIncomeId", -1)
@@ -44,6 +45,11 @@ class IncomeAlarmReceiver : BroadcastReceiver() {
                 // Hata işleme alınabilir
             }
         }
+    }
+
+     */
+    override fun onReceive(context: Context?, intent: Intent?) {
+        TODO("Not yet implemented")
     }
 
 }

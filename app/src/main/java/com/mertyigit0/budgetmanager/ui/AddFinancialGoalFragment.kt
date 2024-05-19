@@ -226,7 +226,7 @@ class AddFinancialGoalFragment : Fragment() {
 
                 imageByte = imageBytes
 
-                // SQLite veritabanına resmi kaydetme işlemi
+
 
             }
         }

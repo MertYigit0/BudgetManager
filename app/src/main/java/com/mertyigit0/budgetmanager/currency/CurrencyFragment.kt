@@ -153,7 +153,7 @@ class CurrencyFragment : Fragment() {
             val dbHelper = DatabaseHelper(requireContext())
             val exchangeRates = dbHelper.getAllExchangeRates()
             updateUI(exchangeRates)
-            showSnackbar("Veriler SharedPreferences'tan alındı.")
+            //showSnackbar("Veriler SharedPreferences'tan alındı.")
         }
     }
 

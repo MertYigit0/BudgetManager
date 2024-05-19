@@ -53,7 +53,13 @@ class FinancialGoalDetailFragment : Fragment() {
         // Kullanıcı verileri ve finansal hedef ID'si null değilse işleme devam et
         if (userData != null && financialGoalId != null) {
             // Finansal hedefin günlük gelir listesini al
-            val dailyIncomeList = dbHelper.getDailyIncomeForFinancialGoalById(userData.id, financialGoalId)
+            val dailyIncomeList = dbHelper.getCombinedDailyAndRegularIncomeForFinancialGoalById(userData.id, financialGoalId)
+
+            dailyIncomeList.forEachIndexed { index, pair ->
+                val (date, income) = pair
+                println("Day ${index + 1}: Date: $date, Income: $income")
+            }
+
 
             // Günlük gelir listesi boş değilse işleme devam et
             if (dailyIncomeList.isNotEmpty()) {
@@ -227,7 +233,7 @@ private fun linearRegressionForecast(dailyIncomes: List<Double>, targetAmount: D
         val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
         val userData = currentUserEmail?.let { dbHelper.getUserData(it) }
         if (userData != null) {
-            val dailyIncomeList = dbHelper.getDailyIncomeForFinancialGoalById(userData.id, financialGoalId)
+            val dailyIncomeList = dbHelper.getCombinedDailyAndRegularIncomeForFinancialGoalById(userData.id, financialGoalId)
 
             println("Daily Income List: $dailyIncomeList") // dailyIncomeList'i yazdır
 
@@ -250,6 +256,7 @@ private fun linearRegressionForecast(dailyIncomes: List<Double>, targetAmount: D
             }
 
 
+
             // Kontrol eklendi
             if (incomeList.size < 10) {
                 binding.EstimatedDayRegression.text = "Not enough data for prediction"
@@ -257,15 +264,24 @@ private fun linearRegressionForecast(dailyIncomes: List<Double>, targetAmount: D
                 val targetAmount = financialGoal.targetAmount
                 val futureDays = linearRegressionForecast(incomeList, targetAmount)
                 if (futureDays == -1) {
-                    binding.EstimatedDayRegression.text = "Uncertain prediction due to decreasing income trend"
+                    binding.EstimatedDayRegression.text =
+                        "Uncertain prediction due to decreasing income trend"
                 } else if (futureDays == -2) {
                     binding.EstimatedDayRegression.text = "Not enough data for prediction"
                 } else {
-                    binding.EstimatedDayRegression.text = "Approximately Days: $futureDays"
+                    val targetAmount = financialGoal.targetAmount
+                    val currentAmount = financialGoal.currentAmount
+                    if (futureDays <= 0 || currentAmount >= targetAmount) {
+                        // Hedefe ulaşıldığını kullanıcıya bildir
+                        binding.EstimatedDayRegression.text = "Target amount reached!"
+                        binding.EstimatedDayAverage.text = "Target amount reached!"
+                        // Burada gerekli bildirimi yapabilirsiniz, örneğin bir toast mesajı veya bir bildirim gösterimi
+                    } else {
+                        binding.EstimatedDayRegression.text = "Approximately Days: $futureDays"
+                    }
                 }
-            }
-        }
-    }
+            }}}
+
 
 
     private fun averageIncomeForecast(dailyIncomes: List<Double>, targetAmount: Double): Int {
@@ -276,14 +292,21 @@ private fun linearRegressionForecast(dailyIncomes: List<Double>, targetAmount: D
         val daysToReachTarget = (targetAmount / averageIncome).toInt()
 
         // Tahmini gün sayısını metin görüntüleyicisine atayarak döndür
-        if (dailyIncomes.size < 3) {
-            binding.EstimatedDayAverage.text = "Estimated Days: Not enough data for forecasting (Average Income)"
+        val estimatedDaysText = if (dailyIncomes.size < 3) {
+            "Not enough data for forecasting (Average Income)"
         } else {
-            binding.EstimatedDayAverage.text = "Estimated Days: $daysToReachTarget (Average Income)"
+            "Estimated Days: $daysToReachTarget (Average Income)"
+        }
+        binding.EstimatedDayAverage.text = estimatedDaysText
+
+        // Hedefe ulaşıldıysa bildirim yap
+        if (targetAmount <= dailyIncomes.sum()) {
+            binding.EstimatedDayRegression.text = "Target amount reached!"
         }
 
         return daysToReachTarget
     }
+
 
 
 

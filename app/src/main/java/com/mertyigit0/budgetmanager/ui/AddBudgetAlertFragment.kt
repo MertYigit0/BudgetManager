@@ -129,8 +129,8 @@ class AddBudgetAlertFragment : Fragment() {
 
     private fun addBudgetAlert() {
         binding.addButton.setOnClickListener {
-            val alertType = "your_alert_type_here" // Alert tipini buraya ekleyin
-            val message = "your_message_here" // Mesajı buraya ekleyin
+            val alertType = "your_alert_type_here"
+            val message = "your_message_here"
             val targetAmount = binding.targetAmountEditText.text.toString().toDoubleOrNull() ?: 0.0
             val categoryId = getSelectedCategoryId()
             val currentAmount = getCurrentTotalExpenseForCategory(categoryId)
@@ -211,7 +211,7 @@ class AddBudgetAlertFragment : Fragment() {
     private fun getUserCurrency(): String {
         val dbHelper = DatabaseHelper(requireContext())
         val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
-        return currentUserEmail?.let { dbHelper.getUserData(it)?.currency } ?: "USD" // Varsayılan olarak USD kullan
+        return currentUserEmail?.let { dbHelper.getUserData(it)?.currency } ?: "USD" // Varsayılan olarak USD
     }
 
     private fun getIndexOfCurrencyInSpinner(currency: String): Int {

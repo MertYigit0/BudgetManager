@@ -71,7 +71,7 @@ class RegularTransactionsFragment : Fragment() {
 
         if (userData != null) {
             val totalIncome = dbHelper.getTotalRegularIncomeByUserId(userData.id)
-            val formattedTotalIncome = String.format("%.2f", totalIncome) // İki ondalık haneyle biçimlendirilmiş bir string oluşturur
+            val formattedTotalIncome = String.format("%.2f", totalIncome) 
             val totalIncomeText = "Total Regular Income: $formattedTotalIncome"
             binding.totalRegularIncomes.text = totalIncomeText
         }

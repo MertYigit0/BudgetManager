@@ -117,8 +117,8 @@ class IncomeSwipeToDeleteCallback(private val adapter: IncomeAdapter) :
 
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
         val position = viewHolder.adapterPosition
-        val deletedIncome = adapter.deleteItem(position) // Adapter ile ilişkilendirilmiş IncomeAdapter sınıfından deleteItem fonksiyonunu çağırın
-        val dbHelper = DatabaseHelper(adapter.context) // Veritabanı işlemleri için gerekli olan context adapter'dan alınmalıdır.
+        val deletedIncome = adapter.deleteItem(position)
+        val dbHelper = DatabaseHelper(adapter.context)
 
         val isDeletedFromDatabase = if (deletedIncome.recurrence == null) {
             // Eğer recurrence değeri null ise, deleteRegularIncome fonksiyonunu çağır

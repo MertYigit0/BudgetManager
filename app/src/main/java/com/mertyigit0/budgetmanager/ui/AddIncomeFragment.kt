@@ -68,7 +68,7 @@ class AddIncomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        scheduleAutomaticIncomes()
+      //  scheduleAutomaticIncomes()
 
         var dbHelper = DatabaseHelper(requireContext())
         val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
@@ -160,12 +160,14 @@ class AddIncomeFragment : Fragment() {
         }
 
         // Dönüştürülen miktarı en fazla iki basamaklı bir string olarak biçimlendir
-        val formattedAmount = "%.2f".format(convertedAmount.toDouble())
+        val formattedAmount = String.format(Locale.ENGLISH, "%.2f", convertedAmount)
+
+        val amountAsDouble = formattedAmount.toDouble()
 
         // Dönüştürülen miktar ve para birimini ekranda göstermek için string oluştur
         val equivalentAmountText = "$formattedAmount $userCurrency"
 
-        val income = Income(id = 0, userId = userId, amount = formattedAmount.toDouble(), currency = userCurrency, categoryId = categoryId, categoryName = category, date = date, note = description ?: "", createdAt = "")
+        val income = Income(id = 0, userId = userId, amount = amountAsDouble, currency = userCurrency, categoryId = categoryId, categoryName = category, date = date, note = description ?: "", createdAt = "")
 
         val databaseHelper = DatabaseHelper(requireContext())
 
@@ -249,7 +251,9 @@ class AddIncomeFragment : Fragment() {
         }
 
         // Dönüştürülen miktarı en fazla iki basamaklı bir string olarak biçimlendir
-        val formattedAmount = "%.2f".format(convertedAmount.toDouble())
+        val formattedAmount = String.format(Locale.ENGLISH, "%.2f", convertedAmount)
+
+        val amountAsDouble = formattedAmount.toDouble()
 
         // Dönüştürülen miktar ve para birimini ekranda göstermek için string oluştur
         val equivalentAmountText = "$formattedAmount $userCurrency"
@@ -258,7 +262,7 @@ class AddIncomeFragment : Fragment() {
             id = 0,
             userId = userId,
             title = title,
-            amount = formattedAmount.toDouble(),
+            amount = amountAsDouble,
             currency = userCurrency,
             recurrence = recurrence,
             date = date,
@@ -271,6 +275,7 @@ class AddIncomeFragment : Fragment() {
 
 
     private fun addRegularIncome() {
+        val dbHelper = DatabaseHelper(requireContext())
         binding.addButton.setOnClickListener {
             val title = binding.titleRegularIncomeEditText.text.toString()
             val amount = binding.amountEditText.text.toString().toDoubleOrNull() ?: 0.0
@@ -280,11 +285,26 @@ class AddIncomeFragment : Fragment() {
             val category = getSelectedCategory()
             val categoryId = getSelectedCategoryId()
             val userCurrency = getUserCurrency()
-
+            val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
+            val userId = currentUserEmail?.let { dbHelper.getUserData(it) }?.id ?: -1
             if (categoryId.equals(-1)) {
                 showSnackbar("Please select a category.")
                 return@setOnClickListener
             }
+
+
+            // Gelirin eklendiği tarihte aynı kategoride bir finansal hedef var mı kontrol et
+            val financialGoals = dbHelper.getAllFinancialGoalsByUserIdByCategoryId(userId ,  categoryId)
+            financialGoals.forEach { goal ->
+                if (goal.categoryId == categoryId) {
+                    val updatedAmount = amount * (goal.percentage.toDouble() / 100) // Gelir miktarını yüzdeyle çarp
+                    goal.currentAmount += updatedAmount // Finansal hedefin mevcut tutarına ekleyin
+                    dbHelper.updateFinancialGoal(goal) // Güncellenmiş finansal hedefi veritabanına kaydet
+                }
+            }
+
+
+
             if (amount.equals(0.0)) {
                 showSnackbar("Please enter an amount .")
                 return@setOnClickListener
@@ -417,7 +437,7 @@ class AddIncomeFragment : Fragment() {
         return 0 // Varsayılan olarak 0. indeksi döndür
     }
 
-
+/*
     private fun scheduleAutomaticIncomes() {
         val dbHelper = DatabaseHelper(requireContext())
         val currentUserEmail = auth.currentUser?.email
@@ -465,6 +485,8 @@ class AddIncomeFragment : Fragment() {
         // AlarmScheduler objesini kullanarak zamanlayıcıyı ayarla
         AlarmScheduler.scheduleRepeatingIncome(requireContext(), regularIncome.id, startTime, AlarmScheduler.ONCE_A_MONTH)
     }
+
+ */
 
 
 

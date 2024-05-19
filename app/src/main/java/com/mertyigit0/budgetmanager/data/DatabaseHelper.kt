@@ -14,7 +14,7 @@ import java.util.Locale
 class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
     companion object {
         private const val DATABASE_NAME = "budget_manager.db"
-        private const val DATABASE_VERSION = 15
+        private const val DATABASE_VERSION = 1
 
 
         //users
@@ -167,13 +167,6 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db?.execSQL(CREATE_USERS_TABLE)
 
 
-        // Income categories table creation
-        val CREATE_INCOME_CATEGORIES_TABLE = ("CREATE TABLE $TABLE_INCOME_CATEGORIES(" +
-                "$COLUMN_ID_INCOME_CATEGORY INTEGER PRIMARY KEY AUTOINCREMENT," +
-                "$COLUMN_USER_ID_INCOME_CATEGORY INTEGER NOT NULL," +
-                "$COLUMN_NAME_INCOME_CATEGORY TEXT NOT NULL)")
-                "FOREIGN KEY($COLUMN_USER_ID_INCOME_CATEGORY) REFERENCES $TABLE_USERS($COLUMN_USER_ID)," +
-        db?.execSQL(CREATE_INCOME_CATEGORIES_TABLE)
 
         // Budget Alerts
         val CREATE_BUDGET_ALERTS_TABLE = ("CREATE TABLE $TABLE_BUDGET_ALERTS(" +
@@ -315,6 +308,14 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         "FOREIGN KEY($COLUMN_USER_ID_EXPENSE_CATEGORY) REFERENCES $TABLE_USERS($COLUMN_USER_ID)," +
 
         db?.execSQL(CREATE_EXPENSE_CATEGORIES_TABLE)
+
+        // Income categories table creation
+        val CREATE_INCOME_CATEGORIES_TABLE = ("CREATE TABLE $TABLE_INCOME_CATEGORIES(" +
+                "$COLUMN_ID_INCOME_CATEGORY INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "$COLUMN_USER_ID_INCOME_CATEGORY INTEGER NOT NULL," +
+                "$COLUMN_NAME_INCOME_CATEGORY TEXT NOT NULL)")
+        "FOREIGN KEY($COLUMN_USER_ID_INCOME_CATEGORY) REFERENCES $TABLE_USERS($COLUMN_USER_ID)," +
+                db?.execSQL(CREATE_INCOME_CATEGORIES_TABLE)
 
 
         if (db != null) {
@@ -900,7 +901,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             put(COLUMN_PERCENTAGE_FINANCIAL_GOAL,goal.percentage)
             put(COLUMN_PHOTO_FINANCIAL_GOAL,goal.photo)
             put(COLUMN_CURRENCY_FINANCIAL_GOAL,goal.currency)
-            // Diğer sütunlar default değerleri alacakları için eklemeye gerek yok
+
         }
 
         val db = this.writableDatabase
@@ -1731,7 +1732,9 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
         // Get the dates between the creation date of the financial goal and the current date
         val calendar = Calendar.getInstance()
-        calendar.time = goalCreationDate
+        if (goalCreationDate != null) {
+            calendar.time = goalCreationDate
+        }
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
         while (calendar.time.before(currentDate) || calendar.time == currentDate) {
@@ -1765,6 +1768,102 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db.close()
         return totalIncome
     }
+
+    @SuppressLint("Range")
+    fun getDailyRegularIncomeForFinancialGoalById(userId: Int, goalId: Int): List<Pair<String, Double>> {
+        val financialGoal = getFinancialGoalById(goalId) ?: return emptyList()
+
+        val dailyIncomeList = ArrayList<Pair<String, Double>>()
+
+        // Get the financial goal's creation date
+        val goalCreationDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(financialGoal.createdAt)
+
+        // Get the current date
+        val currentDate = Calendar.getInstance().time
+
+        // Get the dates between the creation date of the financial goal and the current date
+        val calendar = Calendar.getInstance()
+        if (goalCreationDate != null) {
+            calendar.time = goalCreationDate
+        }
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+        // Get the total regular income for the user and category
+        val totalRegularIncome = getTotalRegularIncomeForCategory(userId, financialGoal.categoryId)
+
+        // Calculate daily income by dividing the total regular income by 30
+        val dailyRegularIncome = totalRegularIncome / 30.0
+
+        while (calendar.time.before(currentDate) || calendar.time == currentDate) {
+            val dateString = dateFormat.format(calendar.time)
+
+            // Add the daily regular income to the list as a pair of date and income
+            dailyIncomeList.add(dateString to dailyRegularIncome)
+
+            // Move to the next day
+            calendar.add(Calendar.DAY_OF_MONTH, 1)
+        }
+
+        return dailyIncomeList
+    }
+
+    @SuppressLint("Range")
+    private fun getTotalRegularIncomeForCategory(userId: Int, categoryId: Int): Double {
+        val db = this.readableDatabase
+        val selectQuery =
+            "SELECT SUM($COLUMN_AMOUNT_INCOME) FROM $TABLE_REGULAR_INCOMES WHERE $COLUMN_USER_ID_INCOME = ? AND $COLUMN_CATEGORY_ID_INCOME = ?"
+        val cursor = db.rawQuery(selectQuery, arrayOf(userId.toString(), categoryId.toString()))
+        var totalIncome = 0.0
+        if (cursor.moveToFirst()) {
+            totalIncome = cursor.getDouble(0)
+        }
+        cursor.close()
+        db.close()
+        return totalIncome
+    }
+
+    @SuppressLint("Range")
+    fun getCombinedDailyAndRegularIncomeForFinancialGoalById(userId: Int, goalId: Int): List<Pair<String, Double>> {
+        val financialGoal = getFinancialGoalById(goalId) ?: return emptyList()
+
+        val combinedIncomeList = ArrayList<Pair<String, Double>>()
+
+        // Get the financial goal's creation date
+        val goalCreationDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(financialGoal.createdAt)
+
+        // Get the current date
+        val currentDate = Calendar.getInstance().time
+
+        // Get the dates between the creation date of the financial goal and the current date
+        val calendar = Calendar.getInstance()
+        if (goalCreationDate != null) {
+            calendar.time = goalCreationDate
+        }
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+        // Get the total regular income for the user and category
+        val totalRegularIncome = getTotalRegularIncomeForCategory(userId, financialGoal.categoryId)
+
+        while (calendar.time.before(currentDate) || calendar.time == currentDate) {
+            val dateString = dateFormat.format(calendar.time)
+
+            // Get the total income for the current date and the specified category ID
+            val totalIncome = getTotalIncomeForDateAndCategory(userId, dateString, financialGoal.categoryId)
+
+            // Calculate daily income by summing regular and daily incomes and dividing by 30
+            val dailyIncome = (totalIncome + totalRegularIncome) / 30.0
+
+            // Add the daily income to the list as a pair of date and income
+            combinedIncomeList.add(dateString to dailyIncome)
+
+            // Move to the next day
+            calendar.add(Calendar.DAY_OF_MONTH, 1)
+        }
+
+        return combinedIncomeList
+    }
+
+
 
 
 

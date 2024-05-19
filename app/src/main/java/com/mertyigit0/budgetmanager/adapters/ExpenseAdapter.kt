@@ -46,7 +46,7 @@ class ExpenseAdapter(val context: Context, private val expenseList: ArrayList<Co
         holder.itemView.findViewById<TextView>(R.id.textViewCurrency).text = expense.currency
         holder.itemView.findViewById<TextView>(R.id.textViewDate).text = expense.date
         holder.itemView.findViewById<TextView>(R.id.textViewCategory).text = expense.categoryName
-        holder.itemView.findViewById<TextView>(R.id.textViewDescription).text =expense.note
+        //holder.itemView.findViewById<TextView>(R.id.textViewDescription).text =expense.note
         holder.itemView.findViewById<ImageView>(R.id.menuIconExpense)
 
 
@@ -55,13 +55,13 @@ class ExpenseAdapter(val context: Context, private val expenseList: ArrayList<Co
 
 
 
-        // Menü düğmesine tıklama dinleyicisi ekleme
+        // Menü düğmesine tıklama dinleyicisi
         holder.itemView.findViewById<ImageView>(R.id.menuIconExpense).setOnClickListener {
             // PopupMenu oluşturma
             val popupMenu = PopupMenu(context, holder.itemView.findViewById(R.id.menuIconExpense))
             popupMenu.inflate(R.menu.item_expense_menu)
 
-            // Menü öğelerine tıklama dinleyicisi ekleme
+            // Menü öğelerine tıklama dinleyicisi
             popupMenu.setOnMenuItemClickListener { menuItem ->
                 when (menuItem.itemId) {
                     R.id.action_edit -> {
@@ -117,23 +117,23 @@ class ExpenseSwipeToDeleteCallback(private val adapter: ExpenseAdapter) :
 
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
         val position = viewHolder.adapterPosition
-        val deletedExpense = adapter.deleteItem(position) // Adapter ile ilişkilendirilmiş ExpenseAdapter sınıfından deleteItem fonksiyonunu çağırın
-        val dbHelper = DatabaseHelper(adapter.context) // Veritabanı işlemleri için gerekli olan context adapter'dan alınmalıdır.
+        val deletedExpense = adapter.deleteItem(position)
+        val dbHelper = DatabaseHelper(adapter.context)
 
 
         val isDeletedFromDatabase = if (deletedExpense.recurrence == null) {
-            // Eğer recurrence değeri null ise, deleteRegularIncome fonksiyonunu çağır
+            // Eğer recurrence değeri null ise deleteRegularIncome
             dbHelper.deleteExpense(deletedExpense.id.toLong())
         } else {
-            // Eğer recurrence değeri null değilse, deleteIncome fonksiyonunu çağır
+
             dbHelper.deleteRecurringPayment(deletedExpense.id.toLong())
         }
 
 
         if (!isDeletedFromDatabase) {
-            // SQLite'dan silme işlemi başarısız oldu, geri almayı düşünebilirsiniz
+
         }else {
-            // Silme işlemi başarılı oldu, PieChart'ı güncelle
+            // Silme  başarılı PieChart'ı güncelle
 
         }
 

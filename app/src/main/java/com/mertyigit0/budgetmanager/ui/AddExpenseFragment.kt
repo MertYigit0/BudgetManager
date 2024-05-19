@@ -134,40 +134,41 @@ class AddExpenseFragment : Fragment() {
 
         // İlk olarak, gelen miktarı dolar cinsine dönüştür
         val amountInUSD = if (currency == "USD") {
-            amount // Eğer para birimi zaten USD ise dönüştürme işlemi yapma
+            amount
         } else {
             val exchangeRateToUSD = dbHelper.getExchangeRate(currency)
             amount / exchangeRateToUSD
         }
 
-        // Şimdi, dönüştürülen miktarı kullanıcının seçtiği para birimine dönüştür
+        // Dönüştürülen miktarı kullanıcının seçtiği para birimine dönüştür
         val convertedAmount = if (userCurrency == "USD") {
-            amountInUSD // Eğer kullanıcı para birimi USD ise dönüştürme işlemi yapma
+            amountInUSD
         } else {
             val exchangeRateToUserCurrency = dbHelper.getExchangeRate(userCurrency)
             amountInUSD * exchangeRateToUserCurrency
         }
 
-        // Dönüştürülen miktarı en fazla iki basamaklı bir string olarak biçimlendir
-        val formattedAmount = "%.2f".format(convertedAmount.toDouble())
 
-        // Dönüştürülen miktar ve para birimini ekranda göstermek için string oluştur
+        val formattedAmount = String.format(Locale.ENGLISH, "%.2f", convertedAmount)
+
+        val amountAsDouble = formattedAmount.toDouble()
+
         val equivalentAmountText = "$formattedAmount $userCurrency"
 
-        val expense = Expense(id = 0, userId = userId, amount = formattedAmount.toDouble(), currency = userCurrency, categoryId = categoryId, categoryName = category, date = date, note = description ?: "", createdAt = "")
+        val expense = Expense(id = 0, userId = userId, amount = amountAsDouble, currency = userCurrency, categoryId = categoryId, categoryName = category, date = date, note = description ?: "", createdAt = "")
 
         val databaseHelper = DatabaseHelper(requireContext())
 
         val isSuccess = databaseHelper.addExpense(expense)
 
-        // Eğer eklenme başarılı ise
+
         if (isSuccess) {
-            // Snackbar'da dönüştürülmüş miktarı ve kullanıcı para birimini göster
+
             showSnackbar("Expense added: $amount $currency (Equivalent: $equivalentAmountText)")
-            // Bütçe uyarısını güncelle
+
             updateBudgetAlertForCategory(categoryId)
         } else {
-            // Ekleme başarısız olduysa Snackbar göster
+
             showSnackbar("Failed to add expense.")
         }
         return isSuccess
@@ -212,31 +213,32 @@ class AddExpenseFragment : Fragment() {
 
         // İlk olarak, gelen miktarı dolar cinsine dönüştür
         val amountInUSD = if (currency == "USD") {
-            amount // Eğer para birimi zaten USD ise dönüştürme işlemi yapma
+            amount
         } else {
             val exchangeRateToUSD = dbHelper.getExchangeRate(currency)
             amount / exchangeRateToUSD
         }
 
-        // Şimdi, dönüştürülen miktarı kullanıcının seçtiği para birimine dönüştür
+        // Dönüştürülen miktarı kullanıcının seçtiği para birimine dönüştür
         val convertedAmount = if (userCurrency == "USD") {
-            amountInUSD // Eğer kullanıcı para birimi USD ise dönüştürme işlemi yapma
+            amountInUSD
         } else {
             val exchangeRateToUserCurrency = dbHelper.getExchangeRate(userCurrency)
             amountInUSD * exchangeRateToUserCurrency
         }
 
-        // Dönüştürülen miktarı en fazla iki basamaklı bir string olarak biçimlendir
-        val formattedAmount = "%.2f".format(convertedAmount.toDouble())
 
-        // Dönüştürülen miktar ve para birimini ekranda göstermek için string oluştur
+        val formattedAmount = String.format(Locale.ENGLISH, "%.2f", convertedAmount)
+
+        val amountAsDouble = formattedAmount.toDouble()
+
         val equivalentAmountText = "$formattedAmount $userCurrency"
 
         val recurringPayment = RecurringPayment(
             id = 0,
             userId = userId,
             title = title,
-            amount = formattedAmount.toDouble(),
+            amount = amountAsDouble,
             currency = userCurrency,
             recurrence = recurrence,
             nextPaymentDate = nextPaymentDate,
@@ -248,12 +250,12 @@ class AddExpenseFragment : Fragment() {
 
         val isSuccess = databaseHelper.addRecurringPayment(recurringPayment)
 
-        // Eğer eklenme başarılı ise
+
         if (isSuccess) {
-            // Snackbar'da dönüştürülmüş miktarı ve kullanıcı para birimini göster
+
             showSnackbar("Recurring payment added: $amount $currency (Equivalent: $equivalentAmountText)")
         } else {
-            // Ekleme başarısız olduysa Snackbar göster
+
             showSnackbar("Failed to add recurring payment.")
         }
         return isSuccess
@@ -332,12 +334,12 @@ class AddExpenseFragment : Fragment() {
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
             button.setOnClickListener {
-                // Buttona tıklandığında yapılacak işlemler
+
                 showSnackbar("Clicked: $category")
             }
 
 
-            // ToggleGroup'a butonları ekleme işlemi
+            // ToggleGroup'a butonları ekle
             binding.toggleButtonGroup.addView(button)
         }
     }
@@ -347,7 +349,7 @@ class AddExpenseFragment : Fragment() {
 
 
 
-    // BudgetAlert'leri güncelleme işlevini oluşturun
+    // BudgetAlert'leri güncelle
     private fun updateBudgetAlertForCategory(categoryId: Int) {
         val dbHelper = DatabaseHelper(requireContext())
         val userId = currentUserEmail?.let { dbHelper.getUserData(it) }?.id ?: -1
@@ -355,14 +357,14 @@ class AddExpenseFragment : Fragment() {
         val budgetAlert = dbHelper.getBudgetAlertForCategoryByUserId(userId,categoryId)
 
         if (budgetAlert != null) {
-            // Bütçe uyarısı varsa, güncelleme yap
+            // Bütçe uyarısı varsa güncelleme yap
             val updatedBudgetAlert = budgetAlert.copy(currentAmount = totalExpense)
             updateBudgetAlert(updatedBudgetAlert)
 
         }
     }
 
-    // Bütçe uyarısını güncelleme işlevini oluşturun
+
     private fun updateBudgetAlert(budgetAlert: BudgetAlert) {
 
         val dbHelper = DatabaseHelper(requireContext())
@@ -379,7 +381,7 @@ class AddExpenseFragment : Fragment() {
         val datePickerDialog = DatePickerDialog(
             requireContext(),
             { _, selectedYear, selectedMonth, selectedDay ->
-                // Tarihi doğru formatta ayarlayın
+
                 val formattedMonth = String.format("%02d", selectedMonth + 1)
                 val formattedDay = String.format("%02d", selectedDay)
                 selectedDate = "$selectedYear-$formattedMonth-$formattedDay"
@@ -407,13 +409,13 @@ class AddExpenseFragment : Fragment() {
                 val userId = userData?.id
                 val categoryId = userId?.let { dbHelper.addExpenseCategory(it, categoryName) }
                 if (categoryId != -1L) {
-                    // Kategori başarıyla eklendi
+
                     Toast.makeText(requireContext(), "Category added successfully", Toast.LENGTH_SHORT).show()
                     // ToggleButton grubunu temizle ve yeniden oluştur
                     clearToggleButtons()
                     createToggleButtonsForIncomeCategories()
                 } else {
-                    // Kategori eklenirken bir hata oluştu
+
                     Toast.makeText(requireContext(), "Failed to add category", Toast.LENGTH_SHORT).show()
                 }
             } else {

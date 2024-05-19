@@ -11,6 +11,8 @@ import androidx.navigation.Navigation
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.mertyigit0.budgetmanager.currency.CurrencyFragment
+import com.mertyigit0.budgetmanager.data.DatabaseHelper
 import com.mertyigit0.budgetmanager.databinding.FragmentLoginBinding
 
 
@@ -67,12 +69,12 @@ class LoginFragment : Fragment() {
 
             auth.signInWithEmailAndPassword(email,password).addOnCompleteListener {task ->
                 if (task.isSuccessful) {
-                    // Giriş başarılı ise yapılacak işlemler
+                    // Giriş başarılı
 
                   // navController.navigate(R.id.action_loginFragment_to_incomeFragment)
                     navController.navigate(R.id.action_loginFragment_to_addIncomeFragment)
                 } else {
-                    // Giriş başarısız ise kullanıcıya hata mesajı gösterebilirsiniz
+                    // Giriş başarısız
                     Toast.makeText(requireContext(), "Giriş başarısız: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                 }
 

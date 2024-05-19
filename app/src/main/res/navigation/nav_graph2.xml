@@ -22,5 +22,12 @@
         <action
             android:id="@+id/action_info2Fragment_to_info1Fragment"
             app:destination="@id/info1Fragment" />
+        <action
+            android:id="@+id/action_info2Fragment_to_loginFragment2"
+            app:destination="@id/loginFragment2" />
     </fragment>
+    <fragment
+        android:id="@+id/loginFragment2"
+        android:name="com.mertyigit0.budgetmanager.loginregister.LoginFragment"
+        android:label="LoginFragment" />
 </navigation>

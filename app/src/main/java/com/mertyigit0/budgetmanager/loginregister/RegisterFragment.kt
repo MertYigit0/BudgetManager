@@ -97,7 +97,7 @@ class RegisterFragment : Fragment() {
 
     }
 
-    // Register işleminden sonra kullanıcının bilgilerini SQLite veritabanına kaydetmek için bu fonksiyonu kullanabilirsiniz
+    // Register işleminden sonra kullanıcının bilgilerini SQLite veritabanına kaydetmek için
     private fun saveUserToSQLite(user: FirebaseUser) {
         val email = user.email
         val createdAt = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
@@ -107,9 +107,9 @@ class RegisterFragment : Fragment() {
 
         // User nesnesini oluştur
         val newUser = User(
-            id = -1, // SQLite otomatik olarak artan bir sütun olduğu için -1 olarak atanabilir
-            email = email ?: "", // Kullanıcı e-postası
-            createdAt = createdAt, // Kayıt tarihi ve saati
+            id = -1,
+            email = email ?: "",
+            createdAt = createdAt,
             currency = currency,
             notificationEnabled = notificationEnabled,
             photo = null
@@ -124,7 +124,7 @@ class RegisterFragment : Fragment() {
             // Kullanıcı başarıyla eklendi
             Toast.makeText(requireContext(), "Kullanıcı başarıyla kaydedildi", Toast.LENGTH_SHORT).show()
         } else {
-            // Kullanıcı eklenirken bir hata oluştu
+            // Kullanıcı eklenirken bir hata
             Toast.makeText(requireContext(), "Kullanıcı kaydedilirken bir hata oluştu", Toast.LENGTH_SHORT).show()
         }
     }

@@ -117,10 +117,10 @@ class FinancialGoalAdapter(private val context: Context, private val financialGo
             if (userData != null) {
                 val dailyIncomeList = dbHelper.getCombinedDailyAndRegularIncomeForFinancialGoalById(userData.id, financialGoalId)
 
-                println("Daily Income List: $dailyIncomeList") // dailyIncomeList'i yazdır
+                println("Daily Income List: $dailyIncomeList")
 
                 if (dailyIncomeList.isEmpty()) {
-                    predictTextView.text = "No income data available" // Gelir verisi bulunamadı uyarısı
+                    predictTextView.text = "No income data available"
                     return
                 }
 
@@ -130,15 +130,13 @@ class FinancialGoalAdapter(private val context: Context, private val financialGo
                     incomeList.add(income)
                 }
 
-                println("Income List: $incomeList") // incomeList'i yazdır
-                // Kontrol eklendi
+                println("Income List: $incomeList")
+
                 if (incomeList.isEmpty() || incomeList.sum() == 0.0) {
-                    predictTextView.text = "No income available or total income is zero" // Gelir verisi bulunamadı uyarısı
+                    predictTextView.text = "No income available or total income is zero"
                     return
                 }
 
-
-                // Kontrol eklendi
                 if (incomeList.size < 10) {
                     predictTextView.text = "Not enough data for prediction"
                 } else {

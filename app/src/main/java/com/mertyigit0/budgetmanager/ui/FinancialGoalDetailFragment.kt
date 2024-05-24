@@ -113,6 +113,8 @@ class FinancialGoalDetailFragment : Fragment() {
             entries.add(Entry(index.toFloat(), income.second.toFloat()))
         }
         val dataSet = LineDataSet(entries, "Current Amount")
+        dataSet.lineWidth = 3f // Çizgilerin kalınlığını ayarla
+        dataSet.color = Color.BLUE // Çizgilerin rengini lacivert olarak ayarla
         val data = LineData(dataSet)
         lineChart.data = data
 
@@ -277,7 +279,7 @@ private fun linearRegressionForecast(dailyIncomes: List<Double>, targetAmount: D
                         binding.EstimatedDayAverage.text = "Target amount reached!"
 
                     } else {
-                        binding.EstimatedDayRegression.text = "Approximately Days: $futureDays"
+                        binding.EstimatedDayRegression.text = "Approximately Days: $futureDays (Linear Regression)"
                     }
                 }
             }}}

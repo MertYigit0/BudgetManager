@@ -26,6 +26,7 @@
         android:id="@+id/addFinancialGoalButton"
         android:layout_width="216dp"
         android:layout_height="68dp"
+        android:background="@drawable/button1"
         android:text="Add New Financial Goal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

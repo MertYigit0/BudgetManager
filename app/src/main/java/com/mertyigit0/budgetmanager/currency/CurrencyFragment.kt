@@ -48,7 +48,7 @@ class CurrencyFragment : Fragment() {
         // Varsayılan seçimi kaldır
         spinner.setSelection(0, false) // 0: Varsayılan olarak seçilecek öğenin pozisyonu
 
-        // RecyclerView'ı bağlayın ve ayarlayın
+
         binding.currencyListRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.currencyListRecyclerView.adapter = CurrencyListAdapter(emptyMap())
 
@@ -88,7 +88,7 @@ class CurrencyFragment : Fragment() {
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
-                // Bir şey seçilmediğinde yapılacak işlemi tanımlayabilirsiniz (opsiyonel)
+
             }
 
 
@@ -96,22 +96,22 @@ class CurrencyFragment : Fragment() {
 
     }
 
-    // Kullanıcı para birimini güncellemek için bu fonksiyonu kullanabilirsiniz
+
     fun updateCurrency(selectedCurrency: String) {
-        // Mevcut kullanıcının e-posta adresini alın
+
         val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
         val dbHelper = DatabaseHelper(requireContext())
         var userData = currentUserEmail?.let { dbHelper.getUserData(it) }
-        // Eğer mevcut kullanıcı e-posta adresi yoksa veya seçilen para birimi boşsa işlemi yapmayın
+
         if (currentUserEmail.isNullOrEmpty() || selectedCurrency.isNullOrEmpty()) {
             return
         }
 
-        // Veritabanında kullanıcının para birimini güncellemek için updateCurrencyUser fonksiyonunu çağırın
+
 
         val isSuccess = dbHelper.updateCurrencyUser(currentUserEmail, selectedCurrency)
 
-        // Başarılı bir şekilde güncellendiğini kontrol edin ve kullanıcıya bir geri bildirim gösterin
+
         if (isSuccess) {
             Toast.makeText(requireContext(), "Currency updated successfully", Toast.LENGTH_SHORT).show()
             // Tüm işlemleri yeni para birimine dönüştür
@@ -130,26 +130,20 @@ class CurrencyFragment : Fragment() {
     private fun fetchData() {
         val sharedPreferences = requireContext().getSharedPreferences("CurrencyPrefs", Context.MODE_PRIVATE)
 
-        // Önceki veri çekme tarihini al
         val lastFetchTime = sharedPreferences.getLong("lastFetchTime", 0)
 
-        // Şu anki zamanı al
         val currentTime = System.currentTimeMillis()
 
-        // Bir günün milisaniye cinsinden karşılığı
         val oneDayInMillis = 24 * 60 * 60 * 1000
 
-        // Geçen zamanı hesapla (milisaniye cinsinden)
         val elapsedTime = currentTime - lastFetchTime
 
-        // Eğer geçen zaman bir günden fazlaysa, verileri SQLite'dan al
         if (elapsedTime > oneDayInMillis || lastFetchTime == 0L) {
             fetchCurrencyFromAPI()
 
-            // Son veri çekme tarihini güncelle
             sharedPreferences.edit().putLong("lastFetchTime", currentTime).apply()
         } else {
-            // Eğer bir gün geçmemişse ve önceki bir veri çekme tarihi varsa, verileri SQLite'dan al
+
             val dbHelper = DatabaseHelper(requireContext())
             val exchangeRates = dbHelper.getAllExchangeRates()
             updateUI(exchangeRates)
@@ -169,12 +163,12 @@ class CurrencyFragment : Fragment() {
                         showSnackbar("Veriler API'den geldi.")
                     }
                 } else {
-                    // İstek başarısız oldu
+
                 }
             }
 
             override fun onFailure(call: Call<CurrencyResponse>, t: Throwable) {
-                // Hata oluştu
+
             }
         })
     }
@@ -208,7 +202,7 @@ class CurrencyFragment : Fragment() {
         val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
         var userData = currentUserEmail?.let { dbHelper.getUserData(it) }
         val userId = userData?.id
-        // Gelirleri güncelle
+
         val incomes = userId?.let { dbHelper.getAllIncomesByUserId(it) }
         if (incomes != null) {
             for (income in incomes) {
@@ -222,7 +216,6 @@ class CurrencyFragment : Fragment() {
             }
         }
 
-        // Giderleri güncelle
         val expenses = userId?.let { dbHelper.getAllExpensesByUserId(it) }
         if (expenses != null) {
             for (expense in expenses) {

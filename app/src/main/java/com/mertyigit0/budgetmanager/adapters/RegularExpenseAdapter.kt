@@ -41,19 +41,14 @@ class RegularExpenseAdapter(val context: Context, private val regularExpenseList
         holder.itemView.findViewById<ImageView>(R.id.menuIconIncome)
         // holder.itemView.findViewById<TextView>(R.id.textViewDescription).text = income.note
 
-
-
-        // Menü düğmesine tıklama dinleyicisi ekleme
         holder.itemView.findViewById<ImageView>(R.id.menuIconIncome).setOnClickListener {
-            // PopupMenu oluşturma
             val popupMenu = PopupMenu(context, holder.itemView.findViewById(R.id.menuIconIncome))
             popupMenu.inflate(R.menu.item_income_menu)
 
-            // Menü öğelerine tıklama dinleyicisi ekleme
             popupMenu.setOnMenuItemClickListener { menuItem ->
                 when (menuItem.itemId) {
                     R.id.action_edit -> {
-                        // Düzenleme işlemi
+
                         val regularExpenseId = expense.id
                         val bundle = Bundle().apply {
                             putInt("regularExpenseId", regularExpenseId)
@@ -65,16 +60,8 @@ class RegularExpenseAdapter(val context: Context, private val regularExpenseList
                 }
             }
 
-            // Popup menüyü gösterme
             popupMenu.show()
         }
-
-
-
-
-
-
-
 
     }
 

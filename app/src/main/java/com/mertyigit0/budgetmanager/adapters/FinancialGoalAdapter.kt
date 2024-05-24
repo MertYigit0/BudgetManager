@@ -152,9 +152,9 @@ class FinancialGoalAdapter(private val context: Context, private val financialGo
                         val targetAmount = financialGoal.targetAmount
                         val currentAmount = financialGoal.currentAmount
                         if (futureDays <= 0 || currentAmount >= targetAmount) {
-                            // Hedefe ulaşıldığını kullanıcıya bildir
+
                             predictTextView.text = "Target amount reached!"
-                            // Burada gerekli bildirimi yapabilirsiniz, örneğin bir toast mesajı veya bir bildirim gösterimi
+
                         } else {
                             predictTextView.text= "Approximately Days: $futureDays"
                         }
@@ -172,12 +172,12 @@ class FinancialGoalAdapter(private val context: Context, private val financialGo
     }
 
     private fun linearRegressionForecast(dailyIncomes: List<Double>, targetAmount: Double): Int {
-        // Apache Common Maths kütüphanesini kullanarak basit lineer regresyon modeli oluştur
+
         val regression = SimpleRegression()
 
         // Gelir verileri yeterli mi kontrol et
         if (dailyIncomes.size < 10) {
-            println("aaaaaaaaaaa"+regression.slope) // Eğim değerini yazdırın
+            println("aaaaaaaaaaa"+regression.slope) 
             return -2 // -2 kodu, yetersiz veri durumunu temsil eder
         }
 

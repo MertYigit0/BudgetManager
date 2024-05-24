@@ -329,19 +329,18 @@ class ProfileFragment : Fragment() {
         val fileUri = Uri.fromFile(file)
         val uploadTask = fileRef.putFile(fileUri)
 
-        // Yükleme işlemi tamamlandığında gerçekleştirilecek işlemler
+
         uploadTask.addOnSuccessListener { taskSnapshot ->
-            // Dosyanın yüklendiği URL'yi alabilirsiniz
+            // Dosyanın yüklendiği URL
             fileRef.downloadUrl.addOnSuccessListener { uri ->
                 val downloadUrl = uri.toString()
-                // Firebase Storage'da dosyanın indirme URL'sini alarak gerektiğinde kullanabilirsiniz
-                // Örneğin, bu URL'yi veritabanına kaydedebilirsiniz
+
                 Toast.makeText(requireContext(), "Excel file uploaded to Firebase Storage. Download URL: $downloadUrl", Toast.LENGTH_SHORT).show()
             }.addOnFailureListener { exception ->
-                // URL alınırken bir hata oluşursa burada işlemler yapılabilir
+
             }
         }.addOnFailureListener { exception ->
-            // Yükleme işlemi başarısız olduğunda burada işlemler yapılabilir
+
         }
     }
 

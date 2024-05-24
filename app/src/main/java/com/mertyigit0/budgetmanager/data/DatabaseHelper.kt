@@ -1843,18 +1843,19 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
         // Get the total regular income for the user and category
         val totalRegularIncome = getTotalRegularIncomeForCategory(userId, financialGoal.categoryId)
+        val dailyRegularIncome = (totalRegularIncome / 30.0) * (financialGoal.percentage / 100.0)
 
         while (calendar.time.before(currentDate) || calendar.time == currentDate) {
             val dateString = dateFormat.format(calendar.time)
 
-            // Get the total income for the current date and the specified category ID
-            val totalIncome = getTotalIncomeForDateAndCategory(userId, dateString, financialGoal.categoryId)
+            // Get the total daily income for the current date and the specified category ID
+            val totalDailyIncome = getTotalIncomeForDateAndCategory(userId, dateString, financialGoal.categoryId) * (financialGoal.percentage / 100.0)
 
-            // Calculate daily income by summing regular and daily incomes and dividing by 30
-            val dailyIncome = (totalIncome + totalRegularIncome) / 30.0
+            // Calculate combined income by adding daily income and regular income
+            val combinedIncome = totalDailyIncome + dailyRegularIncome
 
-            // Add the daily income to the list as a pair of date and income
-            combinedIncomeList.add(dateString to dailyIncome)
+            // Add the combined income to the list as a pair of date and income
+            combinedIncomeList.add(dateString to combinedIncome)
 
             // Move to the next day
             calendar.add(Calendar.DAY_OF_MONTH, 1)
@@ -1862,6 +1863,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
         return combinedIncomeList
     }
+
 
 
 

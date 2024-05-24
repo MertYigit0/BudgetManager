@@ -78,7 +78,7 @@ class FinancialGoalDetailFragment : Fragment() {
                     predictLineChart(dailyIncomeList, incomeList, financialGoal)
 
                     // Ortalama gelir tahmini fonksiyonunu çağır ve tahmini gün sayısını hesapla
-                    val averageDays = averageIncomeForecast(incomeList, financialGoal.targetAmount)
+                    val averageDays = averageIncomeForecast(incomeList, financialGoal.targetAmount,financialGoal.currentAmount)
                 }
             }
         }
@@ -284,28 +284,32 @@ private fun linearRegressionForecast(dailyIncomes: List<Double>, targetAmount: D
 
 
 
-    private fun averageIncomeForecast(dailyIncomes: List<Double>, targetAmount: Double): Int {
-        // Günlük gelirlerin ortalama değerini hesapla
+    private fun averageIncomeForecast(dailyIncomes: List<Double>, targetAmount: Double, currentAmount: Double): Int {
+
         val averageIncome = dailyIncomes.average()
 
-        // Ortalama gelire ulaşmak için gereken gün sayısını hesapla
-        val daysToReachTarget = (targetAmount / averageIncome).toInt()
 
-        // Tahmini gün sayısını metin görüntüleyicisine atayarak döndür
+        val daysToReachTarget = ((targetAmount - currentAmount) / averageIncome).toInt()
+
+
         val estimatedDaysText = if (dailyIncomes.size < 3) {
             "Not enough data for forecasting (Average Income)"
+        } else if (daysToReachTarget <= 0) {
+            "Target amount reached!"
         } else {
             "Estimated Days: $daysToReachTarget (Average Income)"
         }
+
         binding.EstimatedDayAverage.text = estimatedDaysText
 
-        // Hedefe ulaşıldıysa bildirim yap
-        if (targetAmount <= dailyIncomes.sum()) {
+
+        if (daysToReachTarget <= 0) {
             binding.EstimatedDayRegression.text = "Target amount reached!"
         }
 
         return daysToReachTarget
     }
+
 
 
 

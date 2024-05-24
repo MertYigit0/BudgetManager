@@ -86,7 +86,7 @@ class IncomeListFragment : Fragment() {
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
-                // Bir şey seçilmediğinde yapılacaklar (opsiyonel)
+
             }
         }
 
@@ -99,8 +99,8 @@ class IncomeListFragment : Fragment() {
             "By Date" -> incomes.sortedBy { it.date }
             "By Amount" -> incomes.sortedByDescending { it.amount }
             "By Category" -> incomes.sortedBy { it.categoryName }
-            // İsteğe bağlı olarak diğer sıralama türlerini buraya ekleyebilirsiniz
-            else -> incomes // Herhangi bir geçerli sıralama türü yoksa, orijinal listeyi döndür
+
+            else -> incomes
         }
     }
 
@@ -114,10 +114,10 @@ class IncomeListFragment : Fragment() {
                 CombinedIncome(
                     id = income.id,
                     userId = income.userId,
-                    title = null,  // RegularIncome alanları null olacak
+                    title = null,
                     amount = income.amount,
                     currency = income.currency,
-                    recurrence = null,  // RegularIncome alanları null olacak
+                    recurrence = null,
                     date = income.date,
                     categoryId = income.categoryId,
                     categoryName = income.categoryName,
@@ -139,8 +139,8 @@ class IncomeListFragment : Fragment() {
                     recurrence = regularIncome.recurrence,
                     date = regularIncome.date,
                     categoryId = regularIncome.categoryId,
-                    categoryName = regularIncome.categoryName,  // RegularIncome'ı diğerlerinden ayırmak için kategori adını belirleyin
-                    note = null,  // RegularIncome alanları null olacak
+                    categoryName = regularIncome.categoryName,
+                    note = null,
                     createdAt = ""
                 )
             )

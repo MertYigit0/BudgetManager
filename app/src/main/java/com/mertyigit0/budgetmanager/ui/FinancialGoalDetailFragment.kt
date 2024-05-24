@@ -251,7 +251,7 @@ private fun linearRegressionForecast(dailyIncomes: List<Double>, targetAmount: D
             println("Income List: $incomeList") // incomeList'i yazdır
             // Kontrol eklendi
             if (incomeList.isEmpty() || incomeList.sum() == 0.0) {
-                binding.EstimatedDayRegression.text = "No income available or total income is zero" // Gelir verisi bulunamadı uyarısı
+                binding.EstimatedDayRegression.text = "No income available or total income is zero"
                 return
             }
 
@@ -272,10 +272,10 @@ private fun linearRegressionForecast(dailyIncomes: List<Double>, targetAmount: D
                     val targetAmount = financialGoal.targetAmount
                     val currentAmount = financialGoal.currentAmount
                     if (futureDays <= 0 || currentAmount >= targetAmount) {
-                        // Hedefe ulaşıldığını kullanıcıya bildir
+
                         binding.EstimatedDayRegression.text = "Target amount reached!"
                         binding.EstimatedDayAverage.text = "Target amount reached!"
-                        // Burada gerekli bildirimi yapabilirsiniz, örneğin bir toast mesajı veya bir bildirim gösterimi
+
                     } else {
                         binding.EstimatedDayRegression.text = "Approximately Days: $futureDays"
                     }

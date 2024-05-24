@@ -44,7 +44,7 @@ class EditIncomeFragment : Fragment() {
         val navController = Navigation.findNavController(requireView())
 
         if (incomeId != null && incomeId != -1) {
-            // Eğer incomeId değeri mevcut ve -1 değilse, bir gelir düzenleme ekranı açılıyor
+
             val income = dbHelper.getIncomeById(incomeId)
 
             // Gelir verilerini görsel öğelerle doldur
@@ -53,7 +53,7 @@ class EditIncomeFragment : Fragment() {
                 binding.editTextText.setText(income.note)
                 binding.dateTextView.text = income.date
 
-                // Düzenleme butonuna tıklandığında yapılacak işlemler
+
                 binding.addButton.setOnClickListener {
                     val updatedAmount = binding.amountEditText.text.toString().toDouble()
                     val updatedDescription = binding.editTextText.text.toString()
@@ -80,7 +80,7 @@ class EditIncomeFragment : Fragment() {
                 }
             }
         } else if (regularIncomeId != null && regularIncomeId != -1) {
-            // Eğer regularIncomeId değeri mevcut ve -1 değilse, bir düzenli gelir düzenleme ekranı açılıyor
+
             val regularIncome = dbHelper.getRegularIncomeById(regularIncomeId)
 
             // Düzenli gelir verilerini görsel öğelerle doldur

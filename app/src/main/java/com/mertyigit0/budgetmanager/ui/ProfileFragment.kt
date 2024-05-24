@@ -108,7 +108,7 @@ class ProfileFragment : Fragment() {
                 dialog.dismiss() // Dialog'u kapat
             }
 
-            // Negatif buton için tıklama olayını ayarla
+
             builder.setNegativeButton("Cancel") { dialog, _ ->
                 dialog.dismiss() // Dialog'u kapat
             }

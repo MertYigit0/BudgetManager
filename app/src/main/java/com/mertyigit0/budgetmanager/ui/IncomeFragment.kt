@@ -78,7 +78,7 @@ class IncomeFragment : Fragment() {
 
 
 
-        // ItemTouchHelper'ı kullanarak swipe to delete özelliğini ekleyin
+
         val itemTouchHelper = ItemTouchHelper(IncomeSwipeToDeleteCallback(incomeAdapter))
         itemTouchHelper.attachToRecyclerView(recyclerView)
 
@@ -114,7 +114,7 @@ class IncomeFragment : Fragment() {
         }
 
         binding.buttonPreviousWeek.setOnClickListener {
-            // Önceki hafta butonuna tıklandığında yapılacak işlemler
+
 
                 // Aylık görünümdeyiz, mevcut ayı bir önceki aya kaydır
                 currentMonth--
@@ -129,7 +129,7 @@ class IncomeFragment : Fragment() {
         }
 
         binding.nextWeekButton.setOnClickListener {
-            // Önceki hafta butonuna tıklandığında yapılacak işlemler
+
 
                 // Aylık görünümdeyiz, mevcut ayı bir önceki aya kaydır
                 currentMonth++
@@ -149,7 +149,7 @@ class IncomeFragment : Fragment() {
         val monthYearText = "${currentMonth}. $currentYear"
         binding.weekDatesTextView.text = monthYearText
     }
-    // Kategoriye göre renk atayan yardımcı fonksiyon
+
     private fun getColorForCategory(categoryLabel: String): Int {
         val categoryIdStartIndex = categoryLabel.lastIndexOf("(") + 1
         val categoryIdEndIndex = categoryLabel.lastIndexOf(")")
@@ -173,12 +173,12 @@ class IncomeFragment : Fragment() {
 
     // Rastgele renkler üretmek için bir fonksiyon
     fun getRandomColor(): Int {
-        // Renkleri oluşturmak için rastgele RGB değerleri alın
+
         val r = Random.nextInt(256)
         val g = Random.nextInt(256)
         val b = Random.nextInt(256)
 
-        // RGB değerlerini tek bir Int olarak birleştirin ve döndürün
+
         return (0xFF shl 24) or (r shl 16) or (g shl 8) or b
     }
 
@@ -212,8 +212,8 @@ class IncomeFragment : Fragment() {
 
         // Belirli bir ay için toplam miktarı pie chart'a ekle
         for ((categoryName, totalAmount) in monthYearTotals) {
-            val categoryID = dbHelper.getIncomeCategoryIdByCategoryName(categoryName) // Kategori adından ID'yi alabilirsiniz, kendi projenize göre uyarlayın
-            val entryLabel = "$categoryName ($categoryID)" // Kategori adı ve ID'sini birleştirin
+            val categoryID = dbHelper.getIncomeCategoryIdByCategoryName(categoryName)
+            val entryLabel = "$categoryName ($categoryID)"
             entries.add(PieEntry(totalAmount, entryLabel))
         }
 
@@ -242,7 +242,7 @@ class IncomeFragment : Fragment() {
     private fun getUserCurrency(): String {
         val dbHelper = DatabaseHelper(requireContext())
         val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
-        return currentUserEmail?.let { dbHelper.getUserData(it)?.currency } ?: "USD" // Varsayılan olarak USD kullan
+        return currentUserEmail?.let { dbHelper.getUserData(it)?.currency } ?: "USD" // Varsayılan olarak USD
     }
     // Tarih formatından ayı almak için yardımcı bir fonksiyon
     private fun getMonthFromDate(date: String): Int {
@@ -259,10 +259,10 @@ class IncomeFragment : Fragment() {
                 CombinedIncome(
                     id = income.id,
                     userId = income.userId,
-                    title = null,  // RegularIncome alanları null olacak
+                    title = null,
                     amount = income.amount,
                     currency = income.currency,
-                    recurrence = null,  // RegularIncome alanları null olacak
+                    recurrence = null,
                     date = income.date,
                     categoryId = income.categoryId,
                     categoryName = income.categoryName,
@@ -284,8 +284,8 @@ class IncomeFragment : Fragment() {
                     recurrence = regularIncome.recurrence,
                     date = regularIncome.date,
                     categoryId = regularIncome.categoryId,
-                    categoryName = regularIncome.categoryName,  // RegularIncome'ı diğerlerinden ayırmak için kategori adını belirleyin
-                    note = null,  // RegularIncome alanları null olacak
+                    categoryName = regularIncome.categoryName,
+                    note = null,
                     createdAt = ""
                 )
             )

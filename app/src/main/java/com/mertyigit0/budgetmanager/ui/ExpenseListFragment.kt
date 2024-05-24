@@ -90,8 +90,8 @@ class ExpenseListFragment : Fragment() {
             "By Date" -> expenses.sortedBy { it.date }
             "By Amount" -> expenses.sortedByDescending { it.amount }
             "By Category" -> expenses.sortedBy { it.categoryName }
-            // İsteğe bağlı olarak diğer sıralama türlerini buraya ekleyebilirsiniz
-            else -> expenses // Herhangi bir geçerli sıralama türü yoksa, orijinal listeyi döndür
+
+            else -> expenses
         }
     }
 
@@ -106,10 +106,10 @@ class ExpenseListFragment : Fragment() {
                 CombinedExpense(
                     id = expense.id,
                     userId = expense.userId,
-                    title = null,  // RecurringPayment alanları null olacak
+                    title = null,
                     amount = expense.amount,
                     currency = expense.currency,
-                    recurrence = null,  // RecurringPayment alanları null olacak
+                    recurrence = null,
                     date = expense.date,
                     categoryId = expense.categoryId,
                     categoryName = expense.categoryName,
@@ -129,10 +129,10 @@ class ExpenseListFragment : Fragment() {
                     amount = recurringPayment.amount,
                     currency = recurringPayment.currency,
                     recurrence = recurringPayment.recurrence,
-                    date = recurringPayment.nextPaymentDate,  // Tekrarlayan ödemenin sonraki ödeme tarihini alın
+                    date = recurringPayment.nextPaymentDate,
                     categoryId = recurringPayment.categoryId,
-                    categoryName = recurringPayment.categoryName,  // Tekrarlayan ödemeleri diğerlerinden ayırmak için boş bir kategori adı belirleyin
-                    note = null,  // Tekrarlayan ödeme alanları null olacak
+                    categoryName = recurringPayment.categoryName,
+                    note = null,
                     createdAt = ""
                 )
             )

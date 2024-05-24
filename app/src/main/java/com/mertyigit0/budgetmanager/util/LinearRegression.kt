@@ -34,7 +34,7 @@ class LinearRegression {
         val linearRegression = LinearRegression()
 
         for (month in (endMonth + 1)..(endMonth + 3)) {
-            // Tahmin yapılacak gün olarak ayın başlangıcı (1. gün) kullanılıyor
+
             val targetDay = 1.0
             val predictedValue = linearRegression.calculatePrediction(allIncomeData, allExpenseData, targetDay)
             println("Tahminler $month. ay için: $predictedValue")

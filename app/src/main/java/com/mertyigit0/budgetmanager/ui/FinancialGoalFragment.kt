@@ -178,25 +178,25 @@ class FinancialGoalFragment : Fragment() {
 
 
     fun main() {
-        // Kullanıcıların günlere göre gelirlerini içeren bir liste
+
         val dailyIncomes = listOf(500.0, 400.0, 70.0, 30.0, 10.0, 80.0, 50.0, 900.0)
 
-        // Toplam biriktirilmek istenen değer
+
         val targetAmount = 10000.0
 
-        // Apache Common Maths kütüphanesini kullanarak basit lineer regresyon modeli oluştur
+
         val regression = SimpleRegression()
 
-        // Günlük gelir verilerini regresyon modeline ekle
+
         for (i in dailyIncomes.indices) {
             regression.addData(i.toDouble(), dailyIncomes[i])
         }
 
-        // Regresyon modelini kullanarak gelecek günlerdeki gelirleri tahmin et
+
         val nextDayIndex = dailyIncomes.size
         val nextDayIncome = regression.predict(nextDayIndex.toDouble())
 
-        // Önceki günlerdeki gelirlerin toplamının 1000 TL'ye ulaşacağı tahmini gün sayısı
+
         var totalIncome = 0.0
         var days = 0
         while (totalIncome < targetAmount) {
@@ -204,7 +204,7 @@ class FinancialGoalFragment : Fragment() {
             days++
         }
 
-        // Tahmini gün sayısından mevcut gün sayısını çıkararak gelecekte kaç gün olduğunu bul
+
         val futureDays =  days - dailyIncomes.size
 
         println("Önceki günlerdeki gelirlerin toplamının 1000 TL'ye ulaşacağı tahmini gün sayısı: $days gün")

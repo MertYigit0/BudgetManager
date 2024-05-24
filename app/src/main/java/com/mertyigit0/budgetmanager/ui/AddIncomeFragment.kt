@@ -297,9 +297,9 @@ class AddIncomeFragment : Fragment() {
             val financialGoals = dbHelper.getAllFinancialGoalsByUserIdByCategoryId(userId ,  categoryId)
             financialGoals.forEach { goal ->
                 if (goal.categoryId == categoryId) {
-                    val updatedAmount = amount * (goal.percentage.toDouble() / 100) // Gelir miktarını yüzdeyle çarp
-                    goal.currentAmount += updatedAmount // Finansal hedefin mevcut tutarına ekleyin
-                    dbHelper.updateFinancialGoal(goal) // Güncellenmiş finansal hedefi veritabanına kaydet
+                    val updatedAmount = amount * (goal.percentage.toDouble() / 100)
+                    goal.currentAmount += updatedAmount
+                    dbHelper.updateFinancialGoal(goal)
                 }
             }
 

@@ -10,12 +10,11 @@ class IncomeAlarmReceiver : BroadcastReceiver() {
 
     /*
     override fun onReceive(context: Context, intent: Intent) {
-        // Otomatik gelir ekleme işlemi burada gerçekleştirilebilir
+
         val regularIncomeId = intent.getIntExtra("regularIncomeId", -1)
         println("regularincomeid$regularIncomeId")
         if (regularIncomeId != -1) {
-            // Gelir ekleme işlemini gerçekleştir
-            // Örneğin:
+
             val dbHelper = DatabaseHelper(context)
             val regularIncome = dbHelper.getRegularIncomeById(regularIncomeId)
             if (regularIncome != null) {
@@ -34,15 +33,13 @@ class IncomeAlarmReceiver : BroadcastReceiver() {
                     )
                 )
                 if (isSuccess) {
-                    // Gelir başarıyla eklendi
-                    // İstenirse bir bildirim gösterilebilir veya başka bir işlem yapılabilir
+
                     println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
                 } else {
                     println("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb")
                 }
             } else {
-                // Belirtilen regularIncomeId'ye sahip bir gelir bulunamadı
-                // Hata işleme alınabilir
+
             }
         }
     }

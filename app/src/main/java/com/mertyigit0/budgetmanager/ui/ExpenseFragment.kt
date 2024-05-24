@@ -203,7 +203,7 @@ class ExpenseFragment : Fragment() {
             7f -> ContextCompat.getColor(requireContext(), R.color.chart_gray)
             8f -> ContextCompat.getColor(requireContext(), R.color.chart_orange)
             9f -> Color.BLACK
-            else -> getRandomColor() // Tanımlanmamış kategori id'leri için rastgele renk döndür
+            else -> getRandomColor()
         }
     }
 
@@ -358,7 +358,7 @@ class ExpenseFragment : Fragment() {
         // Haftanın günlerine göre harcamaları görselleştir
         displayWeeklyExpenses(barChart, weeklyExpensesMap)
     }
-    // Haftalık harcamaları görselleştiren bir yardımcı işlev
+
     private fun displayWeeklyExpenses(barChart: BarChart, weeklyExpensesMap: HashMap<Int, Float>) {
         val dayAbbreviations = hashMapOf(
             Calendar.SUNDAY to "Sun",
@@ -499,7 +499,7 @@ class ExpenseFragment : Fragment() {
         val maxVisibleMonths = 12
 
         for (i in Calendar.JANUARY until Calendar.JANUARY + maxVisibleMonths) {
-            val month = i % 12 + 1 // Ay indeksi 0'dan başladığı için +1 ekliyoruz, döngü geçişleri için mod işlemi yapılır
+            val month = i % 12 + 1 // Ay indeksi 0'dan başladığı için +1 ek
             val monthlyIncome = dbHelper.getTotalIncomeForMonth(userData?.id ?: -1, month)
             val monthlyExpense = dbHelper.getTotalExpenseInMonth(userData?.id ?: -1, month)
 
@@ -530,7 +530,7 @@ class ExpenseFragment : Fragment() {
         // Yatay kaydırma özelliklerini ayarlayın
         barChart.setPinchZoom(true) // Yakınlaştırma ve kaydırma özelliğini etkinleştirir
         barChart.isDragEnabled = true // Kaydırmayı etkinleştirir
-        barChart.setVisibleXRangeMaximum(maxVisibleMonths.toFloat()) // Aynı anda gösterilecek maksimum ay sayısını belirler
+        barChart.setVisibleXRangeMaximum(maxVisibleMonths.toFloat())
         barChart.moveViewToX(0f) // Başlangıç pozisyonunu ayarlar
 
         barChart.groupBars(0f, 0.08f, 0.03f) // Gruplanmış veri setlerini ayarlar
@@ -571,10 +571,10 @@ class ExpenseFragment : Fragment() {
                     amount = recurringPayment.amount,
                     currency = recurringPayment.currency,
                     recurrence = recurringPayment.recurrence,
-                    date = recurringPayment.nextPaymentDate,  // Tekrarlayan ödemenin sonraki ödeme tarihini alın
+                    date = recurringPayment.nextPaymentDate,
                     categoryId = recurringPayment.categoryId,
-                    categoryName = recurringPayment.categoryName,  // Tekrarlayan ödemeleri diğerlerinden ayırmak için boş bir kategori adı belirleyin
-                    note = null,  // Tekrarlayan ödeme alanları null olacak
+                    categoryName = recurringPayment.categoryName,
+                    note = null,
                     createdAt = ""
                 )
             )

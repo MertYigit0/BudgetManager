@@ -44,7 +44,7 @@ class BudgetAlertFragment : Fragment() {
         val navController = Navigation.findNavController(requireView())
 
 
-       budgetAdapter = BudgetAlertAdapter(requireContext(),ArrayList(),navController) // Boş bir ArrayList ile BudgetAdapter oluştur
+       budgetAdapter = BudgetAlertAdapter(requireContext(),ArrayList(),navController)
 
         val recyclerView = binding.budgetAlertRecyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext())

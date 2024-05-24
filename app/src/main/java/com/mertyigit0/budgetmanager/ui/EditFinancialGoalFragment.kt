@@ -71,7 +71,7 @@ class EditFinancialGoalFragment : Fragment() {
                 targetAmount = updatedTargetAmount,
                 deadline = updatedDeadline,
                 percentage = updatedPercentage,
-                // Diğer alanlar için mevcut değerleri atayabilirsiniz veya boş bırakabilirsiniz
+
                 categoryId = financialGoal?.categoryId ?: 0,
                 createdAt = financialGoal?.createdAt ?: "",
                 currentAmount = financialGoal?.currentAmount ?: 0.0,

@@ -133,10 +133,10 @@ data class BudgetAlert(
 data class CombinedIncome(
     val id: Int,
     val userId: Int,
-    val title: String?,  // RegularIncome için alan
+    val title: String?,
     val amount: Double,
     val currency: String,
-    val recurrence: String?,  // RegularIncome için alan
+    val recurrence: String?,
     val date: String,
     val categoryId: Int,
     val categoryName: String,
@@ -147,10 +147,10 @@ data class CombinedIncome(
 data class CombinedExpense(
     val id: Int,
     val userId: Int,
-    val title: String?,  // Expense veya RecurringPayment için alan
+    val title: String?,
     val amount: Double,
     val currency: String,
-    val recurrence: String?,  // RecurringPayment için alan
+    val recurrence: String?,
     val date: String,
     val categoryId: Int,
     val categoryName: String,
@@ -158,5 +158,6 @@ data class CombinedExpense(
     val createdAt: String
 )
 
+data class CloudItem(val name: String, val description: String)
 
 

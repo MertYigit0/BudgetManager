@@ -1541,7 +1541,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
     }
 
 
-    // Kur verilerini veritabanına ekleyen işlev
+
     fun addExchangeRate(currencyCode: String, rate: Double) {
         val db = this.writableDatabase
         val values = ContentValues().apply {
@@ -1552,7 +1552,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db.close()
     }
 
-    // Veritabanından tüm kur verilerini okuyan işlev
+
     @SuppressLint("Range")
     fun getAllExchangeRates(): Map<String, Double> {
         val exchangeRates = mutableMapOf<String, Double>()
@@ -1634,23 +1634,23 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         }
         firstIncomeCursor.close()
 
-        // Calculate the number of days between the first income date and the current date
+
         val calendar = Calendar.getInstance()
         calendar.time = firstIncomeDate ?: currentDate
         val firstIncomeMonth = calendar.get(Calendar.MONTH)
         var currentMonth = calendar.get(Calendar.MONTH)
         val totalDays = if (currentMonth != Calendar.getInstance().get(Calendar.MONTH)) {
-            // If the current month is different from the first income month, calculate the days until the end of the month
+
             calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH))
             calendar.get(Calendar.DAY_OF_MONTH)
         } else {
-            // If the current month is the same as the first income month, calculate the days until today
+
             calendar.time = currentDate
             currentMonth = calendar.get(Calendar.MONTH)
             calendar.get(Calendar.DAY_OF_MONTH)
         }
 
-        // Get total regular income for the first income month
+
         val totalRegularIncomeQuery =
             "SELECT SUM($COLUMN_AMOUNT_REGULAR_INCOME) FROM $TABLE_REGULAR_INCOMES WHERE $COLUMN_USER_ID_REGULAR_INCOME = ?"
         val regularIncomeCursor = db.rawQuery(totalRegularIncomeQuery, arrayOf(userId.toString()))
@@ -1660,10 +1660,10 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         }
         regularIncomeCursor.close()
 
-        // Calculate daily regular income for the first income month
+
         var dailyRegularIncome = totalRegularIncome / calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
 
-        // Fill the list with daily incomes and regular incomes
+
         for (i in 0 until totalDays) {
             val dailyIncome = getDailyIncome(userId, calendar.time)
             incomesAndRegularIncomesList.add(dailyIncome + dailyRegularIncome)

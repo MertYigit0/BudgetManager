@@ -75,26 +75,26 @@ class ProfileFragment : Fragment() {
 
 
         binding.itemExportData.setOnClickListener {
-            // AlertDialog oluştur
+
             val builder = AlertDialog.Builder(requireContext())
             builder.setTitle("Export Options")
 
-            // Alert dialog içeriğini ayarla
+
             val view = layoutInflater.inflate(R.layout.export_dialog_layout, null)
             builder.setView(view)
 
-            // Spinner ve RadioGroup referanslarını al
+
             val spinner = view.findViewById<Spinner>(R.id.spinner)
             val radioGroup = view.findViewById<RadioGroup>(R.id.radioGroup)
 
-            // Spinner için adapter oluştur ve ayarla
+
             val months = arrayOf("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")
             val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, months)
             spinner.adapter = adapter
 
-            // Pozitif buton için tıklama olayını ayarla
+
             builder.setPositiveButton("Export") { dialog, _ ->
-                // Seçilen ayı ve seçilen radio button'u al
+
                 val selectedMonth = spinner.selectedItem.toString()
                 val radioButtonId = radioGroup.checkedRadioButtonId
                 val radioButton = view.findViewById<RadioButton>(radioButtonId)
@@ -171,7 +171,7 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    // Kullanıcının galerisini açma işlemi
+
     private fun openGallery() {
         val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
         startActivityForResult(intent, PICK_IMAGE_REQUEST)
@@ -180,7 +180,7 @@ class ProfileFragment : Fragment() {
 
 
 
-    // Kullanıcının galeriden resim seçtikten sonra geri dönüş işlemi
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -334,6 +334,14 @@ class ProfileFragment : Fragment() {
             // Dosyanın yüklendiği URL
             fileRef.downloadUrl.addOnSuccessListener { uri ->
                 val downloadUrl = uri.toString()
+                println(downloadUrl)
+
+
+                // Save download URL to SharedPreferences
+                val sharedPreferences = requireContext().getSharedPreferences("DownloadUrls", Context.MODE_PRIVATE)
+                val editor = sharedPreferences.edit()
+                editor.putString(fileName, downloadUrl)
+                editor.apply()
 
                 Toast.makeText(requireContext(), "Excel file uploaded to Firebase Storage. Download URL: $downloadUrl", Toast.LENGTH_SHORT).show()
             }.addOnFailureListener { exception ->

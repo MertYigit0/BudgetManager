@@ -71,6 +71,9 @@
         <action
             android:id="@+id/action_settingsFragment_to_currencyFragment"
             app:destination="@id/currencyFragment" />
+        <action
+            android:id="@+id/action_settingsFragment_to_cloudFragment"
+            app:destination="@id/cloudFragment" />
 
     </fragment>
     <fragment
@@ -253,5 +256,14 @@
         <action
             android:id="@+id/action_info2Fragment3_to_loginFragment"
             app:destination="@id/loginFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/cloudFragment"
+        android:name="com.mertyigit0.budgetmanager.ui.CloudFragment"
+        android:label="fragment_cloud"
+        tools:layout="@layout/fragment_cloud" >
+        <action
+            android:id="@+id/action_cloudFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
     </fragment>
 </navigation>

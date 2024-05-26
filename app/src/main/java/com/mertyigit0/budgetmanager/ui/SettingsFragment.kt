@@ -52,6 +52,10 @@ class SettingsFragment : Fragment() {
             startActivity(intent)
         }
 
+        binding.cardNotification.setOnClickListener{
+            navController.navigate(R.id.action_settingsFragment_to_cloudFragment)
+        }
+
 
 
 

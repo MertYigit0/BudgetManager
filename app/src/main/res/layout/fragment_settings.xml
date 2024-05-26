@@ -118,8 +118,9 @@
             <ImageView
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:layout_gravity="left|center"
-                android:src="@drawable/baseline_notifications_24"
+                android:layout_gravity="center"
+                android:layout_marginRight="80dp"
+                android:src="@drawable/baseline_cloud_24"
                 android:layout_marginLeft="110dp"
                 android:layout_marginTop="2dp"
                 android:scaleType="fitEnd"
@@ -130,7 +131,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="16dp"
-                android:text="Notification"
+                android:text="Download Cloud Data"
                 android:textSize="18sp" />
             <ImageView
                 android:layout_width="50dp"

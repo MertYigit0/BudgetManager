@@ -49,9 +49,9 @@ class ExpenseFragment : Fragment() {
     private lateinit var auth: FirebaseAuth
     private lateinit var expenseAdapter: ExpenseAdapter
 
-    private var currentYear: Int = 0 // Mevcut yılı saklamak için değişken
-    private var currentMonth: Int = 0 // Mevcut ayı saklamak için değişken
-    private var currentWeek: Int = 0 // Mevcut haftanın numarasını saklamak için değişken
+    private var currentYear: Int = 0
+    private var currentMonth: Int = 0
+    private var currentWeek: Int = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -80,15 +80,15 @@ class ExpenseFragment : Fragment() {
             ArrayList(),
             navController
 
-        ) // Boş bir ArrayList ile ExpenseAdapter oluştur
+        )
 
         val recyclerView = binding.expenseRecyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = expenseAdapter
 
         currentWeek = Calendar.getInstance().get(Calendar.WEEK_OF_YEAR)
-        currentMonth = Calendar.getInstance().get(Calendar.MONTH) + 1 // Mevcut ayı al (1 ile başlar, 0-based değil)
-        currentYear = Calendar.getInstance().get(Calendar.YEAR) // Mevcut yılı al
+        currentMonth = Calendar.getInstance().get(Calendar.MONTH) + 1
+        currentYear = Calendar.getInstance().get(Calendar.YEAR)
 
 
 
@@ -98,15 +98,15 @@ class ExpenseFragment : Fragment() {
         val dbHelper = DatabaseHelper(requireContext())
         val currentUserEmail = auth.currentUser?.email
         val userData = currentUserEmail?.let { dbHelper.getUserData(it) }
-        // Veritabanından tüm gelirleri al
+
         val expenses = userData?.let { dbHelper.getAllExpensesByUserId(it.id) }
         val regularExpenses = userData?.let { dbHelper.getAllRecurringPaymentsByUserId(it.id) }
         val combinedExpenses =  regularExpenses?.let { combineExpensesAndRecurringPayments(expenses ?: listOf(), it) }
 
 
-        // Gelir verilerini RecyclerView'a aktar
+
         combinedExpenses?.let { expenseAdapter.updateExpenseList(it) }
-        // Gelir verileri listesini oluştur
+
 
 
         binding.toggleButtonGroup.check(R.id.expensesButton)
@@ -123,17 +123,17 @@ class ExpenseFragment : Fragment() {
         chart_select()
 
         binding.buttonPreviousWeek.setOnClickListener {
-            // Önceki hafta butonuna tıklandığında yapılacak işlemler
+
             if (binding.barTypeSpinner.selectedItemPosition == 0) {
-                // Haftalık görünümdeyiz, haftayı bir önceki haftaya kaydır
+
                 currentWeek--
                 calculateAndDisplayWeeklyExpenses(binding.expenseBarChart)
                 updateWeekDatesText()
             } else if ((binding.barTypeSpinner.selectedItemPosition == 1)) {
-                // Aylık görünümdeyiz, mevcut ayı bir önceki aya kaydır
+
                 currentMonth--
                 if (currentMonth < 1) {
-                    currentMonth = 12 // 12'den küçükse, yılı bir azalt ve ayı Aralık yap
+                    currentMonth = 12
                     currentYear--
                 }
 
@@ -147,17 +147,17 @@ class ExpenseFragment : Fragment() {
         }
 
         binding.nextWeekButton.setOnClickListener {
-            // Önceki hafta butonuna tıklandığında yapılacak işlemler
+
             if (binding.barTypeSpinner.selectedItemPosition == 0) {
-                // Haftalık görünümdeyiz, haftayı bir önceki haftaya kaydır
+
                 currentWeek++
                 calculateAndDisplayWeeklyExpenses(binding.expenseBarChart)
                 updateWeekDatesText()
             } else if (binding.barTypeSpinner.selectedItemPosition == 1){
-                // Aylık görünümdeyiz, mevcut ayı bir önceki aya kaydır
+
                 currentMonth++
                 if (currentMonth > 12) {
-                    currentMonth = 1 // 12'den küçükse, yılı bir azalt ve ayı Aralık yap
+                    currentMonth = 1
                     currentYear++
                 }
                 calculateAndDisplayMonthlyExpenses(binding.expensePieChart)
@@ -185,15 +185,15 @@ class ExpenseFragment : Fragment() {
     }
 
 
-    // Kategoriye göre renk atayan yardımcı fonksiyon
+
     private fun getColorForCategory(categoryLabel: String): Int {
         val categoryIdStartIndex = categoryLabel.lastIndexOf("(") + 1
         val categoryIdEndIndex = categoryLabel.lastIndexOf(")")
         val categoryIdString = categoryLabel.substring(categoryIdStartIndex, categoryIdEndIndex)
-        val categoryId = categoryIdString.trim().toFloat() // Parantez içindeki kategori ID'sini al ve float'a çevir
-        // Kategori ID'sine göre renk belirle
+        val categoryId = categoryIdString.trim().toFloat()
+
         return when (categoryId) {
-            // Kategori ID'lerine göre renkleri belirle
+
             1f ->  ContextCompat.getColor(requireContext(), R.color.chart_green)
             2f ->  ContextCompat.getColor(requireContext(), R.color.chart_blue)
             3f ->  ContextCompat.getColor(requireContext(), R.color.chart_red)
@@ -207,14 +207,14 @@ class ExpenseFragment : Fragment() {
         }
     }
 
-    // Rastgele renkler üretmek için bir fonksiyon
+
     fun getRandomColor(): Int {
-        // Renkleri oluşturmak için rastgele RGB değerleri alın
+
         val r = Random.nextInt(256)
         val g = Random.nextInt(256)
         val b = Random.nextInt(256)
 
-        // RGB değerlerini tek bir Int olarak birleştirin ve döndürün
+
         return (0xFF shl 24) or (r shl 16) or (g shl 8) or b
     }
 
@@ -240,20 +240,20 @@ class ExpenseFragment : Fragment() {
 
         val entries = mutableListOf<PieEntry>()
 
-        // Her kategori için toplam miktarı pie chart'a ekle
+
         for ((categoryName, totalAmount) in categoryTotals) {
             entries.add(PieEntry(totalAmount, categoryName))
         }
 
-        // Veri setini oluştur
+
         val dataSet = PieDataSet(entries, "Expense")
 
-        // Kategori renklerini dataSet'e ekle
+
         dataSet.colors = entries.map { entry ->
             getColorForCategory(entry.label)
         }
 
-        //centertext
+
         val totalExpense = expenses?.sumOf { it.amount.toDouble() }
 
         val centerText = "Total Expense:\n${totalExpense ?: 0.0} USD"
@@ -292,19 +292,19 @@ class ExpenseFragment : Fragment() {
             }
         }
         val entries = mutableListOf<PieEntry>()
-        // Belirli bir ay için toplam miktarı pie chart'a ekle
+
         for ((categoryName, totalAmount) in monthYearTotals) {
-            val categoryID = dbHelper.getExpenseCategoryIdByCategoryName(categoryName) // Kategori adından ID'yi alabilirsiniz, kendi projenize göre uyarlayın
-            val entryLabel = "$categoryName ($categoryID)" // Kategori adı ve ID'sini birleştirin
+            val categoryID = dbHelper.getExpenseCategoryIdByCategoryName(categoryName)
+            val entryLabel = "$categoryName ($categoryID)"
             entries.add(PieEntry(totalAmount, entryLabel))
         }
-        // Veri setini oluştur
+
         val dataSet = PieDataSet(entries, "Expense")
-        // Kategori renklerini dataSet'e ekle
+
         dataSet.colors = entries.map { entry ->
             getColorForCategory(entry.label)
         }
-        // Centertext
+
         val totalExpense = monthYearTotals.values.sum()
         val centerText = "Total Expense:\n${totalExpense} USD"
         pieChart.centerText = centerText
@@ -314,7 +314,7 @@ class ExpenseFragment : Fragment() {
         pieChart.invalidate()
     }
 
-    // Tarih formatından ayı almak için yardımcı bir fonksiyon
+
     private fun getMonthFromDate(date: String): Int {
         val parts = date.split("-")
         return parts[1].toInt()
@@ -335,7 +335,7 @@ class ExpenseFragment : Fragment() {
 
         val weeklyExpensesMap = HashMap<Int, Float>()
 
-        // Harcamaları haftalara göre grupla
+
         expenses?.forEach { expense ->
             val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
             val date = dateFormat.parse(expense.date)
@@ -349,13 +349,13 @@ class ExpenseFragment : Fragment() {
             }
         }
 
-        // Eksik günler için 0 değeri ekle
+
         for (i in Calendar.SUNDAY..Calendar.SATURDAY) {
             if (!weeklyExpensesMap.containsKey(i)) {
                 weeklyExpensesMap[i] = 0f
             }
         }
-        // Haftanın günlerine göre harcamaları görselleştir
+
         displayWeeklyExpenses(barChart, weeklyExpensesMap)
     }
 
@@ -451,15 +451,15 @@ class ExpenseFragment : Fragment() {
     private fun updateWeekDatesText() {
         val calendar = Calendar.getInstance()
         calendar.set(Calendar.WEEK_OF_YEAR, currentWeek)
-        calendar.firstDayOfWeek = Calendar.MONDAY // Yılın ilk gününü Pazartesi olarak ayarla
+        calendar.firstDayOfWeek = Calendar.MONDAY
 
-        // İlk günü ayarla
+
         while (calendar.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY) {
             calendar.add(Calendar.DAY_OF_YEAR, -1)
         }
         val startDate = calendar.time
 
-        // Son günü ayarla
+
         while (calendar.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY) {
             calendar.add(Calendar.DAY_OF_YEAR, 1)
         }
@@ -495,11 +495,11 @@ class ExpenseFragment : Fragment() {
         val monthlyIncomes = ArrayList<Double>()
         val monthlyExpenses = ArrayList<Double>()
 
-        // Yatay kaydırma için gösterilecek maksimum ay sayısı
+
         val maxVisibleMonths = 12
 
         for (i in Calendar.JANUARY until Calendar.JANUARY + maxVisibleMonths) {
-            val month = i % 12 + 1 // Ay indeksi 0'dan başladığı için +1 ek
+            val month = i % 12 + 1
             val monthlyIncome = dbHelper.getTotalIncomeForMonth(userData?.id ?: -1, month)
             val monthlyExpense = dbHelper.getTotalExpenseInMonth(userData?.id ?: -1, month)
 
@@ -511,15 +511,15 @@ class ExpenseFragment : Fragment() {
         val incomeDataSet = BarDataSet(monthlyIncomes.mapIndexed { index, value -> BarEntry(index.toFloat(), value.toFloat()) }, "Income")
         val expenseDataSet = BarDataSet(monthlyExpenses.mapIndexed { index, value -> BarEntry(index.toFloat(), value.toFloat()) }, "Expense")
 
-        // Gelir ve gider renkleri
+
         incomeDataSet.color = ContextCompat.getColor(requireContext(), R.color.chart_green)
         expenseDataSet.color = ContextCompat.getColor(requireContext(), R.color.chart_red)
 
         val barData = BarData(incomeDataSet, expenseDataSet)
-        barData.barWidth = 0.35f // Barların genişliği
+        barData.barWidth = 0.35f
         barChart.data = barData
 
-        // Ay isimlerini ayarlayın
+
         val xAxis = barChart.xAxis
         xAxis.valueFormatter = IndexAxisValueFormatter(months)
         xAxis.position = XAxis.XAxisPosition.BOTTOM
@@ -527,13 +527,13 @@ class ExpenseFragment : Fragment() {
         xAxis.granularity = 1f
         xAxis.isGranularityEnabled = true
 
-        // Yatay kaydırma özelliklerini ayarlayın
-        barChart.setPinchZoom(true) // Yakınlaştırma ve kaydırma özelliğini etkinleştirir
-        barChart.isDragEnabled = true // Kaydırmayı etkinleştirir
-        barChart.setVisibleXRangeMaximum(maxVisibleMonths.toFloat())
-        barChart.moveViewToX(0f) // Başlangıç pozisyonunu ayarlar
 
-        barChart.groupBars(0f, 0.08f, 0.03f) // Gruplanmış veri setlerini ayarlar
+        barChart.setPinchZoom(true)
+        barChart.isDragEnabled = true
+        barChart.setVisibleXRangeMaximum(maxVisibleMonths.toFloat())
+        barChart.moveViewToX(0f)
+
+        barChart.groupBars(0f, 0.08f, 0.03f)
 
         barChart.invalidate()
     }
@@ -542,16 +542,16 @@ class ExpenseFragment : Fragment() {
     fun combineExpensesAndRecurringPayments(expenses: List<Expense>, recurringPayments: List<RecurringPayment>): List<CombinedExpense> {
         val combinedList = mutableListOf<CombinedExpense>()
 
-        // Giderleri CombinedExpense türüne dönüştür ve birleştir
+
         expenses.forEach { expense ->
             combinedList.add(
                 CombinedExpense(
                     id = expense.id,
                     userId = expense.userId,
-                    title = null,  // RecurringPayment alanları null olacak
+                    title = null,
                     amount = expense.amount,
                     currency = expense.currency,
-                    recurrence = null,  // RecurringPayment alanları null olacak
+                    recurrence = null,
                     date = expense.date,
                     categoryId = expense.categoryId,
                     categoryName = expense.categoryName,
@@ -561,7 +561,7 @@ class ExpenseFragment : Fragment() {
             )
         }
 
-        // Tekrarlayan ödemeleri CombinedExpense türüne dönüştür ve birleştir
+
         recurringPayments.forEach { recurringPayment ->
             combinedList.add(
                 CombinedExpense(
@@ -582,12 +582,6 @@ class ExpenseFragment : Fragment() {
 
         return combinedList
     }
-
-
-
-
-
-
 
 }
 

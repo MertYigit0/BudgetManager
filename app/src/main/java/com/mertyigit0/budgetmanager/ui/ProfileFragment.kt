@@ -57,8 +57,7 @@ class ProfileFragment : Fragment() {
         super.onCreate(savedInstanceState)
         arguments?.let {
         }
-
-        // FirebaseAuth örneğini al
+        
         auth = FirebaseAuth.getInstance()
 
     }
@@ -100,7 +99,7 @@ class ProfileFragment : Fragment() {
                 val radioButton = view.findViewById<RadioButton>(radioButtonId)
                 val selectedOption = radioButton.text.toString()
 
-                // createExcelFile() fonksiyonunu çağır
+
                // createExcelFile(selectedMonth, selectedOption)
                 //storeFirebase(selectedMonth, selectedOption )
                 createAndStoreExcelFile(selectedMonth,selectedOption)
@@ -113,7 +112,7 @@ class ProfileFragment : Fragment() {
                 dialog.dismiss() // Dialog'u kapat
             }
 
-            // AlertDialog'u göster
+
             val dialog = builder.create()
             dialog.show()
         }
@@ -139,15 +138,15 @@ class ProfileFragment : Fragment() {
         val userData = currentUserEmail?.let { dbHelper.getUserData(it) }
 
 
-        // Resmi yükleme işlemi
+
         Glide.with(this)
             .load( if (userData != null) {
                 userData.photo
             } else {
                 userData?.photo ?: R.drawable.avatar2
             }
-            ) // Yüklenecek resmin byte dizisi
-            .into(binding.userImage) // Resmin yükleneceği ImageView
+            )
+            .into(binding.userImage)
 
         displayUserData()
 
@@ -185,19 +184,19 @@ class ProfileFragment : Fragment() {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
-            // Seçilen resmi işle
+
             val selectedImageUri = data.data
             selectedImageUri?.let { uri ->
-                // URI'den Bitmap oluşturma
+
                 val bitmap = MediaStore.Images.Media.getBitmap(requireContext().contentResolver, uri)
-                // Bitmap'i byte dizisine dönüştürme
+
                 val outputStream = ByteArrayOutputStream()
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
                 val imageBytes = outputStream.toByteArray()
 
                 imageByte = imageBytes
 
-                // SQLite veritabanına resmi kaydetme işlemi
+
 
                 val dbHelper = DatabaseHelper(requireContext())
                 val currentUserEmail = auth.currentUser?.email
@@ -208,10 +207,10 @@ class ProfileFragment : Fragment() {
                     dbHelper.addPhotoToUser(currentUserEmail,imageBytes)
 
 
-                    // Resmi yükleme işlemi
+
                     Glide.with(this)
-                        .load(imageBytes) // Yüklenecek resmin byte dizisi
-                        .into(binding.userImage) // Resmin yükleneceği ImageView
+                        .load(imageBytes)
+                        .into(binding.userImage)
 
                 }
             }
@@ -238,7 +237,7 @@ class ProfileFragment : Fragment() {
         val userData = currentUserEmail?.let { dbHelper.getUserData(it) }
         val userId = userData?.id
 
-        // Kullanıcının seçtiği ay için gelir ve giderleri al
+
         val (incomes, expenses) = when (selectedOption) {
             "Incomes" -> {
                 val monthIndex = getMonthIndex(selectedMonth)
@@ -259,11 +258,11 @@ class ProfileFragment : Fragment() {
             }
         }
 
-        // Excel dosyasını oluştur
+
         val workbook = XSSFWorkbook()
         val sheet = workbook.createSheet("Transactions")
 
-        // Başlık satırını oluştur
+
         val headerRow = sheet.createRow(0)
         headerRow.createCell(0).setCellValue("Amount")
         headerRow.createCell(1).setCellValue("Currency")
@@ -271,7 +270,7 @@ class ProfileFragment : Fragment() {
         headerRow.createCell(3).setCellValue("Date")
         headerRow.createCell(4).setCellValue("Note")
 
-        // Verileri yazdır
+
         var rowIndex = 1
         if (incomes != null) {
             for (income in incomes) {
@@ -284,14 +283,14 @@ class ProfileFragment : Fragment() {
             }
         }
 
-        // Boş bir satır ekle
+
         val emptyRow = sheet.createRow(rowIndex++)
         for (i in 0 until 5) {
             emptyRow.createCell(i).setCellValue("")
         }
 
         if (expenses != null) {
-            // Giderlerin başına "Expenses" yaz
+
             val expensesRow = sheet.createRow(rowIndex++)
             expensesRow.createCell(0).setCellValue("Expenses")
             expensesRow.createCell(1).setCellValue("")
@@ -325,19 +324,19 @@ class ProfileFragment : Fragment() {
         fileOutputStream.close()
         workbook.close()
 
-        // Firebase Storage'a dosyayı yükle
+
         val fileUri = Uri.fromFile(file)
         val uploadTask = fileRef.putFile(fileUri)
 
 
         uploadTask.addOnSuccessListener { taskSnapshot ->
-            // Dosyanın yüklendiği URL
+
             fileRef.downloadUrl.addOnSuccessListener { uri ->
                 val downloadUrl = uri.toString()
                 println(downloadUrl)
 
 
-                // Save download URL to SharedPreferences
+
                 val sharedPreferences = requireContext().getSharedPreferences("DownloadUrls", Context.MODE_PRIVATE)
                 val editor = sharedPreferences.edit()
                 editor.putString(fileName, downloadUrl)

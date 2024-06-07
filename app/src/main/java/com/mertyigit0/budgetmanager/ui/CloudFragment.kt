@@ -31,10 +31,10 @@ class CloudFragment : Fragment() {
 
         binding.cloudRecyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        // Fetch the items from SharedPreferences
+
         val items = getDownloadUrlsFromPreferences()
 
-        // Initialize the adapter with the fetched items
+
         val adapter = CloudAdapter(items)
         binding.cloudRecyclerView.adapter = adapter
     }

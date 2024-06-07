@@ -147,16 +147,16 @@ class FinancialGoalDetailFragment : Fragment() {
         // Apache Common Maths kütüphanesini kullanarak basit lineer regresyon modeli oluştur
         val regression = SimpleRegression()
 
-        // Günlük gelir verilerini regresyon modeline ekle
+
         for (i in dailyIncomes.indices) {
             regression.addData(i.toDouble(), dailyIncomes[i])
         }
 
-        // Regresyon modelini kullanarak gelecek günlerdeki gelirleri tahmin et
+
         val nextDayIndex = dailyIncomes.size
         val nextDayIncome = regression.predict(nextDayIndex.toDouble())
 
-        // Önceki günlerdeki gelirlerin toplamının hedef tutarı ulaşacağı tahmini gün sayısı
+
         var totalIncome = 0.0
         var days = 0
         while (totalIncome < targetAmount) {
@@ -164,12 +164,12 @@ class FinancialGoalDetailFragment : Fragment() {
             days++
         }
 
-        // Eğim negatif mi kontrol et
+
         if (regression.slope < 0) {
-            // Negatif eğim durumu için kullanıcıya uyarı ver
+
             binding.EstimatedDayRegression.text = "Estimated Days: Uncertain due to decreasing income trend"
         } else {
-            // Eğim pozitif ise veya sıfırsa tahmini gün sayısını göster
+
             if (dailyIncomes.size < 10) {
                 binding.EstimatedDayRegression.text = "Estimated Days: Not enough data for forecasting (Linear Regression)"
             } else {

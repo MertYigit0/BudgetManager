@@ -1,8 +1,11 @@
 package com.mertyigit0.budgetmanager.adapters
 
+import android.content.Intent
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.mertyigit0.budgetmanager.R
@@ -12,7 +15,7 @@ class CloudAdapter(private val items: List<CloudItem>) : RecyclerView.Adapter<Cl
 
     class CloudViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val nameTextView: TextView = itemView.findViewById(R.id.nameTextView)
-        val descriptionTextView: TextView = itemView.findViewById(R.id.descriptionTextView)
+        val descriptionButton: Button = itemView.findViewById(R.id.descriptionButton)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CloudViewHolder {
@@ -23,7 +26,10 @@ class CloudAdapter(private val items: List<CloudItem>) : RecyclerView.Adapter<Cl
     override fun onBindViewHolder(holder: CloudViewHolder, position: Int) {
         val item = items[position]
         holder.nameTextView.text = item.name
-        holder.descriptionTextView.text = item.description
+        holder.descriptionButton.setOnClickListener {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(item.description))
+            holder.itemView.context.startActivity(intent)
+        }
     }
 
     override fun getItemCount(): Int {

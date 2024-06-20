@@ -67,7 +67,7 @@ class FinancialGoalFragment : Fragment() {
         // Layout yöneticisini ayarla (Dikey olarak sıralama)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        // Adapter oluşturulmadan önce öncelikle başlatılmalı
+
         adapter = FinancialGoalAdapter(requireContext(),financialGoals,navController)
 
         // RecyclerView'e adapter'ı bağla
@@ -84,7 +84,7 @@ class FinancialGoalFragment : Fragment() {
             }
         }
 
-        // Adapter oluşturulduktan sonra kullanılabilir
+
         binding.addFinancialGoalButton.setOnClickListener{
             navController.navigate(R.id.action_financialGoalFragment_to_addFinancialGoalFragment)
 
@@ -149,7 +149,7 @@ class FinancialGoalFragment : Fragment() {
 */
     fun getAllIncomesAndExpensesForMonths(userId: Int, startMonth: Int, endMonth: Int): Pair<List<Double>, List<Double>> {
 
-        val dbHelper = DatabaseHelper(requireContext()) // DatabaseHelper sınıfının bir örneğini oluştur
+        val dbHelper = DatabaseHelper(requireContext())
         val allIncomeData = mutableListOf<Double>()
         val allExpenseData = mutableListOf<Double>()
 

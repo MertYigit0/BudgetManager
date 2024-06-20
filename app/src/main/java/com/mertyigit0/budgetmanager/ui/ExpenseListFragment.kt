@@ -68,7 +68,7 @@ class ExpenseListFragment : Fragment() {
 
         binding.sortSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                // Kullanıcının seçtiği sıralama türü
+
                 val selectedType = parent?.getItemAtPosition(position).toString()
 
                 // Gelirleri seçilen tipe göre yeniden düzenle ve güncelle
@@ -77,7 +77,7 @@ class ExpenseListFragment : Fragment() {
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
-                // Bir şey seçilmediğinde yapılacaklar (opsiyonel)
+
             }
         }
 

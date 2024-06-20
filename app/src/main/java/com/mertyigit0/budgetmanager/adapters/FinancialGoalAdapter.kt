@@ -37,7 +37,7 @@ class FinancialGoalAdapter(private val context: Context, private val financialGo
         val currentFinancialGoal = financialGoals[position]
         holder.bind(currentFinancialGoal)
 
-        // Menü düğmesine tıklama dinleyicisi ekleme
+
         holder.menuButton.setOnClickListener {
             // PopupMenu oluşturma
             val popupMenu = PopupMenu(context, holder.menuButton)
@@ -173,10 +173,10 @@ class FinancialGoalAdapter(private val context: Context, private val financialGo
 
         val regression = SimpleRegression()
 
-        // Gelir verileri yeterli mi kontrol et
+
         if (dailyIncomes.size < 10) {
             println("aaaaaaaaaaa"+regression.slope) 
-            return -2 // -2 kodu, yetersiz veri durumunu temsil eder
+            return -2
         }
 
         // Günlük gelir verilerini regresyon modeline ekle
@@ -185,8 +185,8 @@ class FinancialGoalAdapter(private val context: Context, private val financialGo
         }
 
         if (regression.slope < 0) {
-            println("aaaaaaaaaaa"+regression.slope) // Eğim değerini yazdırın
-            return -1 // -1 kodu, negatif eğim durumunu temsil eder
+
+            return -1
         }
 
         // Regresyon modelini kullanarak gelecek günlerdeki gelirleri tahmin et
@@ -209,9 +209,7 @@ class FinancialGoalAdapter(private val context: Context, private val financialGo
             days++
         }
 
-        // Eğim negatif mi kontrol et
 
-        // Tahmini gün sayısından mevcut gün sayısını çıkararak gelecekte kaç gün olduğunu bul
         return days - dailyIncomes.size
     }
 

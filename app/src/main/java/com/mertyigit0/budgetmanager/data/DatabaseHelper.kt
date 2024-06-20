@@ -300,7 +300,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
         db?.execSQL(CREATE_EXPENSES_TABLE)
 
-        // Expense Categories Table Creation
+
         val CREATE_EXPENSE_CATEGORIES_TABLE = ("CREATE TABLE $TABLE_EXPENSE_CATEGORIES(" +
                 "$COLUMN_ID_EXPENSE_CATEGORY INTEGER PRIMARY KEY," +
                 "$COLUMN_USER_ID_EXPENSE_CATEGORY INTEGER NOT NULL," +
@@ -309,7 +309,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
         db?.execSQL(CREATE_EXPENSE_CATEGORIES_TABLE)
 
-        // Income categories table creation
+
         val CREATE_INCOME_CATEGORIES_TABLE = ("CREATE TABLE $TABLE_INCOME_CATEGORIES(" +
                 "$COLUMN_ID_INCOME_CATEGORY INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "$COLUMN_USER_ID_INCOME_CATEGORY INTEGER NOT NULL," +
@@ -342,7 +342,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db?.execSQL("DROP TABLE IF EXISTS $TABLE_EXCHANGE_RATES")
 
 
-        // Yeniden oluştur
+
         onCreate(db)
     }
     fun addUser(user: User): Boolean {
@@ -357,8 +357,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         val success = try {
             db.insertOrThrow(TABLE_USERS, null, values)
         } catch (e: SQLException) {
-            // Hata durumunda burada işlem yapılabilir
-            // Örneğin: Loglama veya hata mesajı gösterme
+
             e.printStackTrace()
             -1
         } finally {
@@ -378,8 +377,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         val success = try {
             db.update(TABLE_USERS, values, whereClause, whereArgs)
         } catch (e: SQLException) {
-            // Hata durumunda burada işlem yapılabilir
-            // Örneğin: Loglama veya hata mesajı gösterme
+
             e.printStackTrace()
             -1
         } finally {
@@ -404,13 +402,13 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
     fun addIncome(income: Income): Boolean {
         val values = ContentValues().apply {
             put(COLUMN_AMOUNT_INCOME, income.amount)
-            put(COLUMN_USER_ID_INCOME, income.userId) // Kullanıcı kimliği eklendi
-            put(COLUMN_CURRENCY_INCOME, income.currency) // Para birimi eklendi
+            put(COLUMN_USER_ID_INCOME, income.userId)
+            put(COLUMN_CURRENCY_INCOME, income.currency)
             put(COLUMN_DATE_INCOME, income.date)
             put(COLUMN_CATEGORY_ID_INCOME, income.categoryId)
             put(COLUMN_CATEGORY_NAME_INCOME, income.categoryName)
             put(COLUMN_NOTE_INCOME, income.note)
-            put(COLUMN_CREATED_AT_INCOME, income.createdAt) // Oluşturulma tarihi eklendi
+            put(COLUMN_CREATED_AT_INCOME, income.createdAt)
         }
 
         val db = this.writableDatabase
@@ -482,10 +480,10 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         contentValues.put(COLUMN_CATEGORY_ID_RECURRING_PAYMENT, recurringPayment.categoryId)
         contentValues.put(COLUMN_CATEGORY_NAME_RECURRING_PAYMENT, recurringPayment.categoryName)
 
-        // Tabloya veriyi ekle
+
         val result = db.insert(TABLE_RECURRING_PAYMENTS, null, contentValues)
 
-        // Ekleme işlemi başarılı olduysa true döndür, aksi halde false döndür
+
         return result != -1L
     }
 
@@ -552,10 +550,10 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         val whereClause = "$COLUMN_ID_RECURRING_PAYMENT = ?"
         val whereArgs = arrayOf(recurringPaymentId.toString())
 
-        // Tablodan veriyi sil
+
         val result = db.delete(TABLE_RECURRING_PAYMENTS, whereClause, whereArgs)
 
-        // Silme işlemi başarılı olduysa true döndür, aksi halde false döndür
+
         return result > 0
     }
 
@@ -629,7 +627,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                     cursor.getString(cursor.getColumnIndex(COLUMN_CATEGORY_NAME_INCOME)),
                     cursor.getString(cursor.getColumnIndex(COLUMN_DATE_INCOME)),
                     cursor.getString(cursor.getColumnIndex(COLUMN_NOTE_INCOME)),
-                    cursor.getString(cursor.getColumnIndex(COLUMN_CREATED_AT_INCOME)) // Oluşturulma tarihi eklendi
+                    cursor.getString(cursor.getColumnIndex(COLUMN_CREATED_AT_INCOME))
                 )
                 incomesList.add(income)
             } while (cursor.moveToNext())
@@ -678,7 +676,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             put(COLUMN_CATEGORY_ID_REGULAR_INCOME, regularIncome.categoryId)
             put(COLUMN_CATEGORY_NAME_REGULAR_INCOME, regularIncome.categoryName)
         }
-        // Güncelleme işlemi yapılır
+
         db.update(
             TABLE_REGULAR_INCOMES,
             values,
@@ -874,7 +872,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 val photoByteArray = if (!cursor.isNull(photoBlobIndex)) {
                     cursor.getBlob(photoBlobIndex).copyOf()
                 } else {
-                    null // Fotoğraf sütunu null ise null döndür
+                    null
                 }
                 user = User(id, userEmail, createdAt, currency, notificationEnabled, photoByteArray)
             }
@@ -1032,7 +1030,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             put(COLUMN_USER_ID_BUDGET_ALERT, budgetAlert.userId)
             put(COLUMN_ALERT_TYPE_BUDGET_ALERT, budgetAlert.alertType)
             put(COLUMN_MESSAGE_BUDGET_ALERT, budgetAlert.message)
-            put(COLUMN_CATEGORY_ID_BUDGET_ALERT, budgetAlert.categoryId) // categoryId kullanıldı
+            put(COLUMN_CATEGORY_ID_BUDGET_ALERT, budgetAlert.categoryId)
             put(COLUMN_TARGET_AMOUNT_BUDGET_ALERT, budgetAlert.targetAmount)
             put(COLUMN_CURRENT_AMOUNT_BUDGET_ALERT, budgetAlert.currentAmount)
             put(COLUMN_CURRENCY_BUDGET_ALERT,budgetAlert.currency)
@@ -1090,7 +1088,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
         for (category in defaultCategories) {
             val values = ContentValues().apply {
-                put(COLUMN_USER_ID_INCOME_CATEGORY, userId) // Kullanıcı kimliği eklendi
+                put(COLUMN_USER_ID_INCOME_CATEGORY, userId)
                 put(COLUMN_NAME_INCOME_CATEGORY, category)
             }
             db.insert(TABLE_INCOME_CATEGORIES, null, values)
@@ -1137,7 +1135,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
         for (category in defaultCategories) {
             val values = ContentValues().apply {
-                put(COLUMN_USER_ID_EXPENSE_CATEGORY, userId) // Kullanıcı kimliği eklendi
+                put(COLUMN_USER_ID_EXPENSE_CATEGORY, userId)
                 put(COLUMN_NAME_EXPENSE_CATEGORY, category)
             }
             db.insert(TABLE_EXPENSE_CATEGORIES, null, values)
@@ -1308,7 +1306,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
     fun getTotalExpenseForCategoryInCurrentMonth(userId: Int, categoryId: Int): Double {
         val db = this.readableDatabase
-        val currentDate = getCurrentDate() // Bu ayın ilk günü ve son günü alınır
+        val currentDate = getCurrentDate()
         val selectQuery = "SELECT SUM($COLUMN_AMOUNT_EXPENSE) FROM $TABLE_EXPENSES WHERE $COLUMN_USER_ID_EXPENSE = ? AND $COLUMN_CATEGORY_ID_EXPENSE = ? AND $COLUMN_DATE_EXPENSE BETWEEN ? AND ?"
         val cursor = db.rawQuery(selectQuery, arrayOf(userId.toString(), categoryId.toString(), currentDate.first, currentDate.second))
         var totalExpense = 0.0
@@ -1471,7 +1469,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             put(COLUMN_CATEGORY_ID_INCOME, income.categoryId)
             put(COLUMN_CATEGORY_NAME_INCOME, income.categoryName)
             put(COLUMN_NOTE_INCOME, income.note)
-            // Diğer sütunları da buraya ekleyin, gerektiği şekilde
+
         }
 
         val whereClause = "$COLUMN_ID_INCOME = ?"
@@ -1492,7 +1490,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             put(COLUMN_CATEGORY_ID_EXPENSE, expense.categoryId)
             put(COLUMN_CATEGORY_NAME_EXPENSE, expense.categoryName)
             put(COLUMN_NOTE_EXPENSE, expense.note)
-            // Diğer sütunları da buraya ekleyin, gerektiği şekilde
+
         }
 
         val whereClause = "$COLUMN_ID_EXPENSE = ?"
@@ -1536,7 +1534,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         val newRowId = db.insert(TABLE_REGULAR_INCOMES, null, values)
         db.close()
 
-        // Ekleme işlemi başarılı ise newRowId -1'den farklıdır
+
         return newRowId != -1L
     }
 
@@ -1618,12 +1616,12 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
     fun getIncomesAndRegularIncomesToList(userId: Int): List<Double> {
         val incomesAndRegularIncomesList = ArrayList<Double>()
 
-        // Get current date
+
         val currentDate = Calendar.getInstance().time
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val currentDateStr = dateFormat.format(currentDate)
 
-        // Get the first income date for the user
+
         val db = this.readableDatabase
         val firstIncomeDateQuery = "SELECT MIN($COLUMN_DATE_INCOME) FROM $TABLE_INCOMES WHERE $COLUMN_USER_ID_INCOME = ?"
         val firstIncomeCursor = db.rawQuery(firstIncomeDateQuery, arrayOf(userId.toString()))
@@ -1668,10 +1666,10 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             val dailyIncome = getDailyIncome(userId, calendar.time)
             incomesAndRegularIncomesList.add(dailyIncome + dailyRegularIncome)
 
-            // Get the next day
+
             calendar.add(Calendar.DAY_OF_MONTH, 1)
             if (calendar.get(Calendar.MONTH) != currentMonth) {
-                // If a new month is reached, recalculate daily regular income for the new month
+
                 currentMonth = calendar.get(Calendar.MONTH)
                 dailyRegularIncome = getMonthlyRegularIncome(userId, calendar.time)
             }
@@ -1724,13 +1722,13 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
         val dailyIncomeList = ArrayList<Pair<String, Double>>()
 
-        // Get the financial goal's creation date
+
         val goalCreationDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(financialGoal.createdAt)
 
-        // Get the current date
+
         val currentDate = Calendar.getInstance().time
 
-        // Get the dates between the creation date of the financial goal and the current date
+
         val calendar = Calendar.getInstance()
         if (goalCreationDate != null) {
             calendar.time = goalCreationDate
@@ -1740,14 +1738,13 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         while (calendar.time.before(currentDate) || calendar.time == currentDate) {
             val dateString = dateFormat.format(calendar.time)
 
-            // Get the total income for the current date and the specified category ID
+
             val dailyIncome = getTotalIncomeForDateAndCategory(userId, dateString, financialGoal.categoryId) /financialGoal.percentage
 
-            // Add the daily income to the list as a pair of date and income
+
             dailyIncomeList.add(dateString to dailyIncome)
 
 
-            // Move to the next day
             calendar.add(Calendar.DAY_OF_MONTH, 1)
         }
 
@@ -1775,32 +1772,32 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
         val dailyIncomeList = ArrayList<Pair<String, Double>>()
 
-        // Get the financial goal's creation date
+
         val goalCreationDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(financialGoal.createdAt)
 
-        // Get the current date
+
         val currentDate = Calendar.getInstance().time
 
-        // Get the dates between the creation date of the financial goal and the current date
+
         val calendar = Calendar.getInstance()
         if (goalCreationDate != null) {
             calendar.time = goalCreationDate
         }
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
-        // Get the total regular income for the user and category
+
         val totalRegularIncome = getTotalRegularIncomeForCategory(userId, financialGoal.categoryId)
 
-        // Calculate daily income by dividing the total regular income by 30
+
         val dailyRegularIncome = totalRegularIncome / 30.0
 
         while (calendar.time.before(currentDate) || calendar.time == currentDate) {
             val dateString = dateFormat.format(calendar.time)
 
-            // Add the daily regular income to the list as a pair of date and income
+
             dailyIncomeList.add(dateString to dailyRegularIncome)
 
-            // Move to the next day
+
             calendar.add(Calendar.DAY_OF_MONTH, 1)
         }
 
@@ -1852,15 +1849,6 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
         return combinedIncomeList
     }
-
-
-
-
-
-
-
-
-
 
 }
 

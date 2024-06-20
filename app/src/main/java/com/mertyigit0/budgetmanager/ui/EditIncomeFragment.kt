@@ -47,7 +47,7 @@ class EditIncomeFragment : Fragment() {
 
             val income = dbHelper.getIncomeById(incomeId)
 
-            // Gelir verilerini görsel öğelerle doldur
+
             if (income != null) {
                 binding.amountEditText.setText(String.format("%.2f", income.amount))
                 binding.editTextText.setText(income.note)
@@ -83,13 +83,13 @@ class EditIncomeFragment : Fragment() {
 
             val regularIncome = dbHelper.getRegularIncomeById(regularIncomeId)
 
-            // Düzenli gelir verilerini görsel öğelerle doldur
+
             if (regularIncome != null) {
                 binding.amountEditText.setText(String.format("%.2f", regularIncome.amount))
                 binding.editTextTitle.setText(regularIncome.title)
                 binding.dateTextView.text = regularIncome.date
 
-                // Düzenleme butonuna tıklandığında yapılacak işlemler
+
                 binding.addButton.setOnClickListener {
                     val updatedAmount = binding.amountEditText.text.toString().toDouble()
                     val updatedTitle = binding.editTextTitle.text.toString()

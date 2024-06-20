@@ -100,7 +100,7 @@ class ExpenseAdapter(val context: Context, private val expenseList: ArrayList<Co
 }
 
 
-// ExpenseSwipeToDeleteCallback sınıfını tanımlayın
+
 class ExpenseSwipeToDeleteCallback(private val adapter: ExpenseAdapter) :
     ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
 
@@ -122,7 +122,7 @@ class ExpenseSwipeToDeleteCallback(private val adapter: ExpenseAdapter) :
 
 
         val isDeletedFromDatabase = if (deletedExpense.recurrence == null) {
-            // Eğer recurrence değeri null ise deleteRegularIncome
+
             dbHelper.deleteExpense(deletedExpense.id.toLong())
         } else {
 

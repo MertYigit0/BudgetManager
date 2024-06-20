@@ -24,11 +24,11 @@ class SplashScreenActivity : AppCompatActivity() {
         setContentView(R.layout.activity_splash_screen)
 
         auth = Firebase.auth
-        // SplashActivity içinde SharedPreferences kullanarak giriş sayısını takip etme
+
         val sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
         var entryCount = sharedPreferences.getInt("entryCount", 0)
 
-// Giriş sayısını artırma
+
         entryCount++
         sharedPreferences.edit().putInt("entryCount", entryCount).apply()
 

@@ -89,9 +89,7 @@ class AddFinancialGoalFragment : Fragment() {
     }
 
 
-    // Örnek olarak bir Fragment sınıfı içinde
 
-    // Eklemek için tıklandığında çağrılan bir fonksiyon
     fun addFinancialGoal() {
         val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
         val userId = currentUserEmail?.let { dbHelper.getUserData(it) }?.id ?: -1
@@ -127,14 +125,14 @@ class AddFinancialGoalFragment : Fragment() {
             targetAmount = targetAmountInUserCurrency, // Dönüştürülmüş hedef miktarını ata
             currentAmount = 0.0,
             deadline = deadline,
-            createdAt = "", // Bu alan veritabanında otomatik ayarlanacağı için boş geçilebilir
+            createdAt = "",
             categoryId = categoryId,
             percentage = percentage,
             photo = imageByte,
             currency = userCurrency // Kullanıcının belirlediği para birimini kullan
         )
 
-        // Yeni finansal hedefi veritabanına ekleyin
+
         val dbHelper = DatabaseHelper(requireContext())
         val success = dbHelper.addFinancialGoal(newGoal)
 
@@ -169,11 +167,11 @@ class AddFinancialGoalFragment : Fragment() {
         val datePickerDialog = DatePickerDialog(
             requireContext(),
             { _, selectedYear, selectedMonth, selectedDay ->
-                // Tarihi doğru formatta ayarlayın
+
                 val formattedMonth = String.format("%02d", selectedMonth + 1)
                 val formattedDay = String.format("%02d", selectedDay)
                 selectedDate = "$selectedYear-$formattedMonth-$formattedDay"
-                binding.dateTextView.text = selectedDate // Seçilen tarihi bir TextView'a yazdırın
+                binding.dateTextView.text = selectedDate
             },
             year,
             month,

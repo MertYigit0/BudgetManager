@@ -50,7 +50,7 @@ class FinancialGoalDetailFragment : Fragment() {
         val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
         val userData = currentUserEmail?.let { dbHelper.getUserData(it) }
 
-        // Kullanıcı verileri ve finansal hedef ID'si null değilse işleme devam et
+
         if (userData != null && financialGoalId != null) {
             // Finansal hedefin günlük gelir listesini al
             val dailyIncomeList = dbHelper.getCombinedDailyAndRegularIncomeForFinancialGoalById(userData.id, financialGoalId)
@@ -61,7 +61,7 @@ class FinancialGoalDetailFragment : Fragment() {
             }
 
 
-            // Günlük gelir listesi boş değilse işleme devam et
+
             if (dailyIncomeList.isNotEmpty()) {
                 // Günlük gelir listesinden gelirleri alarak yeni bir liste oluştur
                 val incomeList = mutableListOf<Double>()
@@ -77,7 +77,7 @@ class FinancialGoalDetailFragment : Fragment() {
                     // LineChart'ı güncelle
                     predictLineChart(dailyIncomeList, incomeList, financialGoal)
 
-                    // Ortalama gelir tahmini fonksiyonunu çağır ve tahmini gün sayısını hesapla
+
                     val averageDays = averageIncomeForecast(incomeList, financialGoal.targetAmount,financialGoal.currentAmount)
                 }
             }
@@ -113,8 +113,8 @@ class FinancialGoalDetailFragment : Fragment() {
             entries.add(Entry(index.toFloat(), income.second.toFloat()))
         }
         val dataSet = LineDataSet(entries, "Current Amount")
-        dataSet.lineWidth = 3f // Çizgilerin kalınlığını ayarla
-        dataSet.color = Color.BLUE // Çizgilerin rengini lacivert olarak ayarla
+        dataSet.lineWidth = 3f // Çizgilerin kalınlığını
+        dataSet.color = Color.BLUE
         val data = LineData(dataSet)
         lineChart.data = data
 
@@ -122,7 +122,7 @@ class FinancialGoalDetailFragment : Fragment() {
         val targetAmount = financialGoal.targetAmount
         val futureDays = linearRegressionForecast(incomeList, targetAmount)
 
-        // LineChart'a hedefe ulaşılmasına kaç gün kaldığını gösteren bir çizgi ekle
+
         val futureEntries: ArrayList<Entry> = ArrayList()
         for (i in dailyIncomeList.indices) {
             futureEntries.add(
@@ -144,7 +144,7 @@ class FinancialGoalDetailFragment : Fragment() {
 
 /*
     private fun linearRegressionForecast(dailyIncomes: List<Double>, targetAmount: Double): Int {
-        // Apache Common Maths kütüphanesini kullanarak basit lineer regresyon modeli oluştur
+
         val regression = SimpleRegression()
 
 
@@ -182,26 +182,26 @@ class FinancialGoalDetailFragment : Fragment() {
 
  */
 private fun linearRegressionForecast(dailyIncomes: List<Double>, targetAmount: Double): Int {
-    // Apache Common Maths kütüphanesini kullanarak basit lineer regresyon modeli oluştur
+
     val regression = SimpleRegression()
 
     // Gelir verileri yeterli mi kontrol et
     if (dailyIncomes.size < 10) {
-        println("aaaaaaaaaaa"+regression.slope) // Eğim değerini yazdırın
-        return -2 // -2 kodu, yetersiz veri durumunu temsil eder
+        println("aaaaaaaaaaa"+regression.slope)
+        return -2
     }
 
-    // Günlük gelir verilerini regresyon modeline ekle
+
     for (i in dailyIncomes.indices) {
         regression.addData(i.toDouble(), dailyIncomes[i])
     }
 
     if (regression.slope < 0) {
-        println("aaaaaaaaaaa"+regression.slope) // Eğim değerini yazdırın
-        return -1 // -1 kodu, negatif eğim durumunu temsil eder
+        println("aaaaaaaaaaa"+regression.slope)
+        return -1
     }
 
-    // Regresyon modelini kullanarak gelecek günlerdeki gelirleri tahmin et
+
     val nextDayIndex = dailyIncomes.size
     val nextDayIncome = regression.predict(nextDayIndex.toDouble())
 
@@ -213,7 +213,7 @@ private fun linearRegressionForecast(dailyIncomes: List<Double>, targetAmount: D
 
      */
 
-    // Önceki günlerdeki gelirlerin toplamının hedef tutarı ulaşacağı tahmini gün sayısı
+
     var totalIncome = 0.0
     var days = 0
     while (totalIncome < targetAmount) {
@@ -221,10 +221,7 @@ private fun linearRegressionForecast(dailyIncomes: List<Double>, targetAmount: D
         days++
     }
 
-    // Eğim negatif mi kontrol et
 
-
-    // Tahmini gün sayısından mevcut gün sayısını çıkararak gelecekte kaç gün olduğunu bul
     return days - dailyIncomes.size
 
 }
@@ -237,10 +234,10 @@ private fun linearRegressionForecast(dailyIncomes: List<Double>, targetAmount: D
         if (userData != null) {
             val dailyIncomeList = dbHelper.getCombinedDailyAndRegularIncomeForFinancialGoalById(userData.id, financialGoalId)
 
-            println("Daily Income List: $dailyIncomeList") // dailyIncomeList'i yazdır
+            println("Daily Income List: $dailyIncomeList")
 
             if (dailyIncomeList.isEmpty()) {
-               binding.EstimatedDayRegression.text = "No income data available" // Gelir verisi bulunamadı uyarısı
+               binding.EstimatedDayRegression.text = "No income data available"
                 return
             }
 

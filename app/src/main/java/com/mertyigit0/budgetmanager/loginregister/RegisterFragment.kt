@@ -121,10 +121,10 @@ class RegisterFragment : Fragment() {
         val success = dbHelper.addUser(newUser)
 
         if (success) {
-            // Kullanıcı başarıyla eklendi
+
             Toast.makeText(requireContext(), "Kullanıcı başarıyla kaydedildi", Toast.LENGTH_SHORT).show()
         } else {
-            // Kullanıcı eklenirken bir hata
+
             Toast.makeText(requireContext(), "Kullanıcı kaydedilirken bir hata oluştu", Toast.LENGTH_SHORT).show()
         }
     }

@@ -137,7 +137,7 @@ class AddIncomeFragment : Fragment() {
 
 
 
-    // addIncomeToDatabase fonksiyonunu güncelleyin
+
     private fun addIncomeToDatabase(amount: Double, category: String, categoryId: Int, date: String, description: String?, currency: String, userCurrency: String): Boolean {
         val dbHelper = DatabaseHelper(requireContext())
         val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
@@ -208,8 +208,8 @@ class AddIncomeFragment : Fragment() {
             financialGoals.forEach { goal ->
                 if (goal.categoryId == categoryId) {
                     val updatedAmount = amount * (goal.percentage.toDouble() / 100) // Gelir miktarını yüzdeyle çarp
-                    goal.currentAmount += updatedAmount // Finansal hedefin mevcut tutarına ekleyin
-                    dbHelper.updateFinancialGoal(goal) // Güncellenmiş finansal hedefi veritabanına kaydet
+                    goal.currentAmount += updatedAmount
+                    dbHelper.updateFinancialGoal(goal)
                 }
             }
 
@@ -223,7 +223,7 @@ class AddIncomeFragment : Fragment() {
     }
 
 
-    // getUserCurrency fonksiyonunu ekleyin
+
     private fun getUserCurrency(): String {
         val dbHelper = DatabaseHelper(requireContext())
         val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
@@ -250,12 +250,12 @@ class AddIncomeFragment : Fragment() {
             amountInUSD * exchangeRateToUserCurrency
         }
 
-        // Dönüştürülen miktarı en fazla iki basamaklı bir string olarak biçimlendir
+
         val formattedAmount = String.format(Locale.ENGLISH, "%.2f", convertedAmount)
 
         val amountAsDouble = formattedAmount.toDouble()
 
-        // Dönüştürülen miktar ve para birimini ekranda göstermek için string oluştur
+
         val equivalentAmountText = "$formattedAmount $userCurrency"
 
         val regularIncome = RegularIncome(
@@ -329,7 +329,7 @@ class AddIncomeFragment : Fragment() {
         val datePickerDialog = DatePickerDialog(
             requireContext(),
             { _, selectedYear, selectedMonth, selectedDay ->
-                // Tarihi doğru formatta ayarlayın
+
                 val formattedMonth = String.format("%02d", selectedMonth + 1)
                 val formattedDay = String.format("%02d", selectedDay)
                 selectedDate = "$selectedYear-$formattedMonth-$formattedDay"
@@ -373,11 +373,11 @@ class AddIncomeFragment : Fragment() {
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
             button.setOnClickListener {
-                // Buttona tıklandığında yapılacak işlemler
+
                 showSnackbar("Clicked: $category")
             }
 
-            // ToggleGroup'a butonları ekleme işlemi
+
             binding.toggleButtonGroup.addView(button)
         }
     }
@@ -446,9 +446,9 @@ class AddIncomeFragment : Fragment() {
         // Kullanıcının regular gelirlerini al
         val regularIncomes = userData?.let { dbHelper.getAllRegularIncomesByUserId(it.id) }
 
-        // Regular gelirleri işleyerek, otomatik gelir eklemesi yap
+
         regularIncomes?.forEach { regularIncome ->
-            // Gelirin tekrarlanma sıklığına göre zamanlayıcıyı ayarla
+
             when (regularIncome.recurrence) {
                 "Once a week" -> {
                     // Haftalık gelir, her hafta ekle
@@ -458,23 +458,21 @@ class AddIncomeFragment : Fragment() {
                     // Aylık gelir, her ay ekle
                     scheduleMonthlyIncome(regularIncome)
                 }
-                // Diğer tekrarlanma sıklıklarına göre işlem yapılabilir
+
             }
         }
     }
 
     private fun scheduleWeeklyIncome(regularIncome: RegularIncome) {
-        // Haftalık gelirin eklenmesi için bir zamanlayıcı kur
-        // Başlangıç zamanını belirle
+
         val startTime = System.currentTimeMillis()
 
-        // AlarmScheduler objesini kullanarak zamanlayıcıyı ayarla
+
         AlarmScheduler.scheduleRepeatingIncome(requireContext(), regularIncome.id, startTime, AlarmScheduler.ONCE_A_WEEK)
     }
 
     private fun scheduleMonthlyIncome(regularIncome: RegularIncome) {
-        // Aylık gelirin eklenmesi için bir zamanlayıcı kur
-        // Başlangıç zamanını belirle
+
         val startTime = Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY, 0) // Saat 00:00 olarak ayarla
             set(Calendar.MINUTE, 0)
@@ -482,7 +480,7 @@ class AddIncomeFragment : Fragment() {
             set(Calendar.DAY_OF_MONTH, 1) // Ayın ilk günü
         }.timeInMillis
 
-        // AlarmScheduler objesini kullanarak zamanlayıcıyı ayarla
+
         AlarmScheduler.scheduleRepeatingIncome(requireContext(), regularIncome.id, startTime, AlarmScheduler.ONCE_A_MONTH)
     }
 

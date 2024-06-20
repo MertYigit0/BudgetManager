@@ -100,7 +100,7 @@ class IncomeAdapter(val context: Context, private val incomeList: ArrayList<Comb
 
 
 }
-// IncomeSwipeToDeleteCallback sınıfını tanımlayın
+
 class IncomeSwipeToDeleteCallback(private val adapter: IncomeAdapter) :
     ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
 
@@ -121,7 +121,7 @@ class IncomeSwipeToDeleteCallback(private val adapter: IncomeAdapter) :
         val dbHelper = DatabaseHelper(adapter.context)
 
         val isDeletedFromDatabase = if (deletedIncome.recurrence == null) {
-            // Eğer recurrence değeri null ise, deleteRegularIncome fonksiyonunu çağır
+
             dbHelper.deleteIncome(deletedIncome.id.toLong())
         } else {
             // Eğer recurrence değeri null değilse, deleteIncome fonksiyonunu çağır
@@ -141,7 +141,7 @@ class IncomeSwipeToDeleteCallback(private val adapter: IncomeAdapter) :
                     dbHelper.updateFinancialGoal(goal) // Güncellenmiş finansal hedefi veritabanına kaydet
                 }
             }
-            // Silme işlemi başarılı oldu, PieChart'ı güncelle
+
         }
     }
 

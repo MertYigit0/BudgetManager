@@ -4,6 +4,25 @@ The Budget Management Application is an Android app developed in Kotlin that hel
 
 <img src="https://github.com/user-attachments/assets/7bf563a2-c4b3-4aac-a2a6-f7b1689c59db" width="1000" height="400">
 
+## 	:gear: Library Versions :  
+| Library | Version |  
+| ----------------- | ----------------- |  
+| Core KTX | 1.9.0 |  
+| Material | 1.11.0 |  
+| ConstraintLayout | 2.1.4 |  
+| Navigation Component | 2.7.7 |  
+| MPAndroidChart | 3.1.0 |  
+| SQLite KTX | 2.4.0 |  
+| Firebase BOM | 32.7.4 |  
+| Retrofit | 2.11.0 |  
+| Retrofit Gson Converter | 2.11.0 |  
+| Retrofit RxJava Adapter | 2.11.0 |  
+| RxJava | 2.2.21 |  
+| RxAndroid | 2.1.1 |  
+| Glide | 4.16.0 |  
+| Apache POI | 5.2.4 |  
+| Apache POI-OOXML | 5.2.4 |  
+| Apache Commons Math3 | 3.6.1 |  
 
 
 
